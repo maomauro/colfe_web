@@ -1,4 +1,6 @@
 <?php
+
+date_default_timezone_set('America/Bogota'); // O la zona horaria de tu país
 session_start();
 /*
     if (!isset($_SESSION["iniciarSesion"])) {
