@@ -5,7 +5,7 @@ require_once "conexion.php";
 class Modeloliquidacion
 {
     /*=============================================
-    MOSTRAR RECOLECCION
+    MOSTRAR LIQUIDACION
     =============================================*/
     static public function mdlMostrarLiquidacion($item, $valor)
     {
@@ -96,5 +96,35 @@ class Modeloliquidacion
         // $stmt->close(); // Opcional en PDO, no es necesario
 
         $stmt = null; // Buena práctica para liberar el recurso
+    }
+
+
+    /*=============================================
+    TOTAL LIQUIDACION
+    =============================================*/
+    static public function mdlTotalLiquidacion()
+    {
+        $stmt = Conexion::conectar()->prepare("
+            SELECT
+                vinculacion,
+                quincena,
+                fecha_liquidacion,
+                SUM(total_litros) AS total_litros,
+                SUM(neto_a_pagar) AS total_neto
+            FROM
+                tbl_liquidacion
+            WHERE
+                fecha_liquidacion >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+            GROUP BY
+                vinculacion, quincena, fecha_liquidacion
+            ORDER BY
+                fecha_liquidacion, quincena, vinculacion;
+
+        ");
+    
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->close();
+        $stmt = null;
     }
 }

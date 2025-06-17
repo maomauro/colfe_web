@@ -11,4 +11,13 @@ class ControladorLiquidacion
         return $respuesta;
     }
    
+    /*=============================================
+    TOTAL LIQUIDACIONES
+    =============================================*/
+    static public function ctrTotalLiquidacion()
+    {
+        $respuesta = ModeloLiquidacion::mdlTotalLiquidacion();
+        return $respuesta;
+    }
+
 }
