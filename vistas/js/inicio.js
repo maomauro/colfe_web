@@ -1,11 +1,8 @@
 $(function () {
     $.getJSON('api/apiTotalLiquidacion.php', function (data) {
 
-        //-------------------------
-        //- AREA CHART PROVEEDOR  -
-        //-------------------------
+        // ----------- AREA CHART PROVEEDOR -----------
         var produccionPorMes = {};
-
         data.forEach(function (item) {
             var mes = item.fecha_liquidacion.substring(0, 7);
             if (!produccionPorMes[mes]) {
@@ -14,11 +11,9 @@ $(function () {
             var tipo = item.vinculacion.toLowerCase();
             produccionPorMes[mes][tipo] += parseFloat(item.total_litros) / 1000;
         });
-
         var labels = Object.keys(produccionPorMes).sort();
         var asociadosData = labels.map(mes => produccionPorMes[mes].asociado);
         var proveedoresData = labels.map(mes => produccionPorMes[mes].proveedor);
-
         var areaChartData = {
             labels: labels,
             datasets: [
@@ -44,7 +39,6 @@ $(function () {
                 }
             ]
         };
-
         var areaChartOptions = {
             showScale: true,
             scaleShowGridLines: false,
@@ -65,14 +59,13 @@ $(function () {
             responsive: true,
             multiTooltipTemplate: "<%= datasetLabel %>: <%= Number(value).toFixed(2).replace(/\\B(?=(\\d{3})+(?!\\d))/g, ',') %>"
         };
+        if ($('#areaChartProduccion').length) {
+            var areaChartCanvas = $('#areaChartProduccion').get(0).getContext('2d');
+            var areaChart = new Chart(areaChartCanvas);
+            areaChart.Line(areaChartData, areaChartOptions);
+        }
 
-        var areaChartCanvas = $('#areaChartProduccion').get(0).getContext('2d');
-        var areaChart = new Chart(areaChartCanvas);
-        areaChart.Line(areaChartData, areaChartOptions);
-
-        //-------------------------
-        //- BAR CHART ASOCIADOS -
-        //-------------------------
+        // ----------- BAR CHART ASOCIADOS -----------
         var netoPorQuincena = {};
         data.forEach(function (item) {
             if (item.vinculacion.toLowerCase() === 'asociado') {
@@ -83,12 +76,9 @@ $(function () {
                 netoPorQuincena[key] += parseFloat(item.total_neto) / 1000; // En miles
             }
         });
-
         var quincenas = Object.keys(netoPorQuincena).sort();
-        var netos = quincenas.map(q => Number(netoPorQuincena[q])); // <-- SOLO NÚMEROS
-
+        var netos = quincenas.map(q => Number(netoPorQuincena[q]));
         var colores = quincenas.map(q => q.includes('1ra') ? '#3c8dbc' : '#00a65a');
-
         var barChartDataAsociados = {
             labels: quincenas,
             datasets: [
@@ -101,7 +91,6 @@ $(function () {
                 }
             ]
         };
-
         var barChartOptionsAsociados = {
             scaleBeginAtZero: true,
             scaleShowGridLines: true,
@@ -116,21 +105,17 @@ $(function () {
             legendTemplate: '<ul class="<%=name.toLowerCase()%>-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].fillColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>',
             responsive: true,
             maintainAspectRatio: true,
-            // Cambia aquí:
             tooltipTemplate: "<%if (label){%><%= label %>: <%}%>$<%= Number(value).toFixed(2).replace(/\\B(?=(\\d{3})+(?!\\d))/g, ',') %>"
         };
-
         barChartOptionsAsociados.datasetFill = false;
+        if ($('#barChartAsociados').length) {
+            var barChartCanvasAsociados = $('#barChartAsociados').get(0).getContext('2d');
+            var barChartAsociados = new Chart(barChartCanvasAsociados);
+            barChartAsociados.Bar(barChartDataAsociados, barChartOptionsAsociados);
+        }
 
-        var barChartCanvasAsociados = $('#barChartAsociados').get(0).getContext('2d');
-        var barChartAsociados = new Chart(barChartCanvasAsociados);
-        barChartAsociados.Bar(barChartDataAsociados, barChartOptionsAsociados);
-
-        //--------------------------
-        //- AREA CHART LIQUIDACION -
-        //--------------------------
+        // ----------- BAR CHART LIQUIDACION -----------
         var netoPorMes = {};
-
         data.forEach(function (item) {
             var mes = item.fecha_liquidacion.substring(0, 7);
             if (!netoPorMes[mes]) {
@@ -139,11 +124,9 @@ $(function () {
             var tipo = item.vinculacion.toLowerCase();
             netoPorMes[mes][tipo] += parseFloat(item.total_neto) / 1000;
         });
-
         var labels = Object.keys(netoPorMes).sort();
         var asociadosData = labels.map(mes => netoPorMes[mes].asociado);
         var proveedoresData = labels.map(mes => netoPorMes[mes].proveedor);
-
         var barChartData = {
             labels: labels,
             datasets: [
@@ -163,7 +146,6 @@ $(function () {
                 }
             ]
         };
-
         var barChartOptions = {
             scaleBeginAtZero: true,
             scaleShowGridLines: true,
@@ -180,17 +162,14 @@ $(function () {
             maintainAspectRatio: true,
             multiTooltipTemplate: "<%= datasetLabel %>: $<%= Number(value).toFixed(2).replace(/\\B(?=(\\d{3})+(?!\\d))/g, ',') %>"
         };
-
         barChartOptions.datasetFill = false;
+        if ($('#barChartLiquidacion').length) {
+            var barChartCanvas = $('#barChartLiquidacion').get(0).getContext('2d');
+            var barChart = new Chart(barChartCanvas);
+            barChart.Bar(barChartData, barChartOptions);
+        }
 
-        var barChartCanvas = $('#barChartLiquidacion').get(0).getContext('2d');
-        var barChart = new Chart(barChartCanvas);
-        barChart.Bar(barChartData, barChartOptions);
-
-
-        //-------------------------
-        //- BAR CHART PROVEEDORES -
-        //-------------------------
+        // ----------- BAR CHART PROVEEDORES -----------
         var netoPorQuincena = {};
         data.forEach(function (item) {
             if (item.vinculacion.toLowerCase() === 'proveedor') {
@@ -201,12 +180,9 @@ $(function () {
                 netoPorQuincena[key] += parseFloat(item.total_neto) / 1000; // En miles
             }
         });
-
         var quincenas = Object.keys(netoPorQuincena).sort();
-        var netos = quincenas.map(q => Number(netoPorQuincena[q])); // <-- SOLO NÚMEROS
-
+        var netos = quincenas.map(q => Number(netoPorQuincena[q]));
         var colores = quincenas.map(q => q.includes('1ra') ? '#3c8dbc' : '#00a65a');
-
         var barChartDataProveedores = {
             labels: quincenas,
             datasets: [
@@ -219,7 +195,6 @@ $(function () {
                 }
             ]
         };
-
         var barChartOptionsProveedores = {
             scaleBeginAtZero: true,
             scaleShowGridLines: true,
@@ -234,17 +209,13 @@ $(function () {
             legendTemplate: '<ul class="<%=name.toLowerCase()%>-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].fillColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>',
             responsive: true,
             maintainAspectRatio: true,
-            // Cambia aquí:
             tooltipTemplate: "<%if (label){%><%= label %>: <%}%>$<%= Number(value).toFixed(2).replace(/\\B(?=(\\d{3})+(?!\\d))/g, ',') %>"
         };
-
         barChartOptionsProveedores.datasetFill = false;
-
-        var barChartCanvasProveedores = $('#barChartProveedores').get(0).getContext('2d');
-        var barChartProveedores = new Chart(barChartCanvasProveedores);
-        barChartProveedores.Bar(barChartDataProveedores, barChartOptionsProveedores);
-
+        if ($('#barChartProveedores').length) {
+            var barChartCanvasProveedores = $('#barChartProveedores').get(0).getContext('2d');
+            var barChartProveedores = new Chart(barChartCanvasProveedores);
+            barChartProveedores.Bar(barChartDataProveedores, barChartOptionsProveedores);
+        }
     });
 });
-
-
