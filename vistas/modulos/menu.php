@@ -53,6 +53,12 @@
                     <span>Liquidación</span>
                 </a>
             </li>
+            <li>
+                <a href="prediccion">
+                    <i class="fa fa-line-chart"></i>
+                    <span>Predicción</span>
+                </a>
+            </li>
             <li class="treeview">
                 <a href="#">
                     <i class="fa fa-list-ul"></i>

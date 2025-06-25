@@ -42,6 +42,8 @@ session_start();
     <link rel="stylesheet" href="vistas/bower_components/fullcalendar/dist/fullcalendar.print.min.css" media="print">
     <!-- Estilo personalizado -->
     <link rel="stylesheet" href="vistas/css/editar.css">
+    <!-- Calendario -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 
     <!-- ===================== PLUGINS DE JAVASCRIPT ===================== -->
     <!-- jQuery -->
@@ -78,6 +80,15 @@ session_start();
     <script src="vistas/bower_components/moment/moment.js"></script>
     <script src="vistas/bower_components/fullcalendar/dist/fullcalendar.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/locale/es.js"></script>
+    <!-- Estilos personalizados -->
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+    <style>
+        /* Asegura que el datepicker esté por encima del modal Bootstrap */
+        .ui-datepicker {
+        z-index: 1060 !important;
+        }
+    </style>
 </head>
 
 <!--===================================================
@@ -108,6 +119,7 @@ session_start();
                 $_GET["ruta"] == "deducibles" ||
                 $_GET["ruta"] == "precios" ||
                 $_GET["ruta"] == "liquidacion" ||
+                $_GET["ruta"] == "prediccion" ||
                 $_GET["ruta"] == "reporte-1" ||
                 $_GET["ruta"] == "reporte-2" ||
                 $_GET["ruta"] == "reporte-3" ||
@@ -140,5 +152,6 @@ session_start();
     <script src="vistas/js/deducibles.js"></script>
     <script src="vistas/js/precios.js"></script>
     <script src="vistas/js/liquidacion.js"></script>
+    <script src="vistas/js/prediccion.js"></script>
 </body>
 </html>
