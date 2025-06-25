@@ -1,6 +1,11 @@
 $(function () {
     $.getJSON('api/apiTotalLiquidacion.php', function (data) {
 
+        // --- FILTRAR SOLO LOS ÚLTIMOS 6 MESES ---
+        var mesesUnicos = Array.from(new Set(data.map(item => item.fecha_liquidacion.substring(0, 7)))).sort();
+        var ultimos6Meses = mesesUnicos.slice(-6);
+        data = data.filter(item => ultimos6Meses.includes(item.fecha_liquidacion.substring(0, 7)));
+
         // ----------- AREA CHART PROVEEDOR -----------
         var produccionPorMes = {};
         data.forEach(function (item) {
@@ -14,6 +19,7 @@ $(function () {
         var labels = Object.keys(produccionPorMes).sort();
         var asociadosData = labels.map(mes => produccionPorMes[mes].asociado);
         var proveedoresData = labels.map(mes => produccionPorMes[mes].proveedor);
+        
         var areaChartData = {
             labels: labels,
             datasets: [

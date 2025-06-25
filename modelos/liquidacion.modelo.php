@@ -105,21 +105,15 @@ class Modeloliquidacion
     static public function mdlTotalLiquidacion()
     {
         $stmt = Conexion::conectar()->prepare("
-            SELECT
-                vinculacion,
-                quincena,
-                fecha_liquidacion,
-                SUM(total_litros) AS total_litros,
-                SUM(neto_a_pagar) AS total_neto
-            FROM
-                tbl_liquidacion
-            WHERE
-                fecha_liquidacion >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
-            GROUP BY
-                vinculacion, quincena, fecha_liquidacion
-            ORDER BY
-                fecha_liquidacion, quincena, vinculacion;
-
+            SELECT	vinculacion,
+    		        quincena,
+    		        fecha_liquidacion,
+    		        SUM(total_litros) AS total_litros,
+    		        SUM(neto_a_pagar) AS total_neto
+            FROM	tbl_liquidacion
+            WHERE	estado = 'liquidacion'
+            GROUP 	BY vinculacion, quincena, fecha_liquidacion
+            ORDER 	BY fecha_liquidacion, quincena, vinculacion;
         ");
     
         $stmt->execute();
