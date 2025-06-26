@@ -8,7 +8,7 @@ $(function () {
         dateFormat: "yy-mm-dd",
         minDate: minDate,
         maxDate: maxDate,
-        appendTo: 'body', // <-- Esto soluciona el problema de z-index
+        appendTo: 'body', // Esto soluciona el problema de z-index
         beforeShowDay: function (date) {
             var day = date.getDate();
             var month = date.getMonth();
@@ -40,12 +40,9 @@ $(document).ready(function () {
         var fecha_liquidacion = $('input[name="fechaQuincena"]').val();
         var total_litros = $('input[name="totalLitros"]').val();
 
-        if (fecha_liquidacion != 15) {
-            var quincena = "1ra";
-        } else {
-            var quincena = "2da";
-        }
-
+        // Determina la quincena según el día seleccionado
+        var dia = parseInt(fecha_liquidacion.split('-')[2]);
+        var quincena = (dia === 15) ? "1ra" : "2da";
 
         var datos = {
             "quincena": quincena,
@@ -62,9 +59,8 @@ $(document).ready(function () {
                 $('#respuestaPrediccion')
                     .removeClass('alert-danger').addClass('alert-info')
                     .html(
-                        'Para la <strong>' + quincena + ' quincena</strong> con ' +
-                        'fecha de liquidación: <strong>' + fecha_liquidacion + '</strong>, ' +
-                        'el total neto a pagar sería: <strong>$' +
+                        'Para la fecha de liquidación <strong>' + fecha_liquidacion + '</strong> quincena <strong>' + quincena +
+                        '</strong>, el total neto a pagar sería: <strong>$' +
                         Number(respuesta.prediccion_total_neto).toLocaleString('es-MX', { minimumFractionDigits: 2 }) +
                         '</strong>'
                     )
@@ -108,6 +104,7 @@ $('#btnReentrenar').on('click', function() {
         },
         complete: function() {
             $btn.prop('disabled', false);
+            $('#modalReentrenarModelo').modal('hide'); // Cierra el modal al finalizar
             console.log('Petición AJAX finalizada');
         }
     });

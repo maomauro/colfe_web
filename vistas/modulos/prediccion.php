@@ -23,11 +23,10 @@
         <button class="btn btn-primary" data-toggle="modal" data-target="#modalModeloLiquidacion">
           Pronosticar Quincena Proveedores
         </button>
-        <div id="respuestaPrediccion" class="alert alert-info" style="display:none; margin-top:10px"></div>
-        <!-- Botón para abrir el modal -->
         <button class="btn btn-success" data-toggle="modal" data-target="#modalReentrenarModelo" style="margin-left:10px;">
           Reentrenar Modelo
         </button>
+        <div id="respuestaPrediccion" class="alert alert-info" style="display:none; margin-top:10px"></div>
       </div>
 
       <div class="box-body">
