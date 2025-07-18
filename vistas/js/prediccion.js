@@ -28,11 +28,15 @@ $(function () {
 });
 
 $(document).ready(function () {
-    // Inicializa DataTable con orden descendente en la columna "Fecha Liquidación"
-    if ($('.tablas').length > 0) {
+    // Inicializa DataTable específicamente para tablas de predicción
+    // Solo inicializar si no hay otras instancias de DataTable ya configuradas
+    if ($('.tablas').length > 0 && !$.fn.DataTable.isDataTable('.tablas')) {
         $('.tablas').DataTable({
             "order": [[3, "desc"]],
-            "destroy": true
+            "destroy": true,
+            "language": {
+                "url": "vistas/js/i18n/es-ES.json"
+            }
         });
     }
 

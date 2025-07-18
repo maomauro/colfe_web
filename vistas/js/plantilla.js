@@ -7,7 +7,9 @@ $('.sidebar-menu').tree()
 =                 Data Table                          =
 =====================================================*/
 if ($('.tablas').length > 0) {
-    $('.tablas').DataTable({
+    // Solo inicializar DataTable si no hay una instancia previa
+    if (!$.fn.DataTable.isDataTable('.tablas')) {
+        $('.tablas').DataTable({
         "language": {
             "decimal": ",",
             "thousands": ".",
@@ -53,5 +55,6 @@ if ($('.tablas').length > 0) {
                 }
             }
         }
-    });
+        });
+    }
 }
