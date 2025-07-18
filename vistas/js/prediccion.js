@@ -29,10 +29,12 @@ $(function () {
 
 $(document).ready(function () {
     // Inicializa DataTable con orden descendente en la columna "Fecha Liquidación"
-    $('.tablas').DataTable({
-        "order": [[3, "desc"]],
-        "destroy": true // Permite reinicializar sin error
-    });
+    if ($('.tablas').length > 0) {
+        $('.tablas').DataTable({
+            "order": [[3, "desc"]],
+            "destroy": true
+        });
+    }
 
     $('#formPrediccion').on('submit', function (e) {
         e.preventDefault();
