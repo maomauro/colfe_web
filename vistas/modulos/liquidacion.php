@@ -80,18 +80,18 @@ if (!empty($liquidaciones) && isset($liquidaciones[0]["fecha_liquidacion"])) {
           <thead>
             <tr>
               <th style="width:10px">#</th>
-              <th>Nombre</th>
-              <th>Apellido</th>
-              <th>Identificación</th>
-              <th>Teléfono</th>
-              <th>Vinculación</th>
-              <th>Total Litros</th>
-              <th>Precio Litro</th>
-              <th>Total Ingresos</th>
-              <th>Fedegan</th>
-              <th>Administración</th>
+                             <th>Nombre</th>
+               <th>Apellido</th>
+                              <th>Identificación</th>
+               <th>Vinc.</th>
+               <th>Total Litros</th>
+               <th>Precio Litro</th>
+               <th>Total Ingresos</th>
+               <th>Fedegan</th>
+               <th>Admin.</th>
               <th>Ahorro</th>
               <th>Total Deducibles</th>
+              <th>Total Anticipos</th>
               <th>Neto a Pagar</th>
               <th>Estado</th>
             </tr>
@@ -108,18 +108,18 @@ if (!empty($liquidaciones) && isset($liquidaciones[0]["fecha_liquidacion"])) {
               echo ' 
                 <tr>
                   <td>' . ($key + 1) . '</td>
-                  <td>' . $value["nombre"] . '</td>
-                  <td>' . $value["apellido"] . '</td>
-                  <td>' . $value["identificacion"] . '</td>
-                  <td>' . $value["telefono"] . '</td>
-                  <td>' . $value["vinculacion"] . '</td>
+                                     <td>' . $value["nombre"] . '</td>
+                   <td>' . $value["apellido"] . '</td>
+                   <td>' . $value["identificacion"] . '</td>
+                   <td>' . $value["vinculacion"] . '</td>
                   <td style="background-color:#fff3cd; font-weight:bold;">' . $value["total_litros"] . '</td>
                   <td>' . $value["precio_litro"] . '</td>
                   <td style="background-color:#e6e6fa; font-weight:bold;">$' . number_format($value["total_ingresos"], 2, '.', ',') . '</td>                              
                   <td>' . $value["fedegan"] . '</td>
                   <td>' . $value["administracion"] . '</td>
                   <td>' . $value["ahorro"] . '</td>                        
-                  <td style="background-color:#ffe5b4; font-weight:bold;">$' . number_format($value["total_deducibles"], 2, '.', ',') . '</td>            
+                  <td style="background-color:#ffe5b4; font-weight:bold;">$' . number_format($value["total_deducibles"], 2, '.', ',') . '</td>
+                  <td style="background-color:#f8d7da; font-weight:bold;">$' . number_format($value["total_anticipos"] ?? 0, 2, '.', ',') . '</td>            
                   <td style="background-color:#d4edda; font-weight:bold;">$' . number_format($value["neto_a_pagar"], 2, '.', ',') . '</td>';
               if ($value["estado"] != "liquidacion") {
                 echo '<td><button class="btn btn-danger btn-xs btnConfirmarLiquidacion" idLiquidacion="' . $value["id_liquidacion"] . '" estadoLiquidacion="liquidacion">Liquidar</button></td>';
@@ -132,6 +132,7 @@ if (!empty($liquidaciones) && isset($liquidaciones[0]["fecha_liquidacion"])) {
               } else if ($value["vinculacion"] == "proveedor") {
                 $totalPagoProveedores += $value["neto_a_pagar"];
               }
+              
             }
 
             $totalPago = $totalPagoAsociados + $totalPagoProveedores;
@@ -157,11 +158,11 @@ if (!empty($liquidaciones) && isset($liquidaciones[0]["fecha_liquidacion"])) {
                               Total Paga Proveedores: <span class="total-litros" data-total-litros="' . $totalPagoProveedores . '">$' . number_format($totalPagoProveedores, 2, '.', ',') . '</span>
                             </span>
                           </div>';
-                    echo '<div class="col-md-12">
-                            <span class="btn btn-info" style="cursor:default; font-size:16px; font-weight:bold; width:100%;">
-                              Total Liquidación: <span class="total-litros" data-total-litros="' . $totalPago . '">$' . number_format($totalPago, 2, '.', ',') . '</span>
-                            </span>
-                          </div>';
+                                         echo '<div class="col-md-12" style="margin-bottom:5px;">
+                             <span class="btn btn-info" style="cursor:default; font-size:16px; font-weight:bold; width:100%;">
+                               Total Liquidación: <span class="total-litros" data-total-litros="' . $totalPago . '">$' . number_format($totalPago, 2, '.', ',') . '</span>
+                             </span>
+                           </div>';
                   }
                   ?>
                 </div>

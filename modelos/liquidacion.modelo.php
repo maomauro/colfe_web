@@ -26,6 +26,7 @@ class Modeloliquidacion
                         l.administracion, 
                         l.ahorro, 
                         l.total_deducibles, 
+                        COALESCE(l.total_anticipos, 0.00) as total_anticipos,
                         l.neto_a_pagar, 
                         l.estado,
                         l.id_liquidacion 
@@ -54,6 +55,7 @@ class Modeloliquidacion
                         l.administracion, 
                         l.ahorro, 
                         l.total_deducibles, 
+                        COALESCE(l.total_anticipos, 0.00) as total_anticipos,
                         l.neto_a_pagar, 
                         l.estado,
                         l.id_liquidacion 

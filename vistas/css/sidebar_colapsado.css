@@ -1,0 +1,65 @@
+/*=====================================================
+=                 SIDEBAR COLAPSADO POR DEFECTO       =
+=====================================================*/
+
+/* Forzar el sidebar colapsado por defecto en pantallas grandes */
+@media (min-width: 768px) {
+    /* Estado colapsado por defecto */
+    body.sidebar-collapse {
+        padding-left: 0 !important;
+    }
+    
+    body.sidebar-collapse .content-wrapper,
+    body.sidebar-collapse .right-side,
+    body.sidebar-collapse .main-footer {
+        margin-left: 50px !important;
+    }
+    
+    body.sidebar-collapse .main-sidebar {
+        width: 50px !important;
+    }
+    
+    body.sidebar-collapse .main-header .logo {
+        width: 50px !important;
+    }
+    
+    body.sidebar-collapse .main-header .navbar {
+        margin-left: 50px !important;
+    }
+    
+    /* Ocultar texto del sidebar en modo colapsado */
+    body.sidebar-collapse .sidebar-menu > li > a > span,
+    body.sidebar-collapse .sidebar-menu > li > .treeview-menu,
+    body.sidebar-collapse .sidebar-menu > li > a > .pull-right,
+    body.sidebar-collapse .sidebar-menu > li > a > span > .pull-right,
+    body.sidebar-collapse .sidebar-menu li.header,
+    body.sidebar-collapse .user-panel > .info,
+    body.sidebar-collapse .sidebar-form {
+        display: none !important;
+    }
+    
+    /* Mostrar solo iconos en modo colapsado */
+    body.sidebar-collapse .sidebar-menu > li > a > i {
+        display: inline-block !important;
+    }
+}
+
+/* Mantener comportamiento normal en móviles */
+@media (max-width: 767px) {
+    .main-sidebar {
+        -webkit-transform: translate(-230px, 0) !important;
+        -ms-transform: translate(-230px, 0) !important;
+        -o-transform: translate(-230px, 0) !important;
+        transform: translate(-230px, 0) !important;
+    }
+    
+    body {
+        padding-left: 0 !important;
+    }
+    
+    .content-wrapper,
+    .right-side,
+    .main-footer {
+        margin-left: 0 !important;
+    }
+}

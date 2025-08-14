@@ -4,11 +4,26 @@
 $('.sidebar-menu').tree()
 
 /*=====================================================
+=                 SIDEBAR COLAPSADO POR DEFECTO       =
+=====================================================*/
+$(document).ready(function() {
+    // Asegurar que el sidebar esté colapsado por defecto
+    if ($(window).width() >= 768) {
+        $('body').addClass('sidebar-collapse');
+    }
+});
+
+/*=====================================================
 =                 Data Table                          =
 =====================================================*/
-if ($('.tablas').length > 0) {
-    // Solo inicializar DataTable si no hay una instancia previa
-    if (!$.fn.DataTable.isDataTable('.tablas')) {
+$(document).ready(function() {
+    if ($('.tablas').length > 0) {
+        // Verificar si ya existe una instancia de DataTable y destruirla
+        if ($.fn.DataTable.isDataTable('.tablas')) {
+            $('.tablas').DataTable().destroy();
+        }
+        
+        // Inicializar DataTable
         $('.tablas').DataTable({
         "language": {
             "decimal": ",",
@@ -57,4 +72,4 @@ if ($('.tablas').length > 0) {
         }
         });
     }
-}
+});

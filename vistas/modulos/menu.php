@@ -48,6 +48,12 @@
                 </a>
             </li>
             <li>
+                <a href="anticipos">
+                    <i class="fa fa-credit-card"></i>
+                    <span>Anticipos</span>
+                </a>
+            </li>
+            <li>
                 <a href="liquidacion">
                     <i class="fa fa-money"></i>
                     <span>Liquidación</span>

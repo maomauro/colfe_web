@@ -85,12 +85,12 @@ function crearComprobante($pdf, $liq, $x, $y) {
     $pdf->Cell(20, 3.5, number_format($liq["ahorro"], 2, ',', '.'), 1, 1, 'R');
     $y += 3.5;
     
-    // OTROS
+    // ANTICIPOS
     $pdf->SetXY($x, $y);
-    $pdf->Cell(30, 3.5, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'OTROS'), 1, 0, 'L');
+    $pdf->Cell(30, 3.5, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'ANTICIPOS'), 1, 0, 'L');
     $pdf->Cell(15, 3.5, '', 1, 0, 'C');
     $pdf->Cell(20, 3.5, '', 1, 0, 'C');
-    $pdf->Cell(20, 3.5, '-', 1, 1, 'C');
+    $pdf->Cell(20, 3.5, number_format($liq["total_anticipos"], 2, ',', '.'), 1, 1, 'R');
     $y += 3.5;
     
     // Totales
