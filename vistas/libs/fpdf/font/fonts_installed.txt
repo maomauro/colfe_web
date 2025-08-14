@@ -1,0 +1,17 @@
+Fuentes FPDF instaladas el: 2025-08-13 16:40:01
+Total de archivos: 14
+
+✅ courier.php (432 bytes)
+✅ courierb.php (437 bytes)
+✅ courierbi.php (444 bytes)
+✅ courieri.php (440 bytes)
+✅ helvetica.php (3504 bytes)
+✅ helveticab.php (3508 bytes)
+✅ helveticabi.php (3515 bytes)
+✅ helveticai.php (3512 bytes)
+✅ times.php (3502 bytes)
+✅ timesb.php (3506 bytes)
+✅ timesbi.php (3508 bytes)
+✅ timesi.php (3501 bytes)
+✅ symbol.php (4464 bytes)
+✅ zapfdingbats.php (3518 bytes)

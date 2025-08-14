@@ -13,8 +13,8 @@ $(function () {
       var diasEnMes = new Date(anio, mes + 1, 0).getDate();
       var ultimoDia = (anio === y && mes === m) ? hastaDia : diasEnMes;
 
-      // Liquidación día 15 (solo si corresponde)
-      if (mes < hastaMes || (mes === hastaMes && 15 <= hastaDia) || incluirFuturo) {
+      // Liquidación día 15 (siempre que incluirFuturo sea true o sea un mes válido)
+      if (incluirFuturo || mes <= hastaMes) {
         eventosLiq.push({
           title: "Liquidación - Pago",
           start: new Date(anio, mes, 15, 15, 0),
@@ -52,8 +52,8 @@ $(function () {
   // Generar eventos año anterior (todos los meses y días)
   var eventosAnt = generarEventosPorAño(y - 1, 11, 31, true);
 
-  // Generar eventos año actual (hasta mes y día actual)
-  var eventosAct = generarEventosPorAño(y, m, d, false);
+  // Generar eventos año actual (todos los meses del año)
+  var eventosAct = generarEventosPorAño(y, 11, 31, true);
 
   // Unir todos los eventos (primero recolección, luego liquidación)
   var todosEventos = [].concat(
@@ -63,10 +63,124 @@ $(function () {
     eventosAct.liquidacion
   );
 
-  // Estilo para los eventos
+  // Estilos para los eventos usando Bootstrap
   $("<style>")
     .prop("type", "text/css")
-    .html(".fc-event, .fc-event-dot { font-size: 14px !important; }")
+    .html(`
+      /* Estilos base para eventos del calendario */
+      .fc-event {
+        cursor: pointer !important;
+        border-radius: 4px !important;
+        font-weight: 500 !important;
+        font-size: 12px !important;
+        padding: 2px 4px !important;
+        margin: 1px 0 !important;
+        border: 1px solid !important;
+        transition: all 0.2s ease !important;
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+        user-select: none !important;
+      }
+      
+      /* Eventos futuros - estilo deshabilitado */
+      .fc-event.futuro {
+        opacity: 0.4 !important;
+        cursor: not-allowed !important;
+        background-color: #f5f5f5 !important;
+        border-color: #ddd !important;
+        color: #999 !important;
+      }
+      
+      .fc-event.futuro:hover {
+        opacity: 0.4 !important;
+        background-color: #f5f5f5 !important;
+        border-color: #ddd !important;
+        transform: none !important;
+      }
+      
+      /* Eventos normales - efectos hover */
+      .fc-event:not(.futuro):hover {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+        z-index: 10 !important;
+      }
+      
+      /* Colores específicos para cada tipo de evento */
+      .evento-recoleccion-pendiente {
+        background-color: #f39c12 !important;
+        border-color: #e67e22 !important;
+        color: white !important;
+      }
+      
+      .evento-recoleccion-confirmada {
+        background-color: #5bc0de !important;
+        border-color: #46b8da !important;
+        color: white !important;
+      }
+      
+      .evento-liquidacion-pendiente {
+        background-color: #f56954 !important;
+        border-color: #e74c3c !important;
+        color: white !important;
+      }
+      
+      .evento-liquidacion-completada {
+        background-color: #00a65a !important;
+        border-color: #00a65a !important;
+        color: white !important;
+      }
+      
+      /* Tooltip personalizado */
+      .fc-event .fc-title {
+        font-weight: 600 !important;
+      }
+      
+      /* Deshabilitar drag & drop */
+      .fc-event {
+        -webkit-user-drag: none !important;
+        -khtml-user-drag: none !important;
+        -moz-user-drag: none !important;
+        -o-user-drag: none !important;
+        user-drag: none !important;
+      }
+      
+      /* Estilos para la leyenda */
+      .external-event {
+        cursor: pointer !important;
+        border-radius: 4px !important;
+        font-weight: 500 !important;
+        font-size: 11px !important;
+        padding: 8px 10px !important;
+        margin: 5px 0 !important;
+        border: 1px solid !important;
+        transition: all 0.2s ease !important;
+        color: white !important;
+        text-align: left !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+      }
+      
+      .external-event:hover {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+      }
+      
+      .external-event i {
+        margin-right: 5px !important;
+        width: 14px !important;
+        text-align: center !important;
+      }
+      
+      /* Asegurar que el texto no se divida */
+      .external-event {
+        line-height: 1.2 !important;
+        min-height: 32px !important;
+        display: flex !important;
+        align-items: center !important;
+      }
+    `)
     .appendTo("head");
 
   // Calcular el último día del mes actual antes de pasar el objeto de configuración
@@ -88,18 +202,59 @@ $(function () {
     },
     fixedWeekCount: false,
     showNonCurrentDates: false,
+    editable: false,
+    droppable: false,
+    eventDurationEditable: false,
+    eventStartEditable: false,
     events: todosEventos,
+    eventRender: function (event, element, view) {
+      // Verificar si el evento es de una fecha futura
+      var fechaEvento = moment(event.start).format("YYYY-MM-DD");
+      var fechaActual = moment().format("YYYY-MM-DD");
+      
+      if (fechaEvento > fechaActual) {
+        element.addClass('futuro');
+        element.attr('title', 'Evento futuro - No disponible');
+      }
+    },
     eventMouseover: function (event, jsEvent, view) {
-      $(jsEvent.currentTarget)
-        .css("background-color", "#3c8dbc")
-        .css("border-color", "#3c8dbc");
+      // No cambiar color si es un evento futuro
+      var fechaEvento = moment(event.start).format("YYYY-MM-DD");
+      var fechaActual = moment().format("YYYY-MM-DD");
+      
+      if (fechaEvento <= fechaActual) {
+        $(jsEvent.currentTarget)
+          .css("background-color", "#3c8dbc")
+          .css("border-color", "#3c8dbc");
+      }
     },
     eventMouseout: function (event, jsEvent, view) {
-      $(jsEvent.currentTarget)
-        .css("background-color", event.backgroundColor)
-        .css("border-color", event.borderColor);
+      // No restaurar color si es un evento futuro
+      var fechaEvento = moment(event.start).format("YYYY-MM-DD");
+      var fechaActual = moment().format("YYYY-MM-DD");
+      
+      if (fechaEvento <= fechaActual) {
+        $(jsEvent.currentTarget)
+          .css("background-color", event.backgroundColor)
+          .css("border-color", event.borderColor);
+      }
     },
     eventClick: function (event, jsEvent, view) {
+      // Verificar si el evento es de una fecha futura
+      var fechaEvento = moment(event.start).format("YYYY-MM-DD");
+      var fechaActual = moment().format("YYYY-MM-DD");
+      
+      if (fechaEvento > fechaActual) {
+        swal({
+          title: "Evento Futuro",
+          text: "No se puede procesar un evento de fecha futura (" + fechaEvento + ").",
+          type: "info",
+          confirmButtonColor: "#3085d6",
+          confirmButtonText: "Entendido"
+        });
+        return;
+      }
+      
       swal({
         title: "¿Desea continuar con el evento de " + event.title + "?",
         text: "Esta acción lo llevará al detalle del evento.",
@@ -255,6 +410,7 @@ function cargarEventosColorear() {
     },
     success: function (respuesta) {
       eventosColorear = respuesta;
+      
       var currentView = $('#calendar').fullCalendar('getView');
       var currentStart = currentView.start;
       var currentEnd = currentView.end;
@@ -294,14 +450,39 @@ function mesSeleccionado(eventData) {
     var encontrado = eventosColorear.find(function (e) {
       return e.fecha === fechaEvento && e.evento === event.title;
     });
+    
     if (encontrado) {
+      // Remover clases anteriores
+      var element = $('#calendar').find('.fc-event[data-event-id="' + event._id + '"]');
+      element.removeClass('evento-recoleccion-pendiente evento-recoleccion-confirmada evento-liquidacion-pendiente evento-liquidacion-completada');
+      
+      // Aplicar clases CSS según el estado y tipo de evento
       if (event.title === "Recolección") {
-        event.backgroundColor = "#5bc0de";
-        event.borderColor = "#5bc0de";
+        if (encontrado.estado_final === "confirmado") {
+          // Recolección confirmada - Cyan
+          element.addClass('evento-recoleccion-confirmada');
+          event.backgroundColor = "#5bc0de";
+          event.borderColor = "#5bc0de";
+        } else {
+          // Recolección pendiente - Naranja
+          element.addClass('evento-recoleccion-pendiente');
+          event.backgroundColor = "#f39c12";
+          event.borderColor = "#f39c12";
+        }
       } else if (event.title === "Liquidación - Pago") {
-        event.backgroundColor = "#00a65a";
-        event.borderColor = "#00a65a";
+        if (encontrado.estado_final === "liquidacion") {
+          // Liquidación completada - Verde
+          element.addClass('evento-liquidacion-completada');
+          event.backgroundColor = "#00a65a";
+          event.borderColor = "#00a65a";
+        } else {
+          // Liquidación pendiente - Rojo
+          element.addClass('evento-liquidacion-pendiente');
+          event.backgroundColor = "#f56954";
+          event.borderColor = "#f56954";
+        }
       }
+      
       $('#calendar').fullCalendar('updateEvent', event);
     }
     return false;

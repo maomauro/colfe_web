@@ -28,11 +28,11 @@ session_start();
     <!-- AdminLTE -->
     <link rel="stylesheet" href="vistas/dist/css/AdminLTE.css">
     <link rel="stylesheet" href="vistas/dist/css/skins/_all-skins.min.css">
-    <!-- Google Fonts -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
-    <!-- DataTables -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css">
+    <!-- Google Fonts (Local) -->
+    <link rel="stylesheet" href="vistas/libs/external/css/google-fonts-local.css">
+    <!-- DataTables (Local) -->
+    <link rel="stylesheet" href="vistas/libs/external/css/datatables.min.css">
+    <link rel="stylesheet" href="vistas/libs/external/css/datatables-buttons.min.css">
     <link rel="stylesheet" href="vistas/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
     <link rel="stylesheet" href="vistas/bower_components/datatables.net-bs/css/responsive.bootstrap.min.css">
     <link rel="stylesheet" href="vistas/bower_components/datatables.net-bs/css/dataTables.dataTables.css">
@@ -42,26 +42,26 @@ session_start();
     <link rel="stylesheet" href="vistas/bower_components/fullcalendar/dist/fullcalendar.print.min.css" media="print">
     <!-- Estilo personalizado -->
     <link rel="stylesheet" href="vistas/css/editar.css">
-    <!-- Calendario -->
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <!-- Calendario (Local) -->
+    <link rel="stylesheet" href="vistas/libs/external/css/jquery-ui.min.css">
 
     <!-- ===================== PLUGINS DE JAVASCRIPT ===================== -->
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- jQuery (Local) -->
+    <script src="vistas/libs/external/js/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap -->
     <script src="vistas/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-    <!-- DataTables -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <!-- DataTables (Local) -->
+    <script src="vistas/libs/external/js/datatables.min.js"></script>
     <script src="vistas/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.print.min.js"></script>
+    <script src="vistas/libs/external/js/datatables-buttons.min.js"></script>
+    <script src="vistas/libs/external/js/datatables-buttons-html5.min.js"></script>
+    <script src="vistas/libs/external/js/datatables-buttons-print.min.js"></script>
     <script src="vistas/bower_components/datatables.net-bs/js/dataTables.responsive.min.js"></script>
     <script src="vistas/bower_components/datatables.net-bs/js/responsive.bootstrap.min.js"></script>
-    <!-- Soporte para exportar DataTables -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pdfmake@0.1.36/build/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+    <!-- Soporte para exportar DataTables (Local) -->
+    <script src="vistas/libs/external/js/jszip.min.js"></script>
+    <script src="vistas/libs/external/js/pdfmake.min.js"></script>
+    <script src="vistas/libs/external/js/pdfmake-vfs-fonts.js"></script>
     <!-- jQuery UI -->
     <script src="vistas/bower_components/jquery-ui/jquery-ui.min.js"></script>
     <!-- SlimScroll -->
@@ -75,13 +75,13 @@ session_start();
     <!-- SweetAlert 2 -->
     <script src="vistas/plugins/sweetalert2/sweetalert2.all.js"></script>
     <!-- Polyfill para IE (opcional) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.js"></script>
+    <script src="vistas/libs/external/js/core.js"></script>
     <!-- fullCalendar y dependencias -->
     <script src="vistas/bower_components/moment/moment.js"></script>
     <script src="vistas/bower_components/fullcalendar/dist/fullcalendar.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/locale/es.js"></script>
-    <!-- Estilos personalizados -->
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="vistas/libs/external/js/fullcalendar-locale-es.js"></script>
+    <!-- jQuery UI (Local) -->
+    <script src="vistas/libs/external/js/jquery-ui.min.js"></script>
 
     <style>
         /* Asegura que el datepicker esté por encima del modal Bootstrap */

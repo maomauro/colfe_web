@@ -67,8 +67,8 @@ class ModeloCalendario
                         END AS estado_final,
                     'Recolección' AS evento 
             FROM 	tbl_recoleccion
-            WHERE 	YEAR(fecha) = :anio
-            AND 	MONTH(fecha) = :mes
+            WHERE 	YEAR(fecha) = :anio1
+            AND 	MONTH(fecha) = :mes1
             GROUP 	BY fecha
             HAVING 	estado_final = 'confirmado'
 
@@ -77,14 +77,16 @@ class ModeloCalendario
                     'liquidacion' AS estado_final, 
                     'Liquidación - Pago' AS evento 
             FROM 	tbl_liquidacion 
-            WHERE 	YEAR(fecha_liquidacion) = :anio
-            AND 	MONTH(fecha_liquidacion) = :mes
+            WHERE 	YEAR(fecha_liquidacion) = :anio2
+            AND 	MONTH(fecha_liquidacion) = :mes2
             AND 	estado = 'liquidacion' 
             GROUP 	BY fecha_liquidacion
             ORDER 	BY fecha
         ");
-        $stmt->bindParam(":anio", $anio, PDO::PARAM_INT);
-        $stmt->bindParam(":mes", $mes, PDO::PARAM_INT);
+        $stmt->bindParam(":anio1", $anio, PDO::PARAM_INT);
+        $stmt->bindParam(":mes1", $mes, PDO::PARAM_INT);
+        $stmt->bindParam(":anio2", $anio, PDO::PARAM_INT);
+        $stmt->bindParam(":mes2", $mes, PDO::PARAM_INT);
         $stmt->execute();
 
         $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
