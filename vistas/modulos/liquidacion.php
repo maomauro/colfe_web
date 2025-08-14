@@ -42,38 +42,180 @@ if (!empty($liquidaciones) && isset($liquidaciones[0]["fecha_liquidacion"])) {
 
     <!-- Default box -->
     <div class="box">
-      <div class="box-header">
-        <span class="btn btn-primary" style="cursor:default; font-size:16px; font-weight:bold;">
-          <?php echo $quincena.' Quincena: ' . $fecha ?>
-        </span>
-        <?php
-        // Verifica si todas las liquidaciones están en estado "liquidacion"
-        $puedeImprimir = true;
-        $puedeLiquidar = false;
-        if (is_array($liquidaciones) && count($liquidaciones) > 0) {
-          foreach ($liquidaciones as $liq) {
-            if ($liq["estado"] != "liquidacion") {
-              $puedeImprimir = false;
-              $puedeLiquidar = true;
-              break;
-            }
-          }
-        } else {
-          $puedeImprimir = false;
-        }
+             <!-- Navegación de Liquidación -->
+               <div class="box-header with-border">
+          <div class="row">
+            <div class="col-md-6">
+              <!-- Navegación estilo calendario -->
+              <div class="btn-group" style="margin-right: 10px;">
+                <!-- Botón Anterior -->
+                <button type="button" class="btn btn-default" id="btnLiquidacionAnterior" title="Liquidación Anterior">
+                  <i class="fa fa-chevron-left"></i>
+                </button>
+                
+                <!-- Botón Siguiente -->
+                <button type="button" class="btn btn-default" id="btnLiquidacionSiguiente" title="Liquidación Siguiente">
+                  <i class="fa fa-chevron-right"></i>
+                </button>
+              </div>
+              
+                                            <!-- Botón Última Liquidación -->
+               <button type="button" class="btn btn-default" id="btnUltimaLiquidacion" title="Ir a la Última Liquidación">
+                 <i class="fa fa-clock-o"></i> Última Liquidación
+               </button>
+               
+               <!-- Período Actual (Informativo) -->
+               <div class="btn-group" style="margin-left: 15px;">
+                 <button type="button" class="btn btn-primary" id="periodoActual" style="min-width: 150px; text-align: left; cursor: default;" disabled title="Período actual - Solo informativo">
+                   <i class="fa fa-calendar"></i> 
+                   <span id="textoPeriodo"><?php echo $quincena.' Quincena: ' . $fecha ?></span>
+                 </button>
+               </div>
+               
+               <!-- Botón Ver en Calendario -->
+               <button type="button" class="btn btn-warning" id="btnVerCalendario" title="Ver en Calendario" style="margin-left: 15px;">
+                 <i class="fa fa-calendar"></i> Ver en Calendario
+               </button>
+            </div>
+            <div class="col-md-6">
+              <div class="pull-right">
+                <?php
+                // Verifica si todas las liquidaciones están en estado "liquidacion"
+                $puedeImprimir = true;
+                if (is_array($liquidaciones) && count($liquidaciones) > 0) {
+                  foreach ($liquidaciones as $liq) {
+                    if ($liq["estado"] != "liquidacion") {
+                      $puedeImprimir = false;
+                      break;
+                    }
+                  }
+                } else {
+                  $puedeImprimir = false;
+                }
 
-        if ($puedeImprimir) {
-          echo '<a href="vistas/modulos/recibo.php?fecha=' . urlencode($fecha) . '" target="_blank" class="btn btn-success" style="margin-left:15px; font-size:16px; font-weight:bold;">
-                  <i class="fa fa-print"></i> Imprimir Comprobantes de Pago
-                </a>';
-        }
+                if ($puedeImprimir) {
+                  echo '<a href="vistas/modulos/recibo.php?fecha=' . urlencode($fecha) . '" target="_blank" class="btn btn-info" style="font-size:14px; font-weight:bold;">
+                          <i class="fa fa-print"></i> Imprimir Comprobantes
+                        </a>';
+                }
+                ?>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        if($puedeLiquidar) {
-          echo '<button class="btn btn-danger btn-xs btnConfirmarLiquidaciones" fechaLiquidacion="' . urlencode($fecha) . '" style="margin-left:15px; font-size:16px; font-weight:bold; padding: 5px 10px; border-radius: 3px; display: inline-block;">Liquidar Quincena Completa</button>';
-        }
+                           <!-- Información del período seleccionado -->
+        <div class="info-periodo" id="infoPeriodo" style="background-color: #f9f9f9; padding: 15px; border-bottom: 1px solid #ddd;">
+          <div class="row">
+            <div class="col-md-12">
+              <!-- Primera fila de estadísticas -->
+              <div class="info-stats-row">
+                <div class="info-stat-item">
+                  <strong><i class="fa fa-users"></i> Total Socios:</strong> 
+                  <span id="totalSocios"><?php echo count($liquidaciones); ?></span>
+                </div>
+                <div class="info-stat-item">
+                  <strong><i class="fa fa-money"></i> Total Liquidación:</strong> 
+                  $<span id="totalLiquidacion"><?php 
+                    $total = 0;
+                    if (is_array($liquidaciones)) {
+                      foreach ($liquidaciones as $liq) {
+                        $total += floatval($liq["neto_a_pagar"]);
+                      }
+                    }
+                    echo number_format($total, 2, ',', '.');
+                  ?></span>
+                </div>
+                <div class="info-stat-item">
+                  <strong><i class="fa fa-calendar-check-o"></i> Estado:</strong> 
+                  <span id="estadoLiquidacion" class="label label-success">Disponible</span>
+                </div>
+                <div class="info-stat-item">
+                  <strong><i class="fa fa-clock-o"></i> Última Actualización:</strong> 
+                  <span id="ultimaActualizacion"><?php echo $fecha ? $fecha : '-'; ?></span>
+                </div>
+              </div>
+              
+              <!-- Segunda fila de totales por vinculación -->
+              <div class="info-stats-row" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+                <div class="info-stat-item">
+                  <strong><i class="fa fa-handshake-o"></i> Total Asociados:</strong> 
+                  $<span id="totalAsociados"><?php 
+                    $totalAsociados = 0;
+                    if (is_array($liquidaciones)) {
+                      foreach ($liquidaciones as $liq) {
+                        if ($liq["vinculacion"] == "asociado") {
+                          $totalAsociados += floatval($liq["neto_a_pagar"]);
+                        }
+                      }
+                    }
+                    echo number_format($totalAsociados, 2, ',', '.');
+                  ?></span>
+                </div>
+                <div class="info-stat-item">
+                  <strong><i class="fa fa-truck"></i> Total Proveedores:</strong> 
+                  $<span id="totalProveedores"><?php 
+                    $totalProveedores = 0;
+                    if (is_array($liquidaciones)) {
+                      foreach ($liquidaciones as $liq) {
+                        if ($liq["vinculacion"] == "proveedor") {
+                          $totalProveedores += floatval($liq["neto_a_pagar"]);
+                        }
+                      }
+                    }
+                    echo number_format($totalProveedores, 2, ',', '.');
+                  ?></span>
+                </div>
+                <div class="info-stat-item">
+                  <strong><i class="fa fa-dropbox"></i> Total Litros:</strong> 
+                  <span id="totalLitros"><?php 
+                    $totalLitros = 0;
+                    if (is_array($liquidaciones)) {
+                      foreach ($liquidaciones as $liq) {
+                        $totalLitros += floatval($liq["total_litros"]);
+                      }
+                    }
+                    echo number_format($totalLitros, 2, ',', '.');
+                  ?></span>
+                </div>
+                <div class="info-stat-item">
+                  <strong><i class="fa fa-credit-card"></i> Total Anticipos:</strong> 
+                  $<span id="totalAnticipos"><?php 
+                    $totalAnticipos = 0;
+                    if (is_array($liquidaciones)) {
+                      foreach ($liquidaciones as $liq) {
+                        $totalAnticipos += floatval($liq["total_anticipos"] ?? 0);
+                      }
+                    }
+                    echo number_format($totalAnticipos, 2, ',', '.');
+                  ?></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        ?>
-      </div>
+             <!-- Botones de acción -->
+       <div class="box-header" style="padding: 10px 15px;">
+         <?php
+         // Verifica si todas las liquidaciones están en estado "liquidacion"
+         $puedeLiquidar = false;
+         if (is_array($liquidaciones) && count($liquidaciones) > 0) {
+           foreach ($liquidaciones as $liq) {
+             if ($liq["estado"] != "liquidacion") {
+               $puedeLiquidar = true;
+               break;
+             }
+           }
+         }
+
+         if($puedeLiquidar) {
+           echo '<button class="btn btn-danger btnConfirmarLiquidaciones" fechaLiquidacion="' . urlencode($fecha) . '" style="font-size:14px; font-weight:bold;">
+                   <i class="fa fa-check"></i> Liquidar Quincena Completa
+                 </button>';
+         }
+         ?>
+       </div>
 
       <div class="box-body">
         <table id="tablaLiquidacion" class="table table-bordered table-stripeded dt-responsive dt-responsive tablas" width="100%">
@@ -141,35 +283,7 @@ if (!empty($liquidaciones) && isset($liquidaciones[0]["fecha_liquidacion"])) {
           </tbody>
         </table>
 
-        <div class="row">
-          <div class="col-xs-12">
-            <h3 class="box-title">
-              <strong>
-                <div class="row" style="margin-bottom:10px;">
-                  <?php
-                  if (is_array($liquidaciones) && count($liquidaciones) > 0) {
-                    echo '<div class="col-md-6" style="margin-bottom:5px;">
-                            <span class="btn btn-info" style="cursor:default; font-size:16px; font-weight:bold; width:100%;">
-                              Total Paga Asociados: <span class="total-litros" data-total-litros="' . $totalPagoAsociados . '">$' . number_format($totalPagoAsociados, 2, '.', ',') . '</span>
-                            </span>
-                          </div>';
-                    echo '<div class="col-md-6" style="margin-bottom:5px;">
-                            <span class="btn btn-info" style="cursor:default; font-size:16px; font-weight:bold; width:100%;">
-                              Total Paga Proveedores: <span class="total-litros" data-total-litros="' . $totalPagoProveedores . '">$' . number_format($totalPagoProveedores, 2, '.', ',') . '</span>
-                            </span>
-                          </div>';
-                                         echo '<div class="col-md-12" style="margin-bottom:5px;">
-                             <span class="btn btn-info" style="cursor:default; font-size:16px; font-weight:bold; width:100%;">
-                               Total Liquidación: <span class="total-litros" data-total-litros="' . $totalPago . '">$' . number_format($totalPago, 2, '.', ',') . '</span>
-                             </span>
-                           </div>';
-                  }
-                  ?>
-                </div>
-              </strong>
-            </h3>
-          </div>
-        </div>
+
       </div>
     </div>
     <!-- /.box -->

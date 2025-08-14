@@ -1,0 +1,284 @@
+/*=============================================
+ESTILOS PARA NAVEGACIÓN DE LIQUIDACIÓN
+=============================================*/
+
+/* Estilos para la navegación de períodos */
+.navegacion-liquidacion {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Botones de navegación */
+.btn-navegacion {
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    margin: 0 2px;
+}
+
+.btn-navegacion:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-navegacion:active {
+    transform: translateY(0);
+}
+
+/* Botón deshabilitado */
+.btn-disabled {
+    background-color: #e0e0e0 !important;
+    color: #999 !important;
+    cursor: not-allowed !important;
+    opacity: 0.6;
+}
+
+.btn-disabled:hover {
+    background-color: #e0e0e0 !important;
+    color: #999 !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Botón de período actual (Informativo) */
+#periodoActual {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    color: white;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: default !important;
+    opacity: 1 !important;
+}
+
+#periodoActual:hover {
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: white;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+#periodoActual:disabled {
+    opacity: 1 !important;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+    color: white !important;
+    cursor: default !important;
+}
+
+/* Panel de información del período */
+.info-periodo {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Fila de estadísticas en una sola línea */
+.info-stats-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.info-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 180px;
+}
+
+.info-stat-item strong {
+    color: #495057;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.info-stat-item span {
+    font-size: 16px;
+    font-weight: bold;
+    color: #212529;
+    margin-left: 5px;
+}
+
+/* Responsive para la fila de estadísticas */
+@media (max-width: 768px) {
+    .info-stats-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .info-stat-item {
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .info-stat-item strong {
+        font-size: 13px;
+    }
+    
+    .info-stat-item span {
+        font-size: 14px;
+    }
+}
+
+/* Estados de liquidación */
+.label-success {
+    background-color: #28a745;
+}
+
+.label-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+/* Animaciones para la tabla */
+#tablaLiquidacion {
+    transition: all 0.3s ease;
+}
+
+#tablaLiquidacion tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+#tablaLiquidacion tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .navegacion-liquidacion {
+        padding: 15px;
+    }
+    
+    .btn-navegacion {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+    
+    #periodoActual {
+        padding: 8px 15px;
+        font-size: 14px;
+    }
+    
+    .info-periodo .row > div {
+        margin-bottom: 15px;
+    }
+    
+    .info-periodo strong {
+        font-size: 12px;
+    }
+    
+    .info-periodo span {
+        font-size: 16px;
+    }
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Botón de imprimir personalizado */
+.btn-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    border: none;
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-info:hover {
+    background: linear-gradient(135deg, #138496 0%, #117a8b 100%);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-info:active {
+    transform: translateY(0);
+}
+
+/* Botón de calendario personalizado */
+.btn-warning {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    border: none;
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-warning:hover {
+    background: linear-gradient(135deg, #138496 0%, #117a8b 100%);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-warning:active {
+    transform: translateY(0);
+}
+
+/* Tooltips personalizados */
+.tooltip-custom {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-custom .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip-custom:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}

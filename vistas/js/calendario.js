@@ -1,6 +1,28 @@
 $(function () {
-  // Fecha actual
-  var date = new Date();
+  // Función para obtener parámetros de URL
+  function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+  }
+
+  // Obtener fecha de parámetro URL o usar fecha actual
+  var fechaParam = getParameterByName('fecha');
+  var date;
+  
+  if (fechaParam) {
+    // Parsear la fecha del parámetro (formato YYYY-MM-DD)
+    var fechaParts = fechaParam.split('-');
+    if (fechaParts.length === 3) {
+      date = new Date(parseInt(fechaParts[0]), parseInt(fechaParts[1]) - 1, parseInt(fechaParts[2]));
+    } else {
+      date = new Date();
+    }
+  } else {
+    date = new Date();
+  }
+  
   var d = date.getDate(),
       m = date.getMonth(),
       y = date.getFullYear();
@@ -188,6 +210,7 @@ $(function () {
 
   $("#calendar").fullCalendar({
     locale: 'es',
+    defaultDate: date, // Usar la fecha específica
     header: {
       left: "prev,next today",
       center: "title",

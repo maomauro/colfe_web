@@ -44,6 +44,8 @@ session_start();
     <link rel="stylesheet" href="vistas/css/editar.css">
     <!-- Sidebar colapsado por defecto -->
     <link rel="stylesheet" href="vistas/css/sidebar_colapsado.css">
+    <!-- Estilos para liquidación -->
+    <link rel="stylesheet" href="vistas/css/liquidacion.css">
     <!-- Calendario (Local) -->
     <link rel="stylesheet" href="vistas/libs/external/css/jquery-ui.min.css">
 
