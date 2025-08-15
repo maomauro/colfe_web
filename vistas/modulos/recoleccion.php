@@ -13,6 +13,22 @@ if (isset($_GET["fecha"])) {
   }
 }
 
+// Función para formatear fecha en español
+function formatearFechaEspanol($fecha) {
+  $fechaObj = new DateTime($fecha);
+  $meses = [
+    1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril',
+    5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto',
+    9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre'
+  ];
+  
+  $dia = $fechaObj->format('j');
+  $mes = $meses[(int)$fechaObj->format('n')];
+  $anio = $fechaObj->format('Y');
+  
+  return $dia . ' de ' . $mes . ' de ' . $anio;
+}
+
 $item = 'fecha';
 $valor = $fecha;
 
@@ -24,6 +40,9 @@ if (!empty($recolecciones) && isset($recolecciones[0]["fecha"])) {
   $fecha = $fecha;
   $recolecciones = [];
 }
+
+// Formatear fecha para mostrar
+$fechaFormateada = formatearFechaEspanol($fecha);
 
 // Calcular estadísticas
 $totalSocios = count($recolecciones);
@@ -106,7 +125,7 @@ $puedeConfirmar = ($totalPendientes > 0);
             <div class="btn-group" style="margin-left: 15px;">
               <button type="button" class="btn btn-primary" id="fechaActual" style="min-width: 150px; text-align: left; cursor: default;" disabled title="Fecha actual - Solo informativo">
                 <i class="fa fa-calendar"></i> 
-                <span id="textoFecha"><?php echo $fecha ?></span>
+                <span id="textoFecha"><?php echo $fechaFormateada ?></span>
               </button>
             </div>
             
@@ -153,7 +172,7 @@ $puedeConfirmar = ($totalPendientes > 0);
               </div>
               <div class="info-stat-item">
                 <strong><i class="fa fa-clock-o"></i> Última Actualización:</strong> 
-                <span id="ultimaActualizacion"><?php echo $fecha ? $fecha : '-'; ?></span>
+                <span id="ultimaActualizacion"><?php echo $fecha ? $fechaFormateada : '-'; ?></span>
               </div>
             </div>
             

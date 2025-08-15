@@ -1,43 +1,6 @@
 /*=============================================
-TABLA LIQUIDACIONES
+CONFIRMAR LIQUIDACION
 =============================================*/
-// ...existing code...
-$(document).ready(function() {
-    if ($('#tablaLiquidacion').length) {
-        if ($.fn.DataTable.isDataTable('#tablaLiquidacion')) {
-            $('#tablaLiquidacion').DataTable().destroy();
-        }
-
-        $('#tablaLiquidacion').DataTable({
-            dom: `
-                <'row mb-2'
-                    <'col-md-4'l>
-                    <'col-md-4 text-center'B>
-                    <'col-md-4 text-end'f>
-                >
-                <'row'<'col-12'tr>>
-                <'row mt-2'
-                    <'col-md-5'i>
-                    <'col-md-7'p>
-                >
-            `,
-            buttons: [
-                {
-                    extend: 'copy',
-                },
-                {
-                    extend: 'excel',
-                }
-            ],
-            language: {
-                url: 'vistas/js/i18n/es-ES.json'
-            },
-            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]]
-        });
-    }
-});
-
-// ...existing code...
 
 /*=============================================
 CONFIRMAR LIQUIDACION
@@ -192,47 +155,114 @@ function formatearFechaParaImpresion(mes, quincena, anio) {
 
 // Función para actualizar la tabla de liquidación
 function actualizarTablaLiquidacion(datos) {
-    var tabla = $('#tablaLiquidacion').DataTable();
-    tabla.clear();
-    
-    if (datos && datos.length > 0) {
-        datos.forEach(function(item, index) {
-            // Crear botón de estado
-            var botonEstado = '';
-            if (item.estado != "liquidacion") {
-                botonEstado = '<button class="btn btn-danger btn-xs btnConfirmarLiquidacion" idLiquidacion="' + item.id_liquidacion + '" estadoLiquidacion="liquidacion">Liquidar</button>';
-            } else {
-                botonEstado = '<button class="btn btn-success btn-xs btnConfirmarLiquidacion" idLiquidacion="' + item.id_liquidacion + '" estadoLiquidacion="pre-liquidacion" disabled>Liquidado</button>';
+    try {
+        // Verificar que la tabla existe
+        var $tabla = $("#tablaLiquidacion");
+        if (!$tabla.length) {
+            console.warn('Tabla de liquidación no encontrada');
+            return;
+        }
+
+        // Destruir la tabla actual si existe y está inicializada
+        if ($.fn.DataTable.isDataTable($tabla)) {
+            try {
+                $tabla.DataTable().destroy();
+            } catch (destroyError) {
+                console.warn('Error al destruir DataTable existente:', destroyError);
             }
-            
-            tabla.row.add([
-                index + 1,
-                item.nombre,
-                item.apellido,
-                item.identificacion,
-                item.vinculacion,
-                parseFloat(item.total_litros).toLocaleString('es-ES', {minimumFractionDigits: 2}),
-                '$' + parseFloat(item.precio_litro).toLocaleString('es-ES', {minimumFractionDigits: 2}),
-                '$' + parseFloat(item.total_ingresos).toLocaleString('es-ES', {minimumFractionDigits: 2}),
-                '$' + parseFloat(item.fedegan).toLocaleString('es-ES', {minimumFractionDigits: 2}),
-                '$' + parseFloat(item.administracion).toLocaleString('es-ES', {minimumFractionDigits: 2}),
-                '$' + parseFloat(item.ahorro).toLocaleString('es-ES', {minimumFractionDigits: 2}),
-                '$' + parseFloat(item.total_deducibles).toLocaleString('es-ES', {minimumFractionDigits: 2}),
-                '$' + parseFloat(item.total_anticipos).toLocaleString('es-ES', {minimumFractionDigits: 2}),
-                '$' + parseFloat(item.neto_a_pagar).toLocaleString('es-ES', {minimumFractionDigits: 2}),
-                botonEstado
-            ]);
-        });
+        }
+
+        // Limpiar el tbody
+        $tabla.find("tbody").empty();
+
+        if (datos && datos.length > 0) {
+            datos.forEach(function(item, index) {
+                // Crear botón de estado
+                var botonEstado = '';
+                if (item.estado != "liquidacion") {
+                    botonEstado = '<button class="btn btn-danger btn-xs btnConfirmarLiquidacion" idLiquidacion="' + item.id_liquidacion + '" estadoLiquidacion="liquidacion">Liquidar</button>';
+                } else {
+                    botonEstado = '<button class="btn btn-success btn-xs btnConfirmarLiquidacion" idLiquidacion="' + item.id_liquidacion + '" estadoLiquidacion="pre-liquidacion" disabled>Liquidado</button>';
+                }
+                
+                var fila = '<tr>' +
+                    '<td>' + (index + 1) + '</td>' +
+                    '<td>' + (item.nombre || '') + '</td>' +
+                    '<td>' + (item.apellido || '') + '</td>' +
+                    '<td>' + (item.identificacion || '') + '</td>' +
+                    '<td>' + (item.vinculacion || '') + '</td>' +
+                    '<td>' + parseFloat(item.total_litros || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
+                    '<td>$' + parseFloat(item.precio_litro || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
+                    '<td>$' + parseFloat(item.total_ingresos || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
+                    '<td>$' + parseFloat(item.fedegan || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
+                    '<td>$' + parseFloat(item.administracion || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
+                    '<td>$' + parseFloat(item.ahorro || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
+                    '<td>$' + parseFloat(item.total_deducibles || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
+                    '<td>$' + parseFloat(item.total_anticipos || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
+                    '<td>$' + parseFloat(item.neto_a_pagar || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
+                    '<td>' + botonEstado + '</td>' +
+                    '</tr>';
+                
+                $tabla.find("tbody").append(fila);
+            });
+
+            // Reinicializar DataTable solo si hay datos y la tabla existe
+            setTimeout(function() {
+                if ($tabla.length && $tabla.find("tbody tr").length > 0) {
+                    try {
+                        $tabla.DataTable({
+                            dom: `
+                                <'row mb-2'
+                                    <'col-md-4'l>
+                                    <'col-md-4 text-center'B>
+                                    <'col-md-4 text-end'f>
+                                >
+                                <'row'<'col-12'tr>>
+                                <'row mt-2'
+                                    <'col-md-5'i>
+                                    <'col-md-7'p>
+                                >
+                            `,
+                            buttons: [
+                                {
+                                    extend: 'copy',
+                                },
+                                {
+                                    extend: 'excel',
+                                }
+                            ],
+                            language: {
+                                url: 'vistas/js/i18n/es-ES.json'
+                            },
+                            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]],
+                            destroy: true,
+                            retrieve: true
+                        });
+                    } catch (initError) {
+                        console.error('Error al inicializar DataTable:', initError);
+                    }
+                }
+            }, 100);
+        } else {
+            // Si no hay datos, mostrar mensaje simple sin DataTable
+            $tabla.find("tbody").append('<tr><td colspan="15" class="text-center" style="padding: 20px; background-color: #ff9800; color: white; font-weight: bold; border-radius: 5px;">No hay datos de liquidación para este período</td></tr>');
+        }
+        
+        // Actualizar botones de acción
+        actualizarBotonesAccion(datos);
+    } catch (error) {
+        console.error('Error al actualizar tabla de liquidación:', error);
     }
-    
-    tabla.draw();
-    
-    // Actualizar botones de acción
-    actualizarBotonesAccion(datos);
 }
 
 // Función para actualizar las estadísticas
 function actualizarEstadisticas(estadisticas) {
+    // Solo ejecutar si estamos en la página de liquidación
+    if (window.location.href.indexOf('liquidacion') === -1) {
+        return;
+    }
+    
+    if (estadisticas) {
     $('#totalSocios').text(estadisticas.total_socios || 0);
     $('#totalLiquidacion').text(parseFloat(estadisticas.total_liquidacion || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}));
     $('#estadoLiquidacion').text(estadisticas.estado_liquidacion || 'Sin datos');
@@ -244,10 +274,16 @@ function actualizarEstadisticas(estadisticas) {
     $('#totalProveedores').text(parseFloat(estadisticas.total_proveedores || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}));
     $('#totalLitros').text(parseFloat(estadisticas.total_litros || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}));
     $('#totalAnticipos').text(parseFloat(estadisticas.total_anticipos || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}));
+    }
 }
 
 // Función para actualizar botones de acción
 function actualizarBotonesAccion(datos) {
+    // Solo ejecutar si estamos en la página de liquidación
+    if (window.location.href.indexOf('liquidacion') === -1) {
+        return;
+    }
+    
     var puedeImprimir = true;
     var puedeLiquidar = false;
     var fechaLiquidacion = '';
@@ -294,6 +330,11 @@ function actualizarBotonesAccion(datos) {
 
 // Función para actualizar el botón de imprimir con la fecha del período actual
 function actualizarBotonImprimir() {
+    // Solo ejecutar si estamos en la página de liquidación
+    if (window.location.href.indexOf('liquidacion') === -1) {
+        return;
+    }
+    
     var btnImprimir = $('.box-header .col-md-6:last-child a.btn-info');
     if (btnImprimir.length > 0) {
         // Actualizar la URL del botón con la fecha del período actual
@@ -307,6 +348,11 @@ function actualizarBotonImprimir() {
 
 // Función para actualizar el botón de calendario con la fecha del período actual
 function actualizarBotonCalendario() {
+    // Solo ejecutar si estamos en la página de liquidación
+    if (window.location.href.indexOf('liquidacion') === -1) {
+        return;
+    }
+    
     var btnCalendario = $('#btnVerCalendario');
     if (btnCalendario.length > 0) {
         // El botón ya tiene la funcionalidad correcta, solo actualizar el tooltip
@@ -317,6 +363,11 @@ function actualizarBotonCalendario() {
 
 // Función para actualizar el estado del botón "Siguiente"
 function actualizarEstadoBotonSiguiente() {
+    // Solo ejecutar si estamos en la página de liquidación
+    if (window.location.href.indexOf('liquidacion') === -1) {
+        return;
+    }
+    
     var fechaActual = new Date();
     var mesActual = fechaActual.getMonth() + 1;
     var anioActual = fechaActual.getFullYear();
@@ -360,6 +411,11 @@ function actualizarEstadoBotonSiguiente() {
 
 // Función para actualizar el estado del botón "Anterior"
 function actualizarEstadoBotonAnterior() {
+    // Solo ejecutar si estamos en la página de liquidación
+    if (window.location.href.indexOf('liquidacion') === -1) {
+        return;
+    }
+    
     var fechaActual = new Date();
     var anioAnterior = fechaActual.getFullYear() - 1;
     var mesLimite = 1; // Enero
@@ -402,6 +458,13 @@ function actualizarEstadoBotonAnterior() {
 
 // Función para cargar liquidación por período
 function cargarLiquidacionPorPeriodo(mes, quincena, anio) {
+    // Solo ejecutar si estamos en la página de liquidación
+    if (window.location.href.indexOf('liquidacion') === -1) {
+        return;
+    }
+    
+    var fechaFormateada = formatearFechaParaImpresion(mes, quincena, anio);
+
     var datos = new FormData();
     datos.append("cargarLiquidacionPorPeriodo", true);
     datos.append("mes", mes);
@@ -460,6 +523,13 @@ function cargarLiquidacionPorPeriodo(mes, quincena, anio) {
 
 // Función para obtener estadísticas del período
 function obtenerEstadisticasPeriodo(mes, quincena, anio) {
+    // Solo ejecutar si estamos en la página de liquidación
+    if (window.location.href.indexOf('liquidacion') === -1) {
+        return;
+    }
+    
+    var fechaFormateada = formatearFechaParaImpresion(mes, quincena, anio);
+
     var datos = new FormData();
     datos.append("obtenerEstadisticasPeriodo", true);
     datos.append("mes", mes);
@@ -619,6 +689,11 @@ $(document).on("click", "#btnUltimaLiquidacion", function() {
 
 // Evento para botón "Ver en Calendario"
 $(document).on("click", "#btnVerCalendario", function() {
+    // Solo ejecutar si estamos en la página de liquidación
+    if (window.location.href.indexOf('liquidacion') === -1) {
+        return;
+    }
+    
     // Calcular la fecha correspondiente a la quincena actual
     var fechaCalendario = formatearFechaParaImpresion(periodoActual.mes, periodoActual.quincena, periodoActual.anio);
     
@@ -628,6 +703,11 @@ $(document).on("click", "#btnVerCalendario", function() {
 
 // Inicializar período actual al cargar la página
 $(document).ready(function() {
+    // Solo ejecutar si estamos en la página de liquidación
+    if (window.location.href.indexOf('liquidacion') === -1) {
+        return;
+    }
+    
     // Intentar obtener el período actual desde los datos PHP
     var textoPeriodo = $('#textoPeriodo').text();
     if (textoPeriodo && textoPeriodo !== 'Sin Ejecutar Quincena: ') {
@@ -643,7 +723,6 @@ $(document).ready(function() {
             periodoActual.quincena = parseInt(quincenaTexto);
             periodoActual.anio = fecha.getFullYear();
             
-            console.log('Período inicializado desde texto:', periodoActual);
             // Cargar datos del período actual
             cargarLiquidacionPorPeriodo(periodoActual.mes, periodoActual.quincena, periodoActual.anio);
         } else {
@@ -682,7 +761,6 @@ function obtenerUltimaLiquidacionParaInicializar() {
                     periodoActual.quincena = parseInt(ultimaLiquidacion.quincena);
                     periodoActual.anio = parseInt(ultimaLiquidacion.anio);
                     
-                    console.log('Período inicializado desde última liquidación:', periodoActual);
                     // Cargar datos del período actual
                     cargarLiquidacionPorPeriodo(periodoActual.mes, periodoActual.quincena, periodoActual.anio);
                 } else {

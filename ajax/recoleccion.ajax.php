@@ -63,6 +63,68 @@ class AjaxRecoleccion {
         $respuesta = ModeloRecoleccion::mdlObtenerUltimaRecoleccion();
         echo json_encode($respuesta);
     }
+
+    /*=============================================
+    CARGAR RECOLECCIÓN POR FECHA
+    =============================================*/
+    public $fecha;
+
+    public function ajaxCargarRecoleccionPorFecha() {
+        $item = 'fecha';
+        $valor = $this->fecha;
+        
+        $respuesta = ControladorRecoleccion::ctrMostrarRecoleccion($item, $valor);
+        echo json_encode($respuesta);
+    }
+
+    /*=============================================
+    OBTENER ESTADÍSTICAS DE FECHA
+    =============================================*/
+    public function ajaxObtenerEstadisticasFecha() {
+        $this->fecha = $_POST["fecha"];
+        
+        $recolecciones = ControladorRecoleccion::ctrMostrarRecoleccion("fecha", $this->fecha);
+        
+        $estadisticas = [
+          'totalSocios' => count($recolecciones),
+          'totalLitros' => 0,
+          'totalConfirmados' => 0,
+          'totalPendientes' => 0,
+          'totalAsociados' => 0,
+          'totalProveedores' => 0,
+          'litrosAsociados' => 0,
+          'litrosProveedores' => 0
+        ];
+        
+        if (is_array($recolecciones)) {
+          foreach ($recolecciones as $rec) {
+            $estadisticas['totalLitros'] += floatval($rec["litros_leche"] ?? 0);
+            
+            if (($rec["estado"] ?? '') == "confirmado") {
+              $estadisticas['totalConfirmados']++;
+            } else {
+              $estadisticas['totalPendientes']++;
+            }
+            
+            // Verificar si existe la clave vinculacion antes de usarla
+            $vinculacion = $rec["vinculacion"] ?? '';
+            if ($vinculacion == "asociado") {
+              $estadisticas['totalAsociados']++;
+              $estadisticas['litrosAsociados'] += floatval($rec["litros_leche"] ?? 0);
+            } else if ($vinculacion == "proveedor") {
+              $estadisticas['totalProveedores']++;
+              $estadisticas['litrosProveedores'] += floatval($rec["litros_leche"] ?? 0);
+            }
+          }
+        }
+        
+        // Formatear números
+        $estadisticas['totalLitros'] = number_format($estadisticas['totalLitros'], 2, ',', '.');
+        $estadisticas['litrosAsociados'] = number_format($estadisticas['litrosAsociados'], 2, ',', '.');
+        $estadisticas['litrosProveedores'] = number_format($estadisticas['litrosProveedores'], 2, ',', '.');
+        
+        echo json_encode($estadisticas);
+    }
 }
 
 /*=============================================
@@ -90,6 +152,13 @@ if(isset($_POST["accion"]) && $_POST["accion"] == "actualizarLitros") {
 } elseif(isset($_POST["accion"]) && $_POST["accion"] == "obtenerUltimaRecoleccion") {
     $obtenerUltima = new AjaxRecoleccion();
     $obtenerUltima->ajaxObtenerUltimaRecoleccion();
+} elseif(isset($_POST["cargarRecoleccionPorFecha"])) {
+    $cargarRecoleccion = new AjaxRecoleccion();
+    $cargarRecoleccion->fecha = $_POST["fecha"];
+    $cargarRecoleccion->ajaxCargarRecoleccionPorFecha();
+} elseif(isset($_POST["obtenerEstadisticasFecha"])) {
+    $estadisticas = new AjaxRecoleccion();
+    $estadisticas->ajaxObtenerEstadisticasFecha();
 } else {
     // Si no es una acción válida
     echo json_encode([

@@ -29,16 +29,22 @@ $(function () {
 
 $(document).ready(function () {
     // Inicializa DataTable específicamente para tablas de predicción
-    // Solo inicializar si no hay otras instancias de DataTable ya configuradas
-    if ($('.tablas').length > 0 && !$.fn.DataTable.isDataTable('.tablas')) {
-        $('.tablas').DataTable({
-            "order": [[3, "desc"]],
-            "destroy": true,
-            "language": {
-                "url": "vistas/js/i18n/es-ES.json"
-            }
-        });
-    }
+    // Solo inicializar en tablas que no sean las específicas de recolección y liquidación
+    $('.tablas').each(function() {
+        var $table = $(this);
+        var tableId = $table.attr('id');
+        
+        // No inicializar en tablas específicas que se manejan dinámicamente
+        if (tableId !== 'tablaRecoleccion' && tableId !== 'tablaLiquidacion' && !$.fn.DataTable.isDataTable($table)) {
+            $table.DataTable({
+                "order": [[3, "desc"]],
+                "destroy": true,
+                "language": {
+                    "url": "vistas/js/i18n/es-ES.json"
+                }
+            });
+        }
+    });
 
     $('#formPrediccion').on('submit', function (e) {
         e.preventDefault();

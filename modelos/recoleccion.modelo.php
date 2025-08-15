@@ -7,29 +7,21 @@ class ModeloRecoleccion
     /*=============================================
     MOSTRAR RECOLECCION
     =============================================*/
-    static public function mdlMostrarRecoleccion($item, $valor)
-    {
+    static public function mdlMostrarRecoleccion($item, $valor) {
         try {
-            $stmt = Conexion::conectar()->prepare(
-                "SELECT 
-                    s.nombre, 
-                    s.apellido, 
-                    s.telefono, 
-                    s.direccion, 
-                    s.vinculacion,
-                    r.fecha, 
-                    r.estado, 
-                    r.litros_leche,
-                    r.id_recoleccion,
-                    r.id_socio
-                FROM tbl_recoleccion r
-                INNER JOIN tbl_socios s ON r.id_socio = s.id_socio
-                WHERE r.$item = :valor"
-            );
-            $stmt->bindParam(":valor", $valor, PDO::PARAM_STR);
+            // Incluir la columna vinculacion en la consulta
+            $stmt = Conexion::conectar()->prepare("SELECT r.*, s.nombre, s.apellido, s.telefono, s.direccion, s.vinculacion 
+                                            FROM tbl_recoleccion r 
+                                            INNER JOIN tbl_socios s ON r.id_socio = s.id_socio 
+                                            WHERE r.$item = :$item 
+                                            ORDER BY s.nombre ASC");
+            
+            $stmt->bindParam(":$item", $valor, PDO::PARAM_STR);
             $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
+            $resultado = $stmt->fetchAll();
+            
+            return $resultado;
+        } catch (Exception $e) {
             return [];
         }
     }

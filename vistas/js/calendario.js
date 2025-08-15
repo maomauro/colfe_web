@@ -1,4 +1,12 @@
 $(function () {
+  // Solo ejecutar si estamos en la página de calendario
+  if (window.location.href.indexOf('calendario') === -1) {
+    console.log('No estamos en página de calendario, saliendo');
+    return;
+  }
+  
+  console.log('Calendario.js ejecutándose en página de calendario');
+  
   // Función para obtener parámetros de URL
   function getParameterByName(name) {
     name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
@@ -9,24 +17,32 @@ $(function () {
 
   // Obtener fecha de parámetro URL o usar fecha actual
   var fechaParam = getParameterByName('fecha');
+  console.log('Calendario - Parámetro fecha recibido:', fechaParam);
+  console.log('Calendario - URL completa:', window.location.href);
+  console.log('Calendario - Search params:', window.location.search);
+  
   var date;
   
   if (fechaParam) {
     // Parsear la fecha del parámetro (formato YYYY-MM-DD)
     var fechaParts = fechaParam.split('-');
+    console.log('Calendario - Partes de fecha:', fechaParts);
     if (fechaParts.length === 3) {
       date = new Date(parseInt(fechaParts[0]), parseInt(fechaParts[1]) - 1, parseInt(fechaParts[2]));
+      console.log('Calendario - Fecha parseada:', date);
     } else {
       date = new Date();
+      console.log('Calendario - Usando fecha actual (formato inválido)');
     }
   } else {
     date = new Date();
+    console.log('Calendario - Usando fecha actual (sin parámetro)');
   }
   
-  // Variables para la fecha de navegación (siempre fecha actual del sistema)
+  // Variables para la fecha de navegación (usar la fecha del parámetro URL si está disponible)
   var fechaActualSistema = new Date();
-  var y = fechaActualSistema.getFullYear();
-  var m = fechaActualSistema.getMonth();
+  var y = date.getFullYear(); // Usar año de la fecha del parámetro
+  var m = date.getMonth(); // Usar mes de la fecha del parámetro
   
   // Variables para la fecha de visualización (puede ser del parámetro URL)
   var d = date.getDate();
@@ -622,16 +638,8 @@ function activarEvento(eventData) {
       success: function (respuesta) {
         var resp = JSON.parse(respuesta);
         if (resp == "ok") {
-          var form = document.createElement("form");
-          form.method = "POST";
-          form.action = nombreEvento;
-          var input = document.createElement("input");
-          input.type = "hidden";
-          input.name = "fecha";
-          input.value = fecha;
-          form.appendChild(input);
-          document.body.appendChild(form);
-          form.submit();
+          // Usar GET en lugar de POST para evitar el problema de reenvío de formulario
+          window.location.href = nombreEvento + "?fecha=" + encodeURIComponent(fecha);
         } else {
           swal({
             title: "Error",
