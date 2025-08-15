@@ -1,0 +1,291 @@
+/*=============================================
+ESTILOS PARA RECOLECCIÓN
+=============================================*/
+
+/* Estilos para la información del período */
+.info-periodo {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.info-stats-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.info-stat-item {
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 10px 15px;
+    border-radius: 5px;
+    min-width: 150px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.info-stat-item strong {
+    display: block;
+    color: #333;
+    margin-bottom: 5px;
+    font-size: 12px;
+}
+
+.info-stat-item span {
+    font-size: 16px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.info-stat-item small {
+    display: block;
+    color: #666;
+    font-size: 10px;
+    margin-top: 2px;
+}
+
+/* Estilos para botones de acción */
+.btnConfirmarRecolecciones {
+    background-color: #d9534f;
+    border-color: #d43f3a;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.btnConfirmarRecolecciones:hover {
+    background-color: #c9302c;
+    border-color: #ac2925;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Estilos para botones individuales */
+.btnConfirmarRecoleccion {
+    transition: all 0.3s ease;
+}
+
+.btnConfirmarRecoleccion:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Estilos para inputs de litros */
+.editar-litros {
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    padding: 4px 8px;
+    font-size: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.editar-litros:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    outline: none;
+}
+
+.editar-litros:disabled {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Estilos para navegación */
+.btn-group .btn {
+    transition: all 0.3s ease;
+}
+
+.btn-group .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Estilos para el botón de fecha actual */
+#fechaActual {
+    background-color: #007bff;
+    border-color: #0056b3;
+    color: white;
+    cursor: default;
+}
+
+#fechaActual:hover {
+    background-color: #007bff;
+    border-color: #0056b3;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Estilos para el botón "Ver en Calendario" */
+#btnVerCalendario {
+    background-color: #ffc107;
+    border-color: #e0a800;
+    color: #212529;
+    transition: all 0.3s ease;
+}
+
+#btnVerCalendario:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+    color: #212529;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Estilos para el botón "Última Recolección" */
+#btnUltimaRecoleccion {
+    background-color: #6c757d;
+    border-color: #545b62;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+#btnUltimaRecoleccion:hover {
+    background-color: #545b62;
+    border-color: #4e555b;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Estilos para el botón "Imprimir Reporte" */
+.btn-info[href*="reporte_recoleccion.php"] {
+    background-color: #17a2b8;
+    border-color: #117a8b;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.btn-info[href*="reporte_recoleccion.php"]:hover {
+    background-color: #138496;
+    border-color: #10707f;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Estilos para la tabla */
+#tablaRecoleccion {
+    margin-top: 20px;
+}
+
+#tablaRecoleccion thead th {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    font-weight: bold;
+    color: #495057;
+}
+
+#tablaRecoleccion tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Estilos para el mensaje sin datos */
+#mensajeSinDatos {
+    color: #6c757d;
+    font-style: italic;
+    padding: 20px;
+}
+
+/* Estilos para labels y accesibilidad */
+label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 5px;
+}
+
+/* Estilos responsive */
+@media (max-width: 768px) {
+    .info-stats-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .info-stat-item {
+        min-width: 100%;
+        margin: 0;
+    }
+    
+    .btn-group {
+        margin-bottom: 10px;
+    }
+    
+    .pull-right {
+        float: none !important;
+        text-align: center;
+        margin-top: 10px;
+    }
+}
+
+/* Estilos para pull-right */
+.pull-right {
+    text-align: right;
+}
+
+/* Estilos para estados */
+.label-success {
+    background-color: #28a745;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.label-warning {
+    background-color: #ffc107;
+    color: #212529;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.info-periodo {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Estilos para el box header */
+.box-header.with-border {
+    border-bottom: 1px solid #f4f4f4;
+    padding: 15px;
+    background-color: #fafafa;
+}
+
+/* Estilos para el contenido del box */
+.box-body {
+    padding: 20px;
+}
+
+/* Estilos para el título del box */
+.box-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+}

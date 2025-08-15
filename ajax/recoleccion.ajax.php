@@ -35,8 +35,34 @@ class AjaxRecoleccion {
         $respuesta = ControladorRecoleccion::ctrEditarLitrosLeche($idRecoleccion, $litrosLeche);
 
         echo json_encode($respuesta);
+    }
 
-    }   
+    /*=============================================
+    CONFIRMAR RECOLECCIÓN COMPLETA
+    =============================================*/    
+    public $fechaRecoleccion;
+    public $estadoRecoleccion;
+
+    public function ajaxConfirmarRecolecciones() {
+        $tabla = "tbl_recoleccion";
+
+        $item1 = "estado";
+        $valor1 = "confirmado";
+
+        $item2 = "fecha";
+        $valor2 = $this->fechaRecoleccion;
+
+        $respuesta = ModeloRecoleccion::mdlConfirmarRecolecciones($tabla, $item1, $valor1, $item2, $valor2);
+        echo json_encode($respuesta);
+    }
+
+    /*=============================================
+    OBTENER ÚLTIMA RECOLECCIÓN
+    =============================================*/
+    public function ajaxObtenerUltimaRecoleccion() {
+        $respuesta = ModeloRecoleccion::mdlObtenerUltimaRecoleccion();
+        echo json_encode($respuesta);
+    }
 }
 
 /*=============================================
@@ -56,6 +82,14 @@ if(isset($_POST["accion"]) && $_POST["accion"] == "actualizarLitros") {
     $evento->idRecoleccion = $_POST["id_recoleccion"];
     $evento->litrosLeche = $_POST["litros_leche"];
     $evento->ajaxLitrosLeche();
+} elseif(isset($_POST["accionRecolecciones"])) {
+    $confirmarRecolecciones = new AjaxRecoleccion();
+    $confirmarRecolecciones->fechaRecoleccion = $_POST["fechaRecoleccion"];
+    $confirmarRecolecciones->estadoRecoleccion = $_POST["accionRecolecciones"];
+    $confirmarRecolecciones->ajaxConfirmarRecolecciones();
+} elseif(isset($_POST["accion"]) && $_POST["accion"] == "obtenerUltimaRecoleccion") {
+    $obtenerUltima = new AjaxRecoleccion();
+    $obtenerUltima->ajaxObtenerUltimaRecoleccion();
 } else {
     // Si no es una acción válida
     echo json_encode([

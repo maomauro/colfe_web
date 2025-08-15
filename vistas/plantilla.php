@@ -46,6 +46,8 @@ session_start();
     <link rel="stylesheet" href="vistas/css/sidebar_colapsado.css">
     <!-- Estilos para liquidación -->
     <link rel="stylesheet" href="vistas/css/liquidacion.css">
+    <!-- Estilos para recolección -->
+    <link rel="stylesheet" href="vistas/css/recoleccion.css">
     <!-- Calendario (Local) -->
     <link rel="stylesheet" href="vistas/libs/external/css/jquery-ui.min.css">
 
