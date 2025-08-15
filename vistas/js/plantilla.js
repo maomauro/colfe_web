@@ -23,7 +23,7 @@ $(document).ready(function() {
         var tableId = $table.attr('id');
         
         // No inicializar en tablas específicas que se manejan dinámicamente
-        if (tableId !== 'tablaRecoleccion' && tableId !== 'tablaLiquidacion') {
+        if (tableId !== 'tablaRecoleccion' && tableId !== 'tablaLiquidacion' && tableId !== 'tablaProduccion') {
             // Verificar si ya existe una instancia de DataTable y destruirla
             if ($.fn.DataTable.isDataTable($table)) {
                 $table.DataTable().destroy();

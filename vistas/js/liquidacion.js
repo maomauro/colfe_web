@@ -121,6 +121,10 @@ function obtenerNombreMes(mes) {
 
 // Función para formatear el texto del período
 function formatearTextoPeriodo(mes, quincena, anio) {
+    if (window.location.href.indexOf('liquidacion') === -1) {
+        return;
+    }
+    
     var nombreMes = obtenerNombreMes(mes);
     var textoQuincena = quincena == 1 ? '1ra Quincena' : '2da Quincena';
     return nombreMes + ' ' + anio + ' - ' + textoQuincena;
@@ -486,7 +490,9 @@ function cargarLiquidacionPorPeriodo(mes, quincena, anio) {
                 obtenerEstadisticasPeriodo(mes, quincena, anio);
                 
                 // Actualizar texto del período
-                $('#textoPeriodo').text(formatearTextoPeriodo(mes, quincena, anio));
+                if (window.location.href.indexOf('liquidacion') !== -1) {
+                    $('#textoPeriodo').text(formatearTextoPeriodo(mes, quincena, anio));
+                }
                 
                 // Actualizar período actual
                 periodoActual.mes = mes;
@@ -710,6 +716,9 @@ $(document).ready(function() {
     
     // Intentar obtener el período actual desde los datos PHP
     var textoPeriodo = $('#textoPeriodo').text();
+    if (window.location.href.indexOf('liquidacion') === -1) {
+        return;
+    }
     if (textoPeriodo && textoPeriodo !== 'Sin Ejecutar Quincena: ') {
         // Extraer información del período actual desde el texto
         var match = textoPeriodo.match(/(\d+)(?:da|ra)?\s*Quincena:\s*(\d{4}-\d{2}-\d{2})/);

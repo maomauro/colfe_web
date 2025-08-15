@@ -30,6 +30,12 @@
                 </a>
             </li>
             <li>
+                <a href="liquidacion">
+                    <i class="fa fa-money"></i>
+                    <span>Liquidación</span>
+                </a>
+            </li>
+            <li>
                 <a href="produccion">
                     <i class="fa fa-product-hunt"></i>
                     <span>Producción</span>
@@ -51,12 +57,6 @@
                 <a href="anticipos">
                     <i class="fa fa-credit-card"></i>
                     <span>Anticipos</span>
-                </a>
-            </li>
-            <li>
-                <a href="liquidacion">
-                    <i class="fa fa-money"></i>
-                    <span>Liquidación</span>
                 </a>
             </li>
             <li>

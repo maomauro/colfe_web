@@ -35,7 +35,7 @@ $(document).ready(function () {
         var tableId = $table.attr('id');
         
         // No inicializar en tablas específicas que se manejan dinámicamente
-        if (tableId !== 'tablaRecoleccion' && tableId !== 'tablaLiquidacion' && !$.fn.DataTable.isDataTable($table)) {
+        if (tableId !== 'tablaRecoleccion' && tableId !== 'tablaLiquidacion' && tableId !== 'tablaProduccion' && !$.fn.DataTable.isDataTable($table)) {
             $table.DataTable({
                 "order": [[3, "desc"]],
                 "destroy": true,

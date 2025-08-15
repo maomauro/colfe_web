@@ -274,8 +274,7 @@ function actualizarTablaRecoleccion(datos) {
       $tabla.find("tbody").append('<tr><td colspan="9" class="text-center" style="padding: 20px; background-color: #ff9800; color: white; font-weight: bold; border-radius: 5px;">No hay datos de recolección para esta fecha</td></tr>');
     }
     
-    // Actualizar botones de acción
-    actualizarBotonesAccionRecoleccion();
+    // Actualizar botones de acción (se hará después de actualizar fechaActual)
   } catch (error) {
     console.error('Error al actualizar tabla de recolección:', error);
   }
@@ -285,6 +284,12 @@ function actualizarTablaRecoleccion(datos) {
 function actualizarBotonesAccionRecoleccion() {
   if (window.location.href.indexOf('recoleccion') === -1) { return; }
   
+  // Verificar que fechaActual esté definida
+  if (!fechaActual || !fechaActual.anio || !fechaActual.mes || !fechaActual.dia) {
+    console.warn('fechaActual no está definida correctamente');
+    return;
+  }
+  
   var totalConfirmados = $('.btnConfirmarRecoleccion.btn-success').length;
   var totalPendientes = $('.btnConfirmarRecoleccion.btn-danger').length;
   
@@ -292,8 +297,8 @@ function actualizarBotonesAccionRecoleccion() {
   var btnImprimir = $('.box-header .col-md-6:last-child a.btn-info');
   if (totalConfirmados > 0 && btnImprimir.length === 0) {
     // Usar la fecha actual que se está visualizando
-    var fechaActual = formatearFechaParaNavegacion(fechaActual.anio, fechaActual.mes, fechaActual.dia);
-    $('.box-header .col-md-6:last-child .pull-right').html('<a href="vistas/modulos/reporte_recoleccion.php?fecha=' + encodeURIComponent(fechaActual) + '" target="_blank" class="btn btn-info" style="font-size:14px; font-weight:bold;"><i class="fa fa-print"></i> Imprimir Reporte</a>');
+    var fechaFormateada = formatearFechaParaNavegacion(fechaActual.anio, fechaActual.mes, fechaActual.dia);
+    $('.box-header .col-md-6:last-child .pull-right').html('<a href="vistas/modulos/reporte_recoleccion.php?fecha=' + encodeURIComponent(fechaFormateada) + '" target="_blank" class="btn btn-info" style="font-size:14px; font-weight:bold;"><i class="fa fa-print"></i> Imprimir Reporte</a>');
   } else if (totalConfirmados === 0 && btnImprimir.length > 0) {
     $('.box-header .col-md-6:last-child .pull-right').empty();
   }
@@ -301,8 +306,8 @@ function actualizarBotonesAccionRecoleccion() {
   // Actualizar botón de confirmar recolección completa
   var btnConfirmar = $('.box-header .col-md-6:last-child .btn-danger');
   if (totalPendientes > 0 && btnConfirmar.length === 0) {
-    var fechaActual = formatearFechaParaNavegacion(fechaActual.anio, fechaActual.mes, fechaActual.dia);
-    $('.box-header .col-md-6:last-child .pull-right').append('<button class="btn btn-danger btnConfirmarRecolecciones" fechaRecoleccion="' + encodeURIComponent(fechaActual) + '" style="font-size:14px; font-weight:bold; margin-left: 10px;"><i class="fa fa-check"></i> Confirmar Recolección Completa</button>');
+    var fechaFormateada = formatearFechaParaNavegacion(fechaActual.anio, fechaActual.mes, fechaActual.dia);
+    $('.box-header .col-md-6:last-child .pull-right').append('<button class="btn btn-danger btnConfirmarRecolecciones" fechaRecoleccion="' + encodeURIComponent(fechaFormateada) + '" style="font-size:14px; font-weight:bold; margin-left: 10px;"><i class="fa fa-check"></i> Confirmar Recolección Completa</button>');
   } else if (totalPendientes === 0 && btnConfirmar.length > 0) {
     $('.box-header .col-md-6:last-child .btn-danger').remove();
   }
@@ -345,6 +350,12 @@ function actualizarFechaActualDesdeTexto() {
         fechaActual.dia = dia;
       }
     }
+  } else {
+    // Si no se puede extraer del texto, usar fecha actual del sistema
+    var hoy = new Date();
+    fechaActual.anio = hoy.getFullYear();
+    fechaActual.mes = hoy.getMonth() + 1;
+    fechaActual.dia = hoy.getDate();
   }
 }
 
@@ -360,10 +371,24 @@ function inicializarFechaActual() {
       fechaActual.anio = parseInt(fechaParts[0]);
       fechaActual.mes = parseInt(fechaParts[1]);
       fechaActual.dia = parseInt(fechaParts[2]);
+    } else {
+      // Si el formato no es correcto, usar fecha actual
+      var hoy = new Date();
+      fechaActual.anio = hoy.getFullYear();
+      fechaActual.mes = hoy.getMonth() + 1;
+      fechaActual.dia = hoy.getDate();
     }
   } else {
     // Si no hay parámetros, extraer del texto de la UI
     actualizarFechaActualDesdeTexto();
+  }
+  
+  // Verificación final para asegurar que fechaActual esté definida
+  if (!fechaActual.anio || !fechaActual.mes || !fechaActual.dia) {
+    var hoy = new Date();
+    fechaActual.anio = hoy.getFullYear();
+    fechaActual.mes = hoy.getMonth() + 1;
+    fechaActual.dia = hoy.getDate();
   }
 }
 
@@ -616,18 +641,24 @@ $(document).ready(function() {
   // Inicializar fechaActual correctamente
   inicializarFechaActual();
   
-  // Si hay fechaActual válida, cargar datos y actualizar UI
-  if (fechaActual && fechaActual.anio && fechaActual.mes && fechaActual.dia) {
-    // Actualizar el texto de la fecha
-    var fechaFormateada = formatearTextoFecha(fechaActual.anio, fechaActual.mes, fechaActual.dia);
-    $('#textoFecha').text(fechaFormateada);
-    
-    // Actualizar título del botón Ver en Calendario
-    actualizarTituloBotonCalendario();
-    
-    // Cargar datos y estadísticas para esta fecha específica
-    cargarRecoleccionPorFecha(fechaActual.anio, fechaActual.mes, fechaActual.dia);
+  // Verificación adicional para asegurar que fechaActual esté definida
+  if (!fechaActual || !fechaActual.anio || !fechaActual.mes || !fechaActual.dia) {
+    console.warn('fechaActual no está definida, usando fecha actual');
+    var hoy = new Date();
+    fechaActual.anio = hoy.getFullYear();
+    fechaActual.mes = hoy.getMonth() + 1;
+    fechaActual.dia = hoy.getDate();
   }
+  
+  // Actualizar el texto de la fecha
+  var fechaFormateada = formatearTextoFecha(fechaActual.dia, fechaActual.mes, fechaActual.anio);
+  $('#textoFecha').text(fechaFormateada);
+  
+  // Actualizar título del botón Ver en Calendario
+  actualizarTituloBotonCalendario();
+  
+  // Cargar datos y estadísticas para esta fecha específica
+  cargarRecoleccionPorFecha(fechaActual.anio, fechaActual.mes, fechaActual.dia);
   
   // Actualizar título del botón Ver en Calendario
   setTimeout(function() {

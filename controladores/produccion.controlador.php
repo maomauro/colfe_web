@@ -10,5 +10,32 @@ class ControladorProduccion
         $respuesta = ModeloProduccion::mdlMostrarProduccion();
         return $respuesta;
     }
+
+    /*=============================================
+    MOSTRAR PRODUCCION POR PERIODO
+    =============================================*/
+    static public function ctrMostrarProduccionPorPeriodo($mes = null, $anio = null)
+    {
+        $respuesta = ModeloProduccion::mdlMostrarProduccionPorPeriodo($mes, $anio);
+        return $respuesta;
+    }
+
+    /*=============================================
+    OBTENER ESTADISTICAS DE PRODUCCION
+    =============================================*/
+    static public function ctrObtenerEstadisticasProduccion($mes = null, $anio = null)
+    {
+        $respuesta = ModeloProduccion::mdlObtenerEstadisticasProduccion($mes, $anio);
+        return $respuesta;
+    }
+
+    /*=============================================
+    OBTENER ULTIMO MES CON DATOS
+    =============================================*/
+    static public function ctrObtenerUltimoMesConDatos()
+    {
+        $respuesta = ModeloProduccion::mdlObtenerUltimoMesConDatos();
+        return $respuesta;
+    }
 }
 
