@@ -2,6 +2,11 @@
 TABLA RECOLECCIÓN
 =============================================*/
 $(document).ready(function () {
+  // Solo ejecutar si estamos en la página de recolección
+  if (window.location.href.indexOf('recoleccion') === -1) {
+    return;
+  }
+
   if ($('#tablaRecoleccion').length) {
     if ($.fn.DataTable.isDataTable("#tablaRecoleccion")) {
       $("#tablaRecoleccion").DataTable().destroy();
@@ -74,6 +79,11 @@ $(document).ready(function () {
 CONFIRMAR RECOLECCIÓN INDIVIDUAL
 =============================================*/
 $(document).on("click", ".btnConfirmarRecoleccion", function () {
+  // Solo ejecutar si estamos en la página de recolección
+  if (window.location.href.indexOf('recoleccion') === -1) {
+    return;
+  }
+
   var boton = $(this);
   var idRecoleccion = boton.attr("idRecoleccion");
 
@@ -148,6 +158,11 @@ $(document).on("click", ".btnConfirmarRecoleccion", function () {
 CONFIRMAR RECOLECCIÓN COMPLETA
 =============================================*/
 $(document).on("click", ".btnConfirmarRecolecciones", function () {
+  // Solo ejecutar si estamos en la página de recolección
+  if (window.location.href.indexOf('recoleccion') === -1) {
+    return;
+  }
+
   var boton = $(this);
   var fechaRecoleccion = boton.attr("fechaRecoleccion");
 
@@ -214,6 +229,11 @@ function actualizarTablaRecoleccion() {
 ACTUALIZAR BOTONES DE ACCIÓN
 =============================================*/
 function actualizarBotonesAccion() {
+  // Solo ejecutar si estamos en la página de recolección
+  if (window.location.href.indexOf('recoleccion') === -1) {
+    return;
+  }
+
   // Obtener datos de la tabla
   var tabla = $('#tablaRecoleccion').DataTable();
   var datos = tabla.data().toArray();
@@ -276,6 +296,11 @@ function cargarRecoleccionPorFecha() {
 
 // Evento para botón anterior
 $(document).on("click", "#btnRecoleccionAnterior", function() {
+  // Solo ejecutar si estamos en la página de recolección
+  if (window.location.href.indexOf('recoleccion') === -1) {
+    return;
+  }
+
   var fecha = new Date(fechaActual.anio, fechaActual.mes - 1, fechaActual.dia - 1);
   fechaActual.anio = fecha.getFullYear();
   fechaActual.mes = fecha.getMonth() + 1;
@@ -286,6 +311,11 @@ $(document).on("click", "#btnRecoleccionAnterior", function() {
 
 // Evento para botón siguiente
 $(document).on("click", "#btnRecoleccionSiguiente", function() {
+  // Solo ejecutar si estamos en la página de recolección
+  if (window.location.href.indexOf('recoleccion') === -1) {
+    return;
+  }
+
   var fecha = new Date(fechaActual.anio, fechaActual.mes - 1, fechaActual.dia + 1);
   fechaActual.anio = fecha.getFullYear();
   fechaActual.mes = fecha.getMonth() + 1;
@@ -296,6 +326,11 @@ $(document).on("click", "#btnRecoleccionSiguiente", function() {
 
 // Evento para botón última recolección
 $(document).on("click", "#btnUltimaRecoleccion", function() {
+  // Solo ejecutar si estamos en la página de recolección
+  if (window.location.href.indexOf('recoleccion') === -1) {
+    return;
+  }
+
   // Navegar a la última fecha de recolección confirmada
   $.ajax({
     url: "ajax/recoleccion.ajax.php",
@@ -329,6 +364,11 @@ $(document).on("click", "#btnUltimaRecoleccion", function() {
 
 // Evento para botón "Ver en Calendario"
 $(document).on("click", "#btnVerCalendario", function() {
+  // Solo ejecutar si estamos en la página de recolección
+  if (window.location.href.indexOf('recoleccion') === -1) {
+    return;
+  }
+
   var fechaFormateada = formatearFechaParaNavegacion(fechaActual.anio, fechaActual.mes, fechaActual.dia);
   window.location.href = "calendario?fecha=" + encodeURIComponent(fechaFormateada);
 });
@@ -337,6 +377,11 @@ $(document).on("click", "#btnVerCalendario", function() {
 INICIALIZACIÓN DE LA PÁGINA
 =============================================*/
 $(document).ready(function() {
+  // Solo ejecutar si estamos en la página de recolección
+  if (window.location.href.indexOf('recoleccion') === -1) {
+    return;
+  }
+
   // Obtener parámetros de URL
   var urlParams = new URLSearchParams(window.location.search);
   var fechaParam = urlParams.get('fecha');
