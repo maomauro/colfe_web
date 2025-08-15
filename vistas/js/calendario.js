@@ -23,9 +23,13 @@ $(function () {
     date = new Date();
   }
   
-  var d = date.getDate(),
-      m = date.getMonth(),
-      y = date.getFullYear();
+  // Variables para la fecha de navegación (siempre fecha actual del sistema)
+  var fechaActualSistema = new Date();
+  var y = fechaActualSistema.getFullYear();
+  var m = fechaActualSistema.getMonth();
+  
+  // Variables para la fecha de visualización (puede ser del parámetro URL)
+  var d = date.getDate();
 
   // Función para generar eventos de liquidación y recolección para un año
   function generarEventosPorAño(anio, hastaMes, hastaDia, incluirFuturo) {
@@ -33,7 +37,7 @@ $(function () {
     var eventosRec = [];
     for (var mes = 0; mes <= hastaMes; mes++) {
       var diasEnMes = new Date(anio, mes + 1, 0).getDate();
-      var ultimoDia = (anio === y && mes === m) ? hastaDia : diasEnMes;
+      var ultimoDia = diasEnMes; // Siempre usar todos los días del mes
 
       // Liquidación día 15 (siempre que incluirFuturo sea true o sea un mes válido)
       if (incluirFuturo || mes <= hastaMes) {
@@ -202,11 +206,105 @@ $(function () {
         display: flex !important;
         align-items: center !important;
       }
+      
+      /* Asegurar que todos los días sean visibles */
+      .fc-day {
+        min-height: 100px !important;
+      }
+      
+      .fc-day-number {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+      
+      /* Estilos para días no del mes actual */
+      .fc-other-month .fc-day-number {
+        color: transparent !important;
+        opacity: 0 !important;
+      }
+      
+      .fc-other-month {
+        background-color: #f9f9f9 !important;
+        border: 1px solid #ddd !important;
+      }
+      
+      /* Asegurar que el botón "día actual" sea visible */
+      .fc-today-button {
+        display: inline-block !important;
+        visibility: visible !important;
+      }
+      
+      /* Estilos para botones deshabilitados */
+      .fc-prev-button.fc-state-disabled,
+      .fc-next-button.fc-state-disabled {
+        opacity: 0.6 !important;
+        cursor: not-allowed !important;
+        background-color: #f5f5f5 !important;
+        border-color: #ddd !important;
+        color: #999 !important;
+        pointer-events: none !important;
+      }
+      
+      .fc-prev-button.fc-state-disabled:hover,
+      .fc-next-button.fc-state-disabled:hover {
+        background-color: #f5f5f5 !important;
+        border-color: #ddd !important;
+        color: #999 !important;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+      
+      /* Estilos específicos para botón siguiente deshabilitado */
+      .fc-next-button.fc-state-disabled {
+        opacity: 0.6 !important;
+        cursor: not-allowed !important;
+        background-color: #f5f5f5 !important;
+        border-color: #ddd !important;
+        color: #999 !important;
+        pointer-events: none !important;
+      }
+      
+      .fc-next-button.fc-state-disabled:hover {
+        background-color: #f5f5f5 !important;
+        border-color: #ddd !important;
+        color: #999 !important;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+      
+      /* Estilos específicos para botón anterior deshabilitado */
+      .fc-prev-button.fc-state-disabled {
+        opacity: 0.6 !important;
+        cursor: not-allowed !important;
+        background-color: #f5f5f5 !important;
+        border-color: #ddd !important;
+        color: #999 !important;
+        pointer-events: none !important;
+      }
+      
+      .fc-prev-button.fc-state-disabled:hover {
+        background-color: #f5f5f5 !important;
+        border-color: #ddd !important;
+        color: #999 !important;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+      
+      /* Forzar estilos para botones deshabilitados */
+      .fc-button.fc-state-disabled {
+        opacity: 0.6 !important;
+        cursor: not-allowed !important;
+        background-color: #f5f5f5 !important;
+        border-color: #ddd !important;
+        color: #999 !important;
+        pointer-events: none !important;
+      }
     `)
     .appendTo("head");
 
   // Calcular el último día del mes actual antes de pasar el objeto de configuración
-  var ultimoDiaMesActual = new Date(y, m + 1, 0).getDate();
+  var ultimoDiaMesActual = new Date(fechaActualSistema.getFullYear(), fechaActualSistema.getMonth() + 1, 0).getDate();
 
   $("#calendar").fullCalendar({
     locale: 'es',
@@ -220,11 +318,11 @@ $(function () {
       today: "día Actual",
     },
     validRange: {
-      start: new Date(y - 1, 0, 1),
-      end: new Date(y, m, ultimoDiaMesActual + 1),
+      start: new Date(fechaActualSistema.getFullYear() - 1, 0, 1),
+      end: new Date(fechaActualSistema.getFullYear(), fechaActualSistema.getMonth() + 1, 0), // Permitir navegar hasta el mes actual
     },
     fixedWeekCount: false,
-    showNonCurrentDates: false,
+    showNonCurrentDates: false, // Mostrar días no del mes como cuadros en blanco
     editable: false,
     droppable: false,
     eventDurationEditable: false,
@@ -297,9 +395,20 @@ $(function () {
       var today = new Date();
       today.setHours(0, 0, 0, 0);
 
+      // Solo aplicar estilo diferente a días futuros del mes actual
       if (date > today) {
-        cell.css("background-color", "#f5f5f5").css("opacity", "0.6");
-        cell.find(".fc-day-number").html("");
+        cell.css("background-color", "#f9f9f9").css("opacity", "0.8");
+      }
+      
+      // Asegurar que los días no del mes se vean como cuadros en blanco
+      // Usar la fecha actual del sistema para determinar el mes actual
+      var fechaActualSistema = new Date();
+      var currentMonth = new Date(fechaActualSistema.getFullYear(), fechaActualSistema.getMonth(), 1);
+      var endOfCurrentMonth = new Date(fechaActualSistema.getFullYear(), fechaActualSistema.getMonth() + 1, 0);
+      
+      if (date < currentMonth || date > endOfCurrentMonth) {
+        cell.css("background-color", "#f9f9f9").css("border", "1px solid #ddd");
+        cell.find('.fc-day-number').css("color", "transparent").css("opacity", "0");
       }
     },
     viewRender: function (view, element) {
@@ -338,32 +447,158 @@ $(function () {
         eventos: nombresEventos,
       });
 
+      // Usar fecha actual del sistema para determinar límites de navegación
+      var fechaActualSistema = new Date();
+      var anioActual = fechaActualSistema.getFullYear();
+      var mesActual = fechaActualSistema.getMonth(); // 0-11 (enero=0, agosto=7)
+
       // Deshabilitar anterior si estamos en el límite inferior
-      if (currentStart <= new Date(y - 1, 0, 1)) {
+      if (currentStart <= new Date(anioActual - 1, 0, 1)) {
         $(".fc-prev-button")
           .prop("disabled", true)
-          .addClass("fc-state-disabled");
+          .addClass("fc-state-disabled")
+          .css({
+            "opacity": "0.6",
+            "cursor": "not-allowed",
+            "background-color": "#f5f5f5",
+            "border-color": "#ddd",
+            "color": "#999",
+            "pointer-events": "none"
+          });
       } else {
         $(".fc-prev-button")
           .prop("disabled", false)
-          .removeClass("fc-state-disabled");
+          .removeClass("fc-state-disabled")
+          .css({
+            "opacity": "",
+            "cursor": "",
+            "background-color": "",
+            "border-color": "",
+            "color": "",
+            "pointer-events": ""
+          });
       }
 
-      // Deshabilitar siguiente si estamos en el límite superior
-      if (currentEnd >= new Date(y, m + 1, 0)) {
+      // Deshabilitar siguiente si estamos en el mes actual o después
+      if (currentStart >= new Date(anioActual, mesActual, 1)) {
         $(".fc-next-button")
           .prop("disabled", true)
-          .addClass("fc-state-disabled");
+          .addClass("fc-state-disabled")
+          .css({
+            "opacity": "0.6",
+            "cursor": "not-allowed",
+            "background-color": "#f5f5f5",
+            "border-color": "#ddd",
+            "color": "#999",
+            "pointer-events": "none"
+          });
       } else {
         $(".fc-next-button")
           .prop("disabled", false)
-          .removeClass("fc-state-disabled");
+          .removeClass("fc-state-disabled")
+          .css({
+            "opacity": "",
+            "cursor": "",
+            "background-color": "",
+            "border-color": "",
+            "color": "",
+            "pointer-events": ""
+          });
       }
 
       // Llama a la función al cargar la página
       cargarEventosColorear();
+      
+      // Asegurar que el botón "día actual" funcione correctamente
+      setTimeout(function() {
+        $('.fc-today-button').off('click').on('click', function() {
+          var fechaHoy = new Date();
+          $("#calendar").fullCalendar('gotoDate', fechaHoy);
+        });
+      }, 100);
     }
   });
+});
+
+// Función para asegurar que el calendario se inicialice correctamente
+$(document).ready(function() {
+  // Verificar si el calendario existe y está inicializado
+  if ($('#calendar').length && typeof $.fullCalendar !== 'undefined') {
+    // Forzar una actualización del calendario
+    setTimeout(function() {
+      $('#calendar').fullCalendar('render');
+      
+      // Asegurar que el botón "día actual" funcione
+      $('.fc-today-button').off('click').on('click', function() {
+        var fechaHoy = new Date();
+        $('#calendar').fullCalendar('gotoDate', fechaHoy);
+      });
+      
+      // Asegurar que todos los días sean visibles
+      $('.fc-day-number').show();
+      
+      // Forzar la habilitación de los botones de navegación
+      var fechaActualSistema = new Date();
+      var anioActual = fechaActualSistema.getFullYear();
+      var mesActual = fechaActualSistema.getMonth();
+      var currentView = $('#calendar').fullCalendar('getView');
+      
+      // Habilitar botón anterior si no estamos en el límite inferior
+      if (currentView.start > new Date(anioActual - 1, 0, 1)) {
+        $(".fc-prev-button")
+          .prop("disabled", false)
+          .removeClass("fc-state-disabled")
+          .css({
+            "opacity": "",
+            "cursor": "",
+            "background-color": "",
+            "border-color": "",
+            "color": "",
+            "pointer-events": ""
+          });
+      } else {
+        $(".fc-prev-button")
+          .prop("disabled", true)
+          .addClass("fc-state-disabled")
+          .css({
+            "opacity": "0.6",
+            "cursor": "not-allowed",
+            "background-color": "#f5f5f5",
+            "border-color": "#ddd",
+            "color": "#999",
+            "pointer-events": "none"
+          });
+      }
+      
+      // Habilitar botón siguiente si no estamos en el mes actual o después
+      if (currentView.start < new Date(anioActual, mesActual, 1)) {
+        $(".fc-next-button")
+          .prop("disabled", false)
+          .removeClass("fc-state-disabled")
+          .css({
+            "opacity": "",
+            "cursor": "",
+            "background-color": "",
+            "border-color": "",
+            "color": "",
+            "pointer-events": ""
+          });
+      } else {
+        $(".fc-next-button")
+          .prop("disabled", true)
+          .addClass("fc-state-disabled")
+          .css({
+            "opacity": "0.6",
+            "cursor": "not-allowed",
+            "background-color": "#f5f5f5",
+            "border-color": "#ddd",
+            "color": "#999",
+            "pointer-events": "none"
+          });
+      }
+      
+    }, 500);
+  }
 });
 
 // Función para manejar el evento
