@@ -26,7 +26,7 @@
 
       <div class="box-body">
 
-        <table id="tablaSocios" class="table table-bordered table-stripeded dt-responsive dt-responsive tablas" width="100%">
+        <table id="tablaSocios" class="table table-bordered table-striped table-hover dt-responsive tablas" width="100%">
           <thead>
             <tr>
               <th style="width:10px">#</th>

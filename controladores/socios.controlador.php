@@ -66,6 +66,16 @@ class ControladorSocios
 	}
 
 	/*=============================================
+	MOSTRAR TODOS LOS SOCIOS
+	=============================================*/
+	static public function ctrMostrarTodosSocios()
+	{
+		$tabla = "tbl_socios";
+		$respuesta = ModeloSocios::mdlMostrarSocios($tabla, null, null);
+		return $respuesta;
+	}
+
+	/*=============================================
 	EDITAR SOCIO
 	=============================================*/
 	static public function ctrEditarSocio()

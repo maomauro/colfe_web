@@ -1,4 +1,7 @@
 <?php
+// Deshabilitar la salida de errores para respuestas JSON
+ini_set('display_errors', 0);
+error_reporting(0);
 
 require_once "../controladores/socios.controlador.php";
 require_once "../modelos/socios.modelo.php";
@@ -53,6 +56,23 @@ class AjaxSocios{
 		echo json_encode($respuesta);
 
 	}
+
+	/*=============================================
+	OBTENER TODOS LOS SOCIOS
+	=============================================*/	
+	public function ajaxObtenerTodosSocios(){
+		try {
+			$respuesta = ControladorSocios::ctrMostrarTodosSocios();
+			
+			if ($respuesta === false) {
+				echo json_encode(array("error" => "Error al obtener socios"));
+			} else {
+				echo json_encode($respuesta);
+			}
+		} catch (Exception $e) {
+			echo json_encode(array("error" => "Error al obtener socios: " . $e->getMessage()));
+		}
+	}
 }
 
 /*=============================================
@@ -81,4 +101,12 @@ if(isset( $_POST["validarIdentificacion"])){
 	$valIdentificacion = new AjaxSocios();
 	$valIdentificacion -> validarIdentificacion = $_POST["validarIdentificacion"];
 	$valIdentificacion -> ajaxValidarIdentificacion();
+}
+
+/*=============================================
+OBTENER TODOS LOS SOCIOS
+=============================================*/
+if(isset($_POST["obtenerTodosSocios"])){
+	$obtenerSocios = new AjaxSocios();
+	$obtenerSocios -> ajaxObtenerTodosSocios();
 }

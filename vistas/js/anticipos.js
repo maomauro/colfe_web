@@ -29,12 +29,8 @@ $(document).on("click", ".btnEditarAnticipo", function(){
 		contentType: false,
 		processData: false,
 		dataType: "json",
-		beforeSend: function() {
-			console.log("Enviando datos:", datos);
-		},
-		success: function(respuesta){
-			console.log("Respuesta recibida:", respuesta);
-			$("#editarMontoAnticipo").val(respuesta["monto"]);
+		beforeSend: function() {},
+		success: function(respuesta){$("#editarMontoAnticipo").val(respuesta["monto"]);
 			$("#editarFechaAnticipo").val(respuesta["fecha_anticipo"]);
 			$("#editarEstadoAnticipo").val(respuesta["estado"]);
 			$("#editarObservacionesAnticipo").val(respuesta["observaciones"]);
@@ -55,12 +51,7 @@ $(document).on("click", ".btnEditarAnticipo", function(){
 				$('#modalEditarAnticipo .btn-primary').prop('disabled', false).text('Modificar Anticipo');
 			}
 		},
-		error: function(xhr, status, error) {
-			console.error("Error en AJAX:", error);
-			console.error("Status:", status);
-			console.error("Response:", xhr.responseText);
-			
-			swal({
+		error: function(xhr, status, error) {swal({
 				type: "error",
 				title: "Error al cargar datos",
 				text: "No se pudieron cargar los datos del anticipo. Error: " + error,

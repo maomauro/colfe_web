@@ -59,41 +59,7 @@
                     <span>Anticipos</span>
                 </a>
             </li>
-            <li>
-                <a href="prediccion">
-                    <i class="fa fa-line-chart"></i>
-                    <span>Predicción</span>
-                </a>
-            </li>
-            <li class="treeview">
-                <a href="#">
-                    <i class="fa fa-list-ul"></i>
-                    <span>Reportes</span>  
-                    <span class="pull-right-container">
-                        <i class="fa fa-angle-left pull-right"></i>
-                    </span>
-                </a>
-                <ul class="treeview-menu">
-                    <li>
-                        <a href="reporte-1">
-                            <i class="fa fa-file-text"></i>
-                            <span>Reporte #1</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="reporte-2">
-                            <i class="fa fa-bar-chart"></i>
-                            <span>Reporte #2</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="reporte-3">
-                            <i class="fa fa-pie-chart"></i>
-                            <span>Reporte #3</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
+
         </ul>
 
     </section>

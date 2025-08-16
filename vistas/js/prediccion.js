@@ -100,24 +100,19 @@ $('#btnReentrenar').on('click', function() {
 
     $btn.prop('disabled', true);
     $modalBody.html('<i class="fa fa-spinner fa-spin"></i> Reentrenando modelo, por favor espera...');
-    console.log('Solicitud de reentrenamiento enviada...');
-
     $.ajax({
         url: "ajax/prediccion.ajax.php",
         type: 'POST',
         data: { reentrenar: 1 },
         success: function(response) {
             $modalBody.html('<pre>' + response + '</pre>');
-            console.log('Respuesta recibida:', response);
         },
         error: function(xhr) {
             $modalBody.html('<span class="text-danger">Ocurrió un error al reentrenar el modelo.</span>');
-            console.log('Error en la petición AJAX');
         },
         complete: function() {
             $btn.prop('disabled', false);
             $('#modalReentrenarModelo').modal('hide'); // Cierra el modal al finalizar
-            console.log('Petición AJAX finalizada');
         }
     });
 });

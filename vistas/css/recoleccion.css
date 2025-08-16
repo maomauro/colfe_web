@@ -112,15 +112,15 @@ ESTILOS PARA RECOLECCIÓN
 
 /* Estilos para el botón de fecha actual */
 #fechaActual {
-    background-color: #007bff;
-    border-color: #0056b3;
+    background-color: #57a7fd;
+    border-color: #4a8fd8;
     color: white;
     cursor: default;
 }
 
 #fechaActual:hover {
-    background-color: #007bff;
-    border-color: #0056b3;
+    background-color: #57a7fd;
+    border-color: #4a8fd8;
     transform: none;
     box-shadow: none;
 }

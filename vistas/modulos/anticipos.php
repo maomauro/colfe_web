@@ -31,7 +31,7 @@ require_once $_SERVER["DOCUMENT_ROOT"] . "/colfe_web/controladores/socios.contro
 
       <div class="box-body">
 
-        <table class="table table-bordered table-stripeded dt-responsive dt-responsive tablas" width="100%">
+        <table class="table table-bordered table-striped table-hover dt-responsive tablas" width="100%">
           <thead>
             <tr>
               <th style="width:10px">#</th>
@@ -124,65 +124,67 @@ MODAL AGREGAR ANTICIPO
         <div class="modal-body">
           <div class="box-body">
             
-            <!-- SELECCIONAR SOCIO -->
-            <div class="form-group">
-              <div class="input-group">
-                <span class="input-group-addon"><i class="fa fa-user"></i></span>
-                <select class="form-control input-lg" id="nuevoSocioAnticipo" name="nuevoSocioAnticipo" required>
-                  <option value="" disabled selected>Selecciona Socio</option>
-                  <?php
-                  $socios = ControladorSocios::ctrMostrarSocio(null, null);
-                  if ($socios) {
-                      foreach ($socios as $socio) {
-                          if ($socio["estado"] == "activo") {
-                              echo '<option value="' . $socio["id_socio"] . '">' . $socio["nombre"] . ' ' . $socio["apellido"] . ' - ' . $socio["identificacion"] . '</option>';
-                          }
-                      }
-                  }
-                  ?>
-                </select>
+            <div class="row">
+              <!-- SELECCIONAR SOCIO -->
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="nuevoSocioAnticipo"><i class="fa fa-user"></i> Socio:</label>
+                  <select class="form-control" id="nuevoSocioAnticipo" name="nuevoSocioAnticipo" required>
+                    <option value="" disabled selected>Selecciona Socio</option>
+                    <?php
+                    $socios = ControladorSocios::ctrMostrarSocio(null, null);
+                    if ($socios) {
+                        foreach ($socios as $socio) {
+                            if ($socio["estado"] == "activo") {
+                                echo '<option value="' . $socio["id_socio"] . '">' . $socio["nombre"] . ' ' . $socio["apellido"] . ' - ' . $socio["identificacion"] . '</option>';
+                            }
+                        }
+                    }
+                    ?>
+                  </select>
+                </div>
+              </div>
+
+              <!-- MONTO -->
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="nuevoMontoAnticipo"><i class="fa fa-dollar"></i> Monto:</label>
+                  <input type="number" step="0.01" min="0" class="form-control" id="nuevoMontoAnticipo" 
+                         name="nuevoMontoAnticipo" placeholder="Ingresa Monto del Anticipo" required>
+                </div>
               </div>
             </div>
 
-            <!-- MONTO -->
-            <div class="form-group">
-              <div class="input-group">
-                <span class="input-group-addon"><i class="fa fa-dollar"></i></span>
-                <input type="number" step="0.01" min="0" class="form-control input-lg" id="nuevoMontoAnticipo" 
-                       name="nuevoMontoAnticipo" placeholder="Ingresa Monto del Anticipo" required>
+            <div class="row">
+              <!-- FECHA ANTICIPO -->
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="nuevoFechaAnticipo"><i class="fa fa-calendar"></i> Fecha:</label>
+                  <input type="date" class="form-control" id="nuevoFechaAnticipo" 
+                         name="nuevoFechaAnticipo" value="<?php echo date('Y-m-d'); ?>" required>
+                </div>
               </div>
-            </div>
 
-            <!-- FECHA ANTICIPO -->
-            <div class="form-group">
-              <div class="input-group">
-                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                <input type="date" class="form-control input-lg" id="nuevoFechaAnticipo" 
-                       name="nuevoFechaAnticipo" value="<?php echo date('Y-m-d'); ?>" required>
-              </div>
-            </div>
-
-            <!-- ESTADO -->
-            <div class="form-group">
-              <div class="input-group">
-                <span class="input-group-addon"><i class="fa fa-toggle-on"></i></span>
-                <select class="form-control input-lg" id="nuevoEstadoAnticipo" name="nuevoEstadoAnticipo" required>
-                  <option value="" disabled selected>Selecciona Estado</option>
-                  <option value="pendiente">Pendiente</option>
-                  <option value="aprobado">Aprobado</option>
-                  <option value="rechazado">Rechazado</option>
-                </select>
+              <!-- ESTADO -->
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="nuevoEstadoAnticipo"><i class="fa fa-toggle-on"></i> Estado:</label>
+                  <select class="form-control" id="nuevoEstadoAnticipo" name="nuevoEstadoAnticipo" required>
+                    <option value="" disabled selected>Selecciona Estado</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="aprobado">Aprobado</option>
+                    <option value="rechazado">Rechazado</option>
+                  </select>
+                </div>
               </div>
             </div>
 
             <!-- OBSERVACIONES -->
-            <div class="form-group">
-              <div class="input-group">
-                <span class="input-group-addon"><i class="fa fa-comment"></i></span>
-                <textarea class="form-control input-lg" id="nuevoObservacionesAnticipo" 
-                          name="nuevoObservacionesAnticipo" rows="3" 
-                          placeholder="Observaciones adicionales (opcional)"></textarea>
-              </div>
+            <div class="form-group mb-3">
+              <label for="nuevoObservacionesAnticipo"><i class="fa fa-comment"></i> Observaciones:</label>
+              <textarea class="form-control" id="nuevoObservacionesAnticipo" 
+                        name="nuevoObservacionesAnticipo" rows="3" 
+                        placeholder="Observaciones adicionales (opcional)"></textarea>
             </div>
 
           </div>

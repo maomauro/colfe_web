@@ -162,7 +162,6 @@ function actualizarTablaRecoleccion(datos) {
     // Verificar que la tabla existe
     var $tabla = $("#tablaRecoleccion");
     if (!$tabla.length) {
-      console.warn('Tabla de recolección no encontrada');
       return;
     }
 

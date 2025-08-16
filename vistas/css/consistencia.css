@@ -1,0 +1,338 @@
+/* ===========================================
+   ARCHIVO DE CONSISTENCIA VISUAL
+   Mejoras para estandarizar el diseño
+   =========================================== */
+
+/* ===========================================
+   ESPACIADO Y MARGENES CONSISTENTES
+   =========================================== */
+
+/* Espaciado estándar para formularios */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group.mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+/* Espaciado para filtros */
+.row.mb-3 {
+    margin-bottom: 1.5rem !important;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f4f4f4;
+}
+
+/* ===========================================
+   MEJORAS EN TABLAS
+   =========================================== */
+
+/* Tablas con mejor apariencia */
+.table {
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0,0,0,.02);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0,0,0,.075);
+    transition: background-color 0.15s ease-in-out;
+}
+
+/* ===========================================
+   MEJORAS EN BOTONES
+   =========================================== */
+
+/* Botones con mejor apariencia */
+.btn {
+    border-radius: 4px;
+    font-weight: 500;
+    transition: all 0.15s ease-in-out;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-block {
+    border-radius: 4px;
+}
+
+/* ===========================================
+   MEJORAS EN FORMULARIOS
+   =========================================== */
+
+/* Inputs con mejor apariencia */
+.form-control {
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Labels con mejor apariencia */
+label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+/* ===========================================
+   MEJORAS EN MODALES
+   =========================================== */
+
+/* Modales con mejor apariencia */
+.modal-content {
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+.modal-header {
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem 1.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid #dee2e6;
+    padding: 1rem 1.5rem;
+}
+
+/* ===========================================
+   MEJORAS EN FILTROS
+   =========================================== */
+
+/* Filtros con mejor apariencia */
+.filtros-container {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.filtros-container .form-group {
+    margin-bottom: 0.75rem;
+}
+
+/* ===========================================
+   MEJORAS EN CARDS Y BOXES
+   =========================================== */
+
+/* Boxes con mejor apariencia */
+.box {
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #dee2e6;
+}
+
+.box-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem 1.5rem;
+}
+
+.box-body {
+    padding: 1.5rem;
+}
+
+/* ===========================================
+   MEJORAS EN ALERTAS
+   =========================================== */
+
+/* Alertas con mejor apariencia */
+.alert {
+    border-radius: 6px;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+/* ===========================================
+   MEJORAS EN BADGES Y LABELS
+   =========================================== */
+
+/* Labels con mejor apariencia */
+.label {
+    border-radius: 4px;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+}
+
+.label-success {
+    background-color: #28a745;
+}
+
+.label-danger {
+    background-color: #dc3545;
+}
+
+.label-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.label-info {
+    background-color: #17a2b8;
+}
+
+/* ===========================================
+   MEJORAS EN RESPONSIVE
+   =========================================== */
+
+/* Mejoras para dispositivos móviles */
+@media (max-width: 768px) {
+    .row.mb-3 {
+        margin-bottom: 1rem !important;
+    }
+    
+    .row.mb-3 .col-md-3,
+    .row.mb-3 .col-md-4 {
+        margin-bottom: 0.75rem;
+    }
+    
+    .box-body {
+        padding: 1rem;
+    }
+    
+    .modal-body {
+        padding: 1rem;
+    }
+    
+    .table-responsive {
+        border-radius: 4px;
+    }
+}
+
+/* ===========================================
+   MEJORAS EN ANIMACIONES
+   =========================================== */
+
+/* Animaciones suaves */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===========================================
+   MEJORAS EN ICONOS
+   =========================================== */
+
+/* Iconos con mejor alineación */
+.fa, .ion {
+    margin-right: 0.25rem;
+}
+
+/* ===========================================
+   MEJORAS EN NAVEGACIÓN
+   =========================================== */
+
+/* Breadcrumb con mejor apariencia */
+.breadcrumb {
+    background-color: transparent;
+    padding: 0.75rem 0;
+    margin-bottom: 0;
+}
+
+.breadcrumb > li + li:before {
+    content: ">";
+    color: #6c757d;
+}
+
+/* ===========================================
+   MEJORAS EN UTILIDADES
+   =========================================== */
+
+/* Clases de utilidad adicionales */
+.text-muted {
+    color: #6c757d !important;
+}
+
+.border-light {
+    border-color: #dee2e6 !important;
+}
+
+.shadow-sm {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+}
+
+.rounded {
+    border-radius: 4px !important;
+}
+
+/* ===========================================
+   MEJORAS EN ESTADOS
+   =========================================== */
+
+/* Estados de carga */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

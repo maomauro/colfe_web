@@ -12,11 +12,8 @@ FUNCIONES DE FORMATO
 =============================================*/
 // Función para formatear texto de período
 function formatearTextoPeriodoProduccion(mes, anio) {
-  console.log('formatearTextoPeriodoProduccion recibió:', {mes: mes, anio: anio});
-  
   // Verificar que mes y anio sean válidos
   if (mes === undefined || mes === null || anio === undefined || anio === null || isNaN(mes) || isNaN(anio)) {
-    console.error('Error: mes o anio no válidos:', {mes: mes, anio: anio});
     return 'Período no válido';
   }
   
@@ -27,7 +24,6 @@ function formatearTextoPeriodoProduccion(mes, anio) {
   
   // Verificar que el mes esté en el rango válido
   if (mes < 1 || mes > 12) {
-    console.error('Error: mes fuera de rango:', mes);
     return 'Mes no válido';
   }
   
@@ -51,8 +47,6 @@ function irPeriodoAnterior() {
   if (window.location.href.indexOf('produccion') === -1) {
     return;
   }
-  
-  console.log('Navegando al período anterior. PeriodoActual antes:', periodoActual);
   
   var mes = periodoActual.mes;
   var anio = periodoActual.anio;
@@ -83,8 +77,6 @@ function irPeriodoAnterior() {
   
   periodoActual.mes = mes;
   periodoActual.anio = anio;
-  
-  console.log('PeriodoActual después de navegación:', periodoActual);
   cargarProduccionPorPeriodo(periodoActual.mes, periodoActual.anio);
 }
 
@@ -93,8 +85,6 @@ function irPeriodoSiguiente() {
   if (window.location.href.indexOf('produccion') === -1) {
     return;
   }
-  
-  console.log('Navegando al período siguiente. PeriodoActual antes:', periodoActual);
   
   var mes = periodoActual.mes;
   var anio = periodoActual.anio;
@@ -130,8 +120,6 @@ function irPeriodoSiguiente() {
   
   periodoActual.mes = mes;
   periodoActual.anio = anio;
-  
-  console.log('PeriodoActual después de navegación:', periodoActual);
   cargarProduccionPorPeriodo(periodoActual.mes, periodoActual.anio);
 }
 
@@ -188,18 +176,13 @@ function cargarProduccionPorPeriodo(mes, anio) {
         if (mes && anio) {
           periodoActual.mes = parseInt(mes);
           periodoActual.anio = parseInt(anio);
-          console.log('Período actualizado desde parámetros:', periodoActual);
           actualizarTextoPeriodo();
           obtenerEstadisticasProduccion(mes, anio);
         } else {
           // Si no se pasaron parámetros, extraer el período de los datos cargados
-          console.log('No se pasaron parámetros, extrayendo período de datos:', datos);
           if (datos && datos.length > 0 && datos[0].fecha) {
             var fecha = new Date(datos[0].fecha);
-            console.log('Fecha extraída:', datos[0].fecha);
-            console.log('Fecha parseada:', fecha);
-            console.log('Mes extraído:', fecha.getMonth() + 1);
-            console.log('Año extraído:', fecha.getFullYear());
+
             
             // Asegurar que periodoActual esté definido
             if (!periodoActual) {
@@ -208,25 +191,15 @@ function cargarProduccionPorPeriodo(mes, anio) {
             
             periodoActual.mes = parseInt(fecha.getMonth() + 1);
             periodoActual.anio = parseInt(fecha.getFullYear());
-            console.log('Período extraído de datos:', periodoActual);
-            console.log('Tipo de mes:', typeof periodoActual.mes, 'Valor:', periodoActual.mes);
-            console.log('Tipo de año:', typeof periodoActual.anio, 'Valor:', periodoActual.anio);
             actualizarTextoPeriodo();
-          } else {
-            console.log('No se pudieron extraer datos para determinar el período');
-          }
+          } 
           obtenerEstadisticasProduccion();
         }
         
         actualizarEstadoBotones();
-      } catch (e) {
-        console.error('Error al parsear respuesta:', e);
-        console.error('Respuesta recibida:', respuesta);
-      }
+      } catch (e) {}
     },
-    error: function (xhr, status, error) {
-      console.error('Error AJAX:', error);
-    }
+    error: function (xhr, status, error) {}
   });
 }
 
@@ -257,14 +230,9 @@ function obtenerEstadisticasProduccion(mes, anio) {
           // Solo necesitamos asegurarnos de que el texto del período esté actualizado
           actualizarTextoPeriodo();
         }
-      } catch (e) {
-        console.error('Error al parsear estadísticas:', e);
-        console.error('Respuesta recibida:', respuesta);
-      }
+      } catch (e) {}
     },
-    error: function (xhr, status, error) {
-      console.error('Error AJAX estadísticas:', error);
-    }
+    error: function (xhr, status, error) {}
   });
 }
 
@@ -293,14 +261,9 @@ function obtenerUltimoMesConDatos() {
           // Cargar datos
           cargarProduccionPorPeriodo(periodoActual.mes, periodoActual.anio);
         }
-      } catch (e) {
-        console.error('Error al parsear último mes:', e);
-        console.error('Respuesta recibida:', respuesta);
-      }
+      } catch (e) {}
     },
-    error: function (xhr, status, error) {
-      console.error('Error AJAX último mes:', error);
-    }
+    error: function (xhr, status, error) {}
   });
 }
 
@@ -313,7 +276,6 @@ function actualizarTablaProduccion(datos) {
     // Verificar que la tabla existe
     var $tabla = $("#tablaProduccion");
     if (!$tabla.length) {
-      console.warn('Tabla de producción no encontrada');
       return;
     }
 
@@ -321,9 +283,7 @@ function actualizarTablaProduccion(datos) {
     if ($.fn.DataTable.isDataTable($tabla)) {
       try {
         $tabla.DataTable().destroy();
-      } catch (destroyError) {
-        console.warn('Error al destruir DataTable existente:', destroyError);
-      }
+      } catch (destroyError) {}
     }
 
     // Limpiar el tbody
@@ -384,18 +344,14 @@ function actualizarTablaProduccion(datos) {
               destroy: true,
               retrieve: true
             });
-          } catch (initError) {
-            console.error('Error al inicializar DataTable:', initError);
-          }
+          } catch (initError) {}
         }
       }, 100);
     } else {
       // Si no hay datos, mostrar mensaje simple sin DataTable
       $tabla.find("tbody").append('<tr><td colspan="9" class="text-center" style="padding: 20px; background-color: #ff9800; color: white; font-weight: bold; border-radius: 5px;">No hay datos de producción para este período</td></tr>');
     }
-  } catch (error) {
-    console.error('Error al actualizar tabla de producción:', error);
-  }
+  } catch (error) {}
 }
 
 // Función para actualizar las estadísticas de producción
@@ -419,9 +375,7 @@ function actualizarEstadisticasProduccion(estadisticas) {
       $('.info-stat-item:contains("Total Asociados") small').text('(0 litros)');
       $('.info-stat-item:contains("Total Proveedores") small').text('(0 litros)');
     }
-  } catch (error) {
-    console.error('Error al actualizar estadísticas de producción:', error);
-  }
+  } catch (error) {}
 }
 
 // Función para actualizar el estado de los botones
@@ -484,37 +438,17 @@ function actualizarEstadoBotones() {
 function actualizarTextoPeriodo() {
   if (window.location.href.indexOf('produccion') === -1) {
     return;
+  }// Verificar que periodoActual esté definido y tenga valores válidos
+  if (!periodoActual) {periodoActual = { mes: 1, anio: 2025 };
   }
   
-  console.log('actualizarTextoPeriodo - periodoActual:', periodoActual);
-  
-  // Verificar que periodoActual esté definido y tenga valores válidos
-  if (!periodoActual) {
-    console.error('Error: periodoActual no está definido');
-    periodoActual = { mes: 1, anio: 2025 };
-  }
-  
-  if (periodoActual.mes === undefined || periodoActual.mes === null || periodoActual.anio === undefined || periodoActual.anio === null) {
-    console.error('Error: periodoActual no válido:', periodoActual);
-    $('#textoPeriodo').text('Período no válido');
+  if (periodoActual.mes === undefined || periodoActual.mes === null || periodoActual.anio === undefined || periodoActual.anio === null) {$('#textoPeriodo').text('Período no válido');
     $('#ultimaActualizacion').text('Período no válido');
     return;
-  }
-  
-  console.log('Llamando formatearTextoPeriodoProduccion con:', periodoActual.mes, periodoActual.anio);
-  console.log('Tipo de mes:', typeof periodoActual.mes, 'Valor:', periodoActual.mes);
-  console.log('Tipo de año:', typeof periodoActual.anio, 'Valor:', periodoActual.anio);
-  var textoPeriodo = formatearTextoPeriodoProduccion(periodoActual.mes, periodoActual.anio);
-  console.log('textoPeriodo resultante:', textoPeriodo);
-  
-  // Verificar que el texto no sea undefined
+  }var textoPeriodo = formatearTextoPeriodoProduccion(periodoActual.mes, periodoActual.anio);// Verificar que el texto no sea undefined
   if (textoPeriodo && textoPeriodo !== 'undefined') {
     $('#textoPeriodo').text(textoPeriodo);
-    $('#ultimaActualizacion').text(textoPeriodo);
-    console.log('Texto actualizado correctamente:', textoPeriodo);
-  } else {
-    console.error('Error: textoPeriodo no válido:', textoPeriodo);
-    $('#textoPeriodo').text('Período no válido');
+    $('#ultimaActualizacion').text(textoPeriodo);} else {$('#textoPeriodo').text('Período no válido');
     $('#ultimaActualizacion').text('Período no válido');
   }
 }
@@ -584,41 +518,30 @@ $(document).ready(function() {
   }
 
   try {
-    console.log('Inicializando página de producción...');
-    console.log('periodoActual inicial:', periodoActual);
-    console.log('window.periodoActual:', window.periodoActual);
-    
     // Verificar si hay parámetros URL
     var urlParams = new URLSearchParams(window.location.search);
     var mesParam = urlParams.get('mes');
     var anioParam = urlParams.get('anio');
     
-    console.log('Parámetros URL:', {mes: mesParam, anio: anioParam});
-    
     if (mesParam && anioParam) {
       // Si hay parámetros URL, usarlos
       periodoActual.mes = parseInt(mesParam);
       periodoActual.anio = parseInt(anioParam);
-      console.log('Usando parámetros URL:', periodoActual);
     } else {
       // Si no hay parámetros URL, inicializar desde PHP
       if (window.periodoActual && window.periodoActual.mes && window.periodoActual.anio) {
         periodoActual.mes = window.periodoActual.mes;
         periodoActual.anio = window.periodoActual.anio;
-        console.log('Usando window.periodoActual:', periodoActual);
       } else {
         // Fallback: usar mes actual
         periodoActual.mes = new Date().getMonth() + 1;
         periodoActual.anio = new Date().getFullYear();
-        console.log('Usando fallback (mes actual):', periodoActual);
+
       }
     }
-
-    console.log('periodoActual final:', periodoActual);
     
     // Verificar que periodoActual tenga valores válidos
     if (!periodoActual.mes || !periodoActual.anio || isNaN(periodoActual.mes) || isNaN(periodoActual.anio)) {
-      console.error('Error: periodoActual no válido después de inicialización:', periodoActual);
       return;
     }
 
@@ -634,10 +557,7 @@ $(document).ready(function() {
       cargarProduccionPorPeriodo(periodoActual.mes, periodoActual.anio);
     } else {
       // Si no hay parámetros URL, cargar automáticamente el último mes con datos
-      console.log('Cargando último mes con datos automáticamente...');
       cargarProduccionPorPeriodo();
     }
-  } catch (error) {
-    console.error('Error en inicialización de producción:', error);
-  }
+  } catch (error) {}
 });

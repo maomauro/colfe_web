@@ -129,9 +129,9 @@ $puedeConfirmar = ($totalPendientes > 0);
               </button>
             </div>
             
-            <!-- Botón Ver en Calendario -->
-            <button type="button" class="btn btn-warning" id="btnVerCalendario" title="Ver en Calendario" style="margin-left: 15px;">
-              <i class="fa fa-calendar"></i> Ver en Calendario
+                    <!-- Botón Ver en Calendario -->
+        <button type="button" class="btn" id="btnVerCalendario" title="Ver en Calendario" style="margin-left: 15px; background-color: #00a65a; border-color: #00a65a; color: white;">
+          <i class="fa fa-calendar"></i> Ver en Calendario
             </button>
           </div>
           <div class="col-md-6">

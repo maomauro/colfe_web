@@ -1,12 +1,7 @@
 <?php
 
-date_default_timezone_set('America/Bogota'); // O la zona horaria de tu país
+date_default_timezone_set('America/Bogota');
 session_start();
-/*
-    if (!isset($_SESSION["iniciarSesion"])) {
-        $_SESSION["iniciarSesion"] = "ok";
-    }
-*/
 ?>
 
 <!DOCTYPE html>
@@ -48,6 +43,10 @@ session_start();
     <link rel="stylesheet" href="vistas/css/liquidacion.css">
     <!-- Estilos para recolección -->
     <link rel="stylesheet" href="vistas/css/recoleccion.css">
+    <!-- Estilos para producción -->
+    <link rel="stylesheet" href="vistas/css/produccion.css">
+    <!-- Estilos de consistencia visual -->
+    <link rel="stylesheet" href="vistas/css/consistencia.css">
     <!-- Calendario (Local) -->
     <link rel="stylesheet" href="vistas/libs/external/css/jquery-ui.min.css">
 
@@ -126,10 +125,6 @@ session_start();
                 $_GET["ruta"] == "precios" ||
                 $_GET["ruta"] == "anticipos" ||
                 $_GET["ruta"] == "liquidacion" ||
-                $_GET["ruta"] == "prediccion" ||
-                $_GET["ruta"] == "reporte-1" ||
-                $_GET["ruta"] == "reporte-2" ||
-                $_GET["ruta"] == "reporte-3" ||
                 $_GET["ruta"] == "salir"
             ) {
                 include "modulos/" . $_GET["ruta"] . ".php";
@@ -160,6 +155,6 @@ session_start();
     <script src="vistas/js/precios.js"></script>
     <script src="vistas/js/anticipos.js"></script>
     <script src="vistas/js/liquidacion.js"></script>
-    <script src="vistas/js/prediccion.js"></script>
+
 </body>
 </html>

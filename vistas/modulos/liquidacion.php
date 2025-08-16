@@ -64,16 +64,16 @@ if (!empty($liquidaciones) && isset($liquidaciones[0]["fecha_liquidacion"])) {
                  <i class="fa fa-clock-o"></i> Última Liquidación
                </button>
                
-               <!-- Período Actual (Informativo) -->
-               <div class="btn-group" style="margin-left: 15px;">
-                 <button type="button" class="btn btn-primary" id="periodoActual" style="min-width: 150px; text-align: left; cursor: default;" disabled title="Período actual - Solo informativo">
-                   <i class="fa fa-calendar"></i> 
-                   <span id="textoPeriodo"><?php echo $quincena.' Quincena: ' . $fecha ?></span>
-                 </button>
-               </div>
+                                                               <!-- Período Actual (Informativo) -->
+                <div class="btn-group" style="margin-left: 15px;">
+                  <button type="button" class="btn btn-primary" id="periodoActual" style="min-width: 150px; text-align: left; cursor: default;" disabled title="Período actual - Solo informativo">
+                    <i class="fa fa-calendar"></i> 
+                    <span id="textoPeriodo"><?php echo $quincena.' Quincena: ' . $fecha ?></span>
+                  </button>
+                </div>
                
                <!-- Botón Ver en Calendario -->
-               <button type="button" class="btn btn-warning" id="btnVerCalendario" title="Ver en Calendario" style="margin-left: 15px;">
+               <button type="button" class="btn" id="btnVerCalendario" title="Ver en Calendario" style="margin-left: 15px; background-color: #00a65a; border-color: #00a65a; color: white;">
                  <i class="fa fa-calendar"></i> Ver en Calendario
                </button>
             </div>
