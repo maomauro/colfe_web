@@ -39,35 +39,38 @@ Lo que se puede conservar sin cambios: la lista blanca de rutas en `plantilla.ph
 MVC con nombres en español, y las URLs relativas `vistas/...` y `ajax/...` usadas por las
 vistas y por el JavaScript (no hay que reescribirlas si la estructura nueva las respeta).
 
-## 2. Estructura objetivo
+## 2. Estructura (implementada)
 
 ```
 colfe_web/
-├── public/                         ← ÚNICA raíz web (nginx apunta aquí)
+├── public/                         ← ÚNICA raíz web (nginx / Apache apuntan aquí)
 │   ├── index.php                   front controller; carga src/bootstrap.php
-│   ├── ajax/                       10 endpoints (menos prediccion), con guard de sesión
-│   ├── api/                        6 endpoints, con guard de token
-│   ├── reportes/                   recibo.php y reporte_recoleccion.php (movidos),
-│   │                               con guard de sesión
-│   └── vistas/                     SOLO estáticos: css, js, dist, img, plugins,
-│                                   bower_components, libs/external
+│   ├── ajax/                       endpoints de la interfaz web (guard de sesión + CSRF)
+│   ├── api/                        endpoints de la app móvil (guard de token)
+│   ├── reportes/                   recibo.php y reporte_recoleccion.php (guard de sesión)
+│   ├── vistas/                     SOLO estáticos: css, js, dist, img, plugins, bower_components, libs/external
+│   └── .htaccess                   reescritura para Apache/Laragon
 ├── src/                            fuera de la raíz web
-│   ├── bootstrap.php               carga config, zona horaria, errores, cookies, sesión
-│   ├── auth/guard.php              guardSesion() y guardToken()
-│   ├── controladores/
-│   ├── modelos/
-│   ├── vistas/                     plantilla.php y modulos/*.php (plantillas, no accesibles)
+│   ├── bootstrap.php               carga .env (solo desarrollo), config, zona horaria, errores
+│   ├── auth/                       guard.php (sesión y token) y csrf.php
+│   ├── controladores/ · modelos/
+│   ├── vistas/                     plantilla.php y modulos/*.php (plantillas, no accesibles por URL)
 │   └── libs/fpdf/
-├── config/config.php               todo desde variables de entorno
+├── config/config.php               todo desde variables de entorno, sin credenciales por defecto
 ├── storage/logs/                   logs de la app, fuera de la raíz web
-├── db/                             esquema, seed demo, herramientas, reset
-│   ├── schema/ · seed/ · tools/ · reset_produccion.sql
-├── docker/                         nginx.conf, php.ini
-├── tests/                          PHPUnit
-├── docs/
+├── db/
+│   ├── schema/                     esquema sin datos
+│   ├── seed/                       demo con fechas 2025-2026 (+ regularización del demo)
+│   ├── migraciones/                001 tokens API · 002 login seguro · 003 deducible asociados · 004 auditoría
+│   ├── tools/                      crear_usuario.php, desplazar_fechas.py, extraer_esquema.py, generar_migracion_auditoria.py
+│   └── reset_produccion.sql        limpieza del demo (se usa con deploy/reset_produccion.sh)
+├── docker/                         nginx/default.conf.template, php/php.ini, php-dev-router.php, env.docker.example
+├── deploy/                         desplegar.sh, backup.sh, probar_restauracion.sh, reset_produccion.sh, cron y vhost de ejemplo
+├── tests/                          liquidacion/ (PHPUnit) · seguridad/ (scripts) · navegador/ (Playwright)
+├── .github/workflows/              ci.yml, publicar.yml (GHCR), desplegar.yml
+├── docs/                           PLAN_TRABAJO.md, DIAGNOSTICO_ESTRUCTURA.md, DESPLIEGUE.md
 ├── Dockerfile · docker-compose.yml · docker-compose.prod.yml
-├── .env.example · .gitignore · .gitattributes
-└── README.md
+├── composer.json · phpunit.xml · env.example · README.md · README_TESTS.md · CLAUDE.md
 ```
 
 Reglas de la estructura:

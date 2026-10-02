@@ -4,7 +4,7 @@
 !env.example
 
 # Logs y temporales
-logs/
+/logs/
 *.log
 
 # Pruebas locales con credenciales (no van al repositorio)
