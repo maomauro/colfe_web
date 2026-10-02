@@ -65,12 +65,13 @@ colfe_web/
 │   ├── tools/                      crear_usuario.php, desplazar_fechas.py, extraer_esquema.py, generar_migracion_auditoria.py
 │   └── reset_produccion.sql        limpieza del demo (se usa con deploy/reset_produccion.sh)
 ├── docker/                         nginx/default.conf.template, php/php.ini, php-dev-router.php, env.docker.example
-├── deploy/                         desplegar.sh, backup.sh, probar_restauracion.sh, reset_produccion.sh, cron y vhost de ejemplo
+├── deploy/                         desplegar.sh, backup.sh, probar_restauracion.sh, reset_produccion.sh, cron-ejemplo.txt, nginx-vhost-ejemplo.conf
 ├── tests/                          liquidacion/ (PHPUnit) · seguridad/ (scripts) · navegador/ (Playwright)
 ├── .github/workflows/              ci.yml, publicar.yml (GHCR), desplegar.yml
 ├── docs/                           PLAN_TRABAJO.md, DIAGNOSTICO_ESTRUCTURA.md, DESPLIEGUE.md
 ├── Dockerfile · docker-compose.yml · docker-compose.prod.yml
-├── composer.json · phpunit.xml · env.example · README.md · README_TESTS.md · CLAUDE.md
+├── composer.json · composer.lock · phpunit.xml · env.example · README.md · CLAUDE.md
+├── .gitignore · .gitattributes · .dockerignore
 ```
 
 Reglas de la estructura:
