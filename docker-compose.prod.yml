@@ -1,0 +1,77 @@
+# Producción (VPS). Las imágenes las construye y publica el pipeline en GHCR.
+#   TAG=sha-abc1234 docker compose -f docker-compose.prod.yml up -d      (o ./deploy/desplegar.sh)
+# El rollback es volver a desplegar con un tag anterior.
+#
+# Diferencias con docker-compose.yml: sin código montado, sin phpMyAdmin, MySQL sin puerto
+# publicado y nginx solo en 127.0.0.1 (lo expone el nginx del servidor, con HTTPS).
+# El archivo .env vive SOLO en el servidor.
+
+name: colfe
+
+x-logging: &logging
+  driver: json-file
+  options: { max-size: "10m", max-file: "5" }
+
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?defina MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME:?defina DB_NAME}
+      MYSQL_USER: ${DB_USER:?defina DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS:?defina DB_PASS}
+      TZ: America/Bogota
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_general_ci", "--log-bin-trust-function-creators=1"]
+    volumes:
+      - dbdata:/var/lib/mysql
+      # Solo se ejecutan en la primera inicialización (volumen vacío)
+      - ./db/seed/colfe_demo_2026.sql:/docker-entrypoint-initdb.d/10-seed.sql:ro
+      - ./db/migraciones/001_tbl_api_tokens.sql:/docker-entrypoint-initdb.d/20-001.sql:ro
+      - ./db/migraciones/002_login_seguro.sql:/docker-entrypoint-initdb.d/21-002.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+    logging: *logging
+
+  app:
+    image: ghcr.io/maomauro/colfe_web-app:${TAG:-latest}
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: production
+      DB_HOST: db
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      SESSION_TIMEOUT: ${SESSION_TIMEOUT:-3600}
+      API_TOKEN_TTL: ${API_TOKEN_TTL:-86400}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
+    volumes:
+      - applogs:/var/www/html/storage/logs
+    security_opt:
+      - no-new-privileges:true
+    logging: *logging
+
+  web:
+    image: ghcr.io/maomauro/colfe_web-web:${TAG:-latest}
+    restart: always
+    depends_on:
+      - app
+    environment:
+      REAL_IP_HEADER: ${REAL_IP_HEADER:-X-Forwarded-For}
+      TRUSTED_PROXY_CIDR: ${TRUSTED_PROXY_CIDR:-172.16.0.0/12}
+    ports:
+      - "127.0.0.1:${WEB_PORT:-8081}:80"
+    security_opt:
+      - no-new-privileges:true
+    logging: *logging
+
+volumes:
+  dbdata:
+  applogs:

@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  php:
+    name: PHP 8.4 + MySQL 8.0
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: colfe_db
+          MYSQL_USER: colfe_app
+          MYSQL_PASSWORD: colfe_app_pass
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot --silent"
+          --health-interval=5s --health-timeout=5s --health-retries=30
+    env:
+      ENVIRONMENT: development
+      DB_HOST: 127.0.0.1
+      DB_NAME: colfe_db
+      DB_USER: colfe_app
+      DB_PASS: colfe_app_pass
+      BASE_URL: http://127.0.0.1:8080
+      APP_USER: admin
+      APP_PASS: Ci-Clave-Prueba-2026
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: pdo_mysql, mbstring, iconv
+          coverage: none
+
+      - name: Sintaxis PHP (php -l)
+        run: |
+          fallos=0
+          while IFS= read -r f; do
+            php -l "$f" >/dev/null || { echo "::error file=$f::error de sintaxis"; fallos=1; }
+          done < <(find config public src db/tools -name '*.php' -not -path '*/bower_components/*' -not -path '*/plugins/*' -not -path '*/libs/external/*')
+          exit $fallos
+
+      - name: Credenciales del cliente MySQL
+        run: |
+          printf '[client]\nhost=127.0.0.1\nuser=root\npassword=root\n' > ~/.my.cnf
+          chmod 600 ~/.my.cnf
+          mysql -e "SET GLOBAL log_bin_trust_function_creators = 1"
+
+      - name: Restaurar seed y migraciones (valida el seed en MySQL 8.0)
+        run: |
+          mysql < db/seed/colfe_demo_2026.sql
+          mysql colfe_db < db/migraciones/001_tbl_api_tokens.sql
+          mysql colfe_db < db/migraciones/002_login_seguro.sql
+          mysql colfe_db -e "GRANT ALL ON colfe_db.* TO 'colfe_app'@'%'; FLUSH PRIVILEGES;"
+          mysql colfe_db -N -e "SELECT 'socios', COUNT(*) FROM tbl_socios UNION ALL SELECT 'recoleccion', COUNT(*) FROM tbl_recoleccion UNION ALL SELECT 'liquidacion', COUNT(*) FROM tbl_liquidacion"
+
+      - name: Crear usuario administrador
+        run: COLFE_CLAVE="$APP_PASS" php db/tools/crear_usuario.php "$APP_USER"
+
+      - name: Arrancar la aplicación
+        run: |
+          php -S 127.0.0.1:8080 -t public docker/php-dev-router.php > /tmp/php-server.log 2>&1 &
+          for i in $(seq 1 20); do curl -fs -o /dev/null http://127.0.0.1:8080/ && break; sleep 1; done
+
+      - name: Pruebas de seguridad de endpoints
+        run: tests/seguridad/smoke_endpoints.sh
+
+      - name: Pruebas de autenticación
+        run: tests/seguridad/auth_test.sh
+
+      - name: Errores de PHP durante las pruebas
+        if: always()
+        run: |
+          echo "--- log del servidor"; cat /tmp/php-server.log || true
+          ! grep -E "Fatal error|Warning:|Notice:|Deprecated:" /tmp/php-server.log
+
+  docker:
+    name: Imágenes Docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Validar los compose
+        run: |
+          cp docker/env.docker.example .env
+          docker compose config -q
+          docker compose -f docker-compose.prod.yml --env-file docker/env.docker.example config -q
+      - name: Construir imagen app
+        uses: docker/build-push-action@v6
+        with: { context: ., target: app, push: false, tags: "colfe-app:ci", cache-from: "type=gha,scope=app", cache-to: "type=gha,scope=app,mode=max" }
+      - name: Construir imagen web
+        uses: docker/build-push-action@v6
+        with: { context: ., target: web, push: false, tags: "colfe-web:ci", cache-from: "type=gha,scope=web", cache-to: "type=gha,scope=web,mode=max" }

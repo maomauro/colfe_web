@@ -1,0 +1,39 @@
+name: Desplegar
+
+# Manual: elige el tag de imagen a desplegar (sha-abc1234, v0.2.0, latest).
+# El rollback es volver a ejecutar con un tag anterior.
+# Requiere los secretos del repositorio: VPS_HOST, VPS_USER, VPS_SSH_KEY, VPS_KNOWN_HOSTS
+# y, opcionalmente, VPS_PORT y VPS_DIR (por defecto /opt/colfe_web).
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag de imagen (sha-abc1234, v0.2.0 o latest)"
+        required: true
+        default: latest
+
+permissions:
+  contents: read
+
+jobs:
+  desplegar:
+    runs-on: ubuntu-latest
+    environment: produccion
+    steps:
+      - name: Desplegar por SSH
+        env:
+          TAG: ${{ inputs.tag }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_DIR: ${{ secrets.VPS_DIR }}
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          [[ "$TAG" =~ ^[A-Za-z0-9._-]+$ ]] || { echo "Tag inválido"; exit 1; }
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/id_deploy -p "${VPS_PORT:-22}" -o StrictHostKeyChecking=yes \
+            "$VPS_USER@$VPS_HOST" "cd '${VPS_DIR:-/opt/colfe_web}' && TAG='$TAG' ./deploy/desplegar.sh"
