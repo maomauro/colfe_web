@@ -1,3 +1,8 @@
+> **Aviso:** este documento describe pruebas que **no existen** en el repositorio
+> (por ejemplo `test_funcional_completo.php`). Hoy no hay pruebas automáticas.
+> Las pruebas reales (PHPUnit sobre la liquidación) están en la Fase 3 de
+> `docs/PLAN_TRABAJO.md`. Se conserva como referencia de intención.
+
 # 🧪 SISTEMA DE TESTS FUNCIONALES - COLFE
 
 Este directorio contiene un sistema completo de pruebas automatizadas para validar el funcionamiento del sistema COLFE.

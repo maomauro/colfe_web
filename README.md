@@ -56,8 +56,11 @@ colfe_web/
 
 2. **Configurar la base de datos**
    ```bash
-   # Importar el esquema
-   mysql -u root -p < db/colfe_db.sql
+   # Opción A (recomendada): esquema + datos demo (fechas 2025-2026)
+   mysql -u root -p < db/seed/colfe_demo_2026.sql
+
+   # Opción B: solo el esquema, sin datos
+   mysql -u root -p < db/schema/colfe_schema.sql
    ```
 
 3. **Configurar variables de entorno**
@@ -139,11 +142,17 @@ El sistema utiliza las siguientes tablas principales:
 
 ## 🔒 Seguridad
 
-- Validación de entrada de datos
-- Sanitización de consultas SQL
-- Control de sesiones
-- Protección CSRF
-- Logs de auditoría
+Implementado:
+- Consultas con PDO y sentencias preparadas
+- Lista blanca de rutas en el router
+- Cookies de sesión `httponly`
+
+**Pendiente antes de publicar** (ver `docs/PLAN_TRABAJO.md`, Fases 0 y 1):
+- Autenticación en `ajax/`, `api/`, reportes y módulos
+- Contraseñas con hash y token real en la API móvil
+- Protección CSRF y registro de auditoría (no implementados todavía)
+
+> El sistema **no debe exponerse a internet** hasta completar la Fase 1.
 
 ## 🐛 Solución de Problemas
 
