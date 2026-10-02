@@ -146,8 +146,8 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 
 - [ ] Checklist de salida cumplido (seguridad, despliegue, backup)
 - [ ] Demostración del proyecto
-- [ ] Backup completo de la base demo antes de limpiar
-- [ ] `db/reset_produccion.sql`: vacía socios y movimientos, conserva usuario administrador y catálogos (precios, deducibles), reinicia contadores
+- [x] Backup completo de la base demo antes de limpiar — lo hace `reset_produccion.sh` y se detiene si falla
+- [x] `db/reset_produccion.sql`: vacía socios y movimientos, conserva usuario administrador y catálogos (precios, deducibles), reinicia contadores — con `deploy/reset_produccion.sh` (confirmación escrita, respaldo previo, verificación). Probado, incluida la reversión
 - [ ] Ejecutar el reinicio en producción y verificar
 - [ ] Cargar los socios reales
 

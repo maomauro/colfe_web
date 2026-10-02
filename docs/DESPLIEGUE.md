@@ -80,6 +80,23 @@ Ver `docker/env.docker.example`. Obligatorias: `DB_NAME`, `DB_USER`, `DB_PASS`, 
 - Estado: `docker compose -f docker-compose.prod.yml ps`.
 - Mejora futura: ejecutar `app` con `read_only: true` una vez validado en el servidor.
 
-## 9. Tras la demostración (limpieza de datos demo)
-Ver `docs/PLAN_TRABAJO.md`, sección *Cierre*: respaldo completo, `db/reset_produccion.sql` y carga
-de los socios reales.
+## 9. Tras la demostración: limpiar los datos demo
+```bash
+cd /opt/colfe_web
+./deploy/reset_produccion.sh
+```
+El script **muestra qué va a borrar**, exige escribir `BORRAR-DATOS-DEMO`, **hace un respaldo previo y se
+detiene si falla**, ejecuta `db/reset_produccion.sql` y verifica el resultado.
+
+| Se elimina | Se conserva |
+|---|---|
+| socios, recolecciones, producción, liquidaciones, anticipos, tokens de API e intentos de login (contadores a 1) | usuarios (el administrador), **precios y deducibles**, esquema, vistas, triggers y procedimientos |
+| el generador de datos falsos (`spInsertIntoRecoleccion`, `generar_litros_leche`) | |
+
+Después:
+1. **Revisar los precios y deducibles** con la cooperativa (los valores actuales son del demo: 1.700 / 1.650 por litro, 0,75 % FEDEGAN, 10.000 de administración y 25.000 de ahorro por quincena).
+2. Cargar los socios reales desde la aplicación.
+3. Para **deshacer**, restaurar el respaldo que el script acaba de crear (ver sección 7).
+
+Probado de extremo a extremo: tras el reinicio, el alta de un socio por el formulario real, la liquidación
+por la app y el recibo PDF funcionan, y el cálculo coincide con el manual.
