@@ -123,7 +123,7 @@ jobs:
         run: |
           cp docker/env.docker.example .env
           docker compose config -q
-          docker compose -f docker-compose.prod.yml --env-file docker/env.docker.example config -q
+          PROXY_NETWORK=proxy-ci docker compose -f docker-compose.prod.yml --env-file docker/env.docker.example config -q
       - name: Construir imagen app
         uses: docker/build-push-action@v6
         with: { context: ., target: app, push: false, tags: "colfe-app:ci", cache-from: "type=gha,scope=app", cache-to: "type=gha,scope=app,mode=max" }
