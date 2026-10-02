@@ -57,18 +57,18 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 ## Fase 1: Seguridad (P0, obligatoria antes de publicar)
 
 ### 1.1 Autenticación de endpoints
-- [ ] Crear `src/auth/guard.php` (`guardSesion()` y `guardToken()`) que responda 401
-- [ ] **Nuevo (E1):** los módulos de `src/vistas/modulos/` solo se incluyen desde el router; confirmar que ninguno se ejecuta por URL
-- [ ] **Nuevo (E2):** guard de sesión en `public/reportes/recibo.php` y `reporte_recoleccion.php`
-- [ ] Incluir el guard en los 10 archivos de `ajax/`
-- [ ] Incluir el guard en las 6 APIs de `api/`
-- [ ] Revisar `apiCrearRecoleccionesLote.php` y `apiRecoleccionQuincena.php` (control no confirmado)
-- [ ] Probar con `curl` sin sesión: todo debe devolver 401
+- [x] Crear `src/auth/guard.php` (`guardSesion()` y `guardToken()`) que responda 401
+- [x] **Nuevo (E1):** los módulos de `src/vistas/modulos/` solo se incluyen desde el router; confirmar que ninguno se ejecuta por URL
+- [x] **Nuevo (E2):** guard de sesión en `public/reportes/recibo.php` y `reporte_recoleccion.php`
+- [x] Incluir el guard en los 8 archivos de `ajax/` (prediccion se eliminó)
+- [x] Incluir el guard en las 6 APIs de `api/` (`apiTotalLiquidacion` no tenía ningún control)
+- [x] Revisar `apiCrearRecoleccionesLote.php` y `apiRecoleccionQuincena.php` (control no confirmado)
+- [x] Probar con `curl` sin sesión: todo debe devolver 401
 
 ### 1.2 Token de la API móvil
-- [ ] Guardar el token (o JWT firmado) con usuario y expiración
-- [ ] Validar el token real en `apiValidarToken.php` y `apiSocios.php`
-- [ ] Probar la app Android contra el cambio (rompe hasta actualizar la app)
+- [x] Guardar el token (o JWT firmado) con usuario y expiración
+- [x] Validar el token real en `apiValidarToken.php` y `apiSocios.php`
+- [ ] **Pendiente de Edgar:** probar la app Android contra el cambio. Cambia solo `apiValidarToken` (ahora 401 si el token es inválido) y el token pasa a ser real
 
 ### 1.3 Contraseñas y sesión
 - [ ] Cambiar a `password_hash()` y `password_verify()`
@@ -79,8 +79,8 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 
 ### 1.4 Superficie de ataque
 - [x] ~~Eliminar `prediccion.ajax.php`~~ (se hace en la Fase 0)
-- [ ] Confirmar que no queda ningún `test_*.php` ni `shell_exec` en el código
-- [ ] Restringir CORS (hoy `Access-Control-Allow-Origin: *`)
+- [x] Confirmar que no queda ningún `test_*.php` ni `shell_exec` en el código
+- [x] Restringir CORS (hoy `Access-Control-Allow-Origin: *`)
 
 ### 1.5 Configuración
 - [ ] `config/config.php` lee todo de variables de entorno, sin credenciales por defecto

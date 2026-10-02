@@ -33,6 +33,9 @@ define('LOG_LEVEL', 'INFO'); // DEBUG, INFO, WARNING, ERROR
 // Configuración de API
 define('API_URL', 'http://localhost:8000');
 define('API_TIMEOUT', 30);
+define('API_TOKEN_TTL', (int)(getenv('API_TOKEN_TTL') ?: 86400)); // vigencia del token móvil: 24 h
+// Orígenes web autorizados para CORS en la API (separados por coma). Vacío = ninguno.
+define('CORS_ALLOWED_ORIGINS', getenv('CORS_ALLOWED_ORIGINS') ?: '');
 
 // Configuración de correo (si se implementa)
 define('SMTP_HOST', getenv('SMTP_HOST') ?: '');

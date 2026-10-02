@@ -1,4 +1,13 @@
 /*=====================================================
+=     SESIÓN EXPIRADA: volver al ingreso ante un 401   =
+=====================================================*/
+$(document).ajaxError(function (event, xhr) {
+    if (xhr && xhr.status === 401) {
+        window.location = 'inicio'; // sin sesión, la plantilla muestra el login
+    }
+});
+
+/*=====================================================
 =                 SiderBar Menu                       =
 =====================================================*/
 $('.sidebar-menu').tree()

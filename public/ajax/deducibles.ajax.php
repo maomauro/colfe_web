@@ -1,6 +1,8 @@
 <?php
 
 require_once __DIR__ . '/../../src/bootstrap.php';
+require_once __DIR__ . '/../../src/auth/guard.php';
+guardSesion();
 require_once __DIR__ . '/../../src/controladores/deducibles.controlador.php';
 require_once __DIR__ . '/../../src/modelos/deducibles.modelo.php';
 
