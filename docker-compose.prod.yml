@@ -33,6 +33,8 @@ services:
       # Solo demo: liquida las producciones que el seed dejó sin liquidar (ver el archivo)
       - ./db/seed/003_demo_liquidar_pendientes.sql:/docker-entrypoint-initdb.d/30-demo-liquidar.sql:ro
       - ./db/seed/004_demo_cerrar_quincenas.sql:/docker-entrypoint-initdb.d/31-demo-cerrar.sql:ro
+      # La auditoría va al final: así los archivos de regularización del demo no la llenan
+      - ./db/migraciones/004_auditoria.sql:/docker-entrypoint-initdb.d/40-004.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
       interval: 10s

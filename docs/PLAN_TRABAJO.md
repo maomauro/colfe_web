@@ -135,7 +135,7 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 - [x] Revisar las 27 producciones sin liquidar que quedaron en el demo — causa: deducible de «asociado» con estado NULL (migración 003); eran 1.026 producciones de 27 socios
 - [ ] Liquidar desde la app la 2da quincena de feb 2025 (queda pendiente a propósito en el demo; las pruebas ya verificaron que el procedimiento la calcula bien)
 - [x] CSRF en formularios y ajax — token por sesión + verificación de Origin; los 4 borrados (antes por GET) pasan a POST
-- [ ] Log de auditoría en liquidaciones y anticipos
+- [x] Log de auditoría en liquidaciones y anticipos — migración 004: 16 triggers sobre liquidaciones, anticipos, precios, deducibles, socios y edición de recolección; usuario y origen (web/api/sistema) y valores antes/después en JSON; vista `v_auditoria`. **Falta una pantalla para consultarla** (hoy es por SQL)
 - [ ] Roles de usuario (administrador / consulta)
 - [ ] CI con lint y pruebas, y métricas DORA básicas
 - [ ] Probar la app Android contra el servidor de producción

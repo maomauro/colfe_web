@@ -19,6 +19,19 @@ class Conexion{
                                 PDO::ATTR_EMULATE_PREPARES => false
                             ));
             
+            // Quién hace los cambios: lo leen los triggers de auditoría (db/migraciones/004_auditoria.sql)
+            $usuario = null;
+            $origen = 'sistema';
+            if (!empty($GLOBALS['colfe_contexto']['usuario'])) {          // API móvil (guardToken)
+                $usuario = (int)$GLOBALS['colfe_contexto']['usuario'];
+                $origen = isset($GLOBALS['colfe_contexto']['origen']) ? $GLOBALS['colfe_contexto']['origen'] : 'api';
+            } elseif (!empty($_SESSION['id_usuario'])) {                  // interfaz web
+                $usuario = (int)$_SESSION['id_usuario'];
+                $origen = 'web';
+            }
+            $link->exec("SET @colfe_usuario = " . ($usuario === null ? "NULL" : $usuario)
+                      . ", @colfe_origen = " . $link->quote($origen));
+
             return $link;
         } catch (PDOException $e) {
             // Log del error (en producción, no mostrar detalles)

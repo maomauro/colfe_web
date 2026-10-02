@@ -3,8 +3,8 @@
 --
 --   NO EJECUTAR A MANO. Usar deploy/reset_produccion.sh, que exige respaldo previo y confirmación.
 --
--- Se ELIMINAN:   socios, recolecciones, producción, liquidaciones, anticipos, tokens de API e
---                intentos de login. Los contadores (AUTO_INCREMENT) vuelven a 1.
+-- Se ELIMINAN:   socios, recolecciones, producción, liquidaciones, anticipos, tokens de API,
+--                intentos de login y el historial de auditoría del demo. Los contadores (AUTO_INCREMENT) vuelven a 1.
 --                También el generador de datos falsos (spInsertIntoRecoleccion y generar_litros_leche).
 -- Se CONSERVAN:  usuarios (el administrador), precios y deducibles (revisar sus valores con la
 --                cooperativa antes de liquidar), y todo el esquema, vistas, triggers y procedimientos
@@ -19,6 +19,7 @@ TRUNCATE TABLE tbl_anticipos;
 TRUNCATE TABLE tbl_socios;
 TRUNCATE TABLE tbl_api_tokens;
 TRUNCATE TABLE tbl_login_intentos;
+TRUNCATE TABLE tbl_auditoria;   -- el historial de cambios del demo (TRUNCATE no dispara triggers)
 
 SET FOREIGN_KEY_CHECKS = 1;
 
