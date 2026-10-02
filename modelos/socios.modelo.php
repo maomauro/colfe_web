@@ -132,4 +132,59 @@ class ModeloSocios
 
         $stmt = null;
     }
+
+    /*=============================================
+	BUSCAR SOCIOS ACTIVOS (API)
+	=============================================*/
+    static public function mdlBuscarSociosActivos($tabla, $filtros = [])
+    {
+        try {
+            $sql = "SELECT id_socio, nombre, apellido, identificacion, telefono, direccion, vinculacion, fecha_ingreso, estado 
+                    FROM $tabla 
+                    WHERE estado = 'activo'";
+            
+            $params = [];
+            
+            // Agregar filtros si se proporcionan
+            if (!empty($filtros['nombre'])) {
+                $sql .= " AND nombre LIKE :nombre";
+                $params[':nombre'] = '%' . $filtros['nombre'] . '%';
+            }
+            
+            if (!empty($filtros['apellido'])) {
+                $sql .= " AND apellido LIKE :apellido";
+                $params[':apellido'] = '%' . $filtros['apellido'] . '%';
+            }
+            
+            if (!empty($filtros['identificacion'])) {
+                $sql .= " AND identificacion LIKE :identificacion";
+                $params[':identificacion'] = '%' . $filtros['identificacion'] . '%';
+            }
+            
+            if (!empty($filtros['vinculacion'])) {
+                $sql .= " AND vinculacion = :vinculacion";
+                $params[':vinculacion'] = $filtros['vinculacion'];
+            }
+            
+            // Ordenar por nombre y apellido
+            $sql .= " ORDER BY nombre ASC, apellido ASC";
+            
+            $stmt = Conexion::conectar()->prepare($sql);
+            
+            // Bind de parámetros
+            foreach ($params as $key => $value) {
+                $stmt->bindParam($key, $value, PDO::PARAM_STR);
+            }
+            
+            $stmt->execute();
+            
+            return $stmt->fetchAll();
+            
+        } catch (PDOException $e) {
+            error_log("Error en búsqueda de socios: " . $e->getMessage());
+            return false;
+        }
+        
+        $stmt = null;
+    }
 }

@@ -173,4 +173,55 @@ class ControladorSocios
 			}
 		}
 	}
+
+	/*=============================================
+	BUSCAR SOCIOS ACTIVOS (API)
+	=============================================*/
+	static public function ctrBuscarSociosActivos($filtros = [])
+	{
+		try {
+			$tabla = "tbl_socios";
+			
+			// Validar y limpiar filtros
+			$filtrosLimpios = [];
+			
+			if (!empty($filtros['nombre'])) {
+				$filtrosLimpios['nombre'] = trim($filtros['nombre']);
+			}
+			
+			if (!empty($filtros['apellido'])) {
+				$filtrosLimpios['apellido'] = trim($filtros['apellido']);
+			}
+			
+			if (!empty($filtros['identificacion'])) {
+				$filtrosLimpios['identificacion'] = trim($filtros['identificacion']);
+			}
+			
+			if (!empty($filtros['vinculacion'])) {
+				$filtrosLimpios['vinculacion'] = trim($filtros['vinculacion']);
+			}
+			
+			$respuesta = ModeloSocios::mdlBuscarSociosActivos($tabla, $filtrosLimpios);
+			
+			if ($respuesta !== false) {
+				return [
+					'status' => 'success',
+					'data' => $respuesta,
+					'total' => count($respuesta)
+				];
+			} else {
+				return [
+					'status' => 'error',
+					'message' => 'Error al consultar la base de datos'
+				];
+			}
+			
+		} catch (Exception $e) {
+			error_log("Error en API de socios: " . $e->getMessage());
+			return [
+				'status' => 'error',
+				'message' => 'Error interno del servidor'
+			];
+		}
+	}
 }
