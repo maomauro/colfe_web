@@ -118,8 +118,8 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 ### 2.5 Pipeline y respaldo
 - [x] GitHub Actions: construir imagen y publicar en GHCR (`latest` y `sha-<commit>`) — workflows `ci.yml` y `publicar.yml`
 - [x] Despliegue y rollback por tag — `deploy/desplegar.sh` y workflow manual `desplegar.yml`
-- [ ] Backup diario de MySQL a un destino fuera del VPS
-- [ ] Probar la restauración del backup
+- [x] Backup diario de MySQL a un destino fuera del VPS — `deploy/backup.sh` (rclone). **Falta que Edgar elija el destino externo y configure `rclone`**
+- [x] Probar la restauración del backup — `deploy/probar_restauracion.sh`, probado: conteos idénticos
 
 ### 2.6 Datos hasta hoy
 - [ ] Cubrir del 27 ago al 30 sep 2026 según la decisión D5

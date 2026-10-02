@@ -57,12 +57,29 @@ docker compose -f docker-compose.prod.yml exec -T db sh -c \
 Ver `docker/env.docker.example`. Obligatorias: `DB_NAME`, `DB_USER`, `DB_PASS`, `MYSQL_ROOT_PASSWORD`.
 `ENVIRONMENT=production` es lo que usa el compose de producción.
 
-## 7. Operación
+## 7. Respaldo y restauración
+- **Diario:** `deploy/backup.sh` vuelca la base (tablas, procedimientos, funciones, triggers y eventos),
+  quita los `DEFINER`, valida el archivo (gzip íntegro y cierre normal del volcado), guarda un
+  `.sha256`, rota a 14 días y, si hay `BACKUP_REMOTE`, copia fuera del VPS con `rclone`.
+- **Programarlo:** ver `deploy/cron-ejemplo.txt`. `desplegar.sh` también respalda antes de cada actualización.
+- **Fuera del VPS:** configurar `rclone config` con un destino (Cloudflare R2, Backblaze B2, Google Drive...)
+  y definir `BACKUP_REMOTE`. Sin eso el respaldo vive en el mismo servidor y no protege de su pérdida.
+- **Probar la restauración:** `./deploy/probar_restauracion.sh [archivo]` la carga en una base temporal y
+  compara los conteos con la real. Programarla semanalmente.
+- **Restaurar de verdad** (en emergencia, con la app detenida):
+  ```bash
+  docker compose -f docker-compose.prod.yml stop app web
+  zcat /var/backups/colfe/colfe_AAAAMMDD_HHMMSS.sql.gz | docker compose -f docker-compose.prod.yml exec -T \
+    -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" db mysql -uroot colfe_db
+  docker compose -f docker-compose.prod.yml start app web
+  ```
+
+## 8. Operación
 - Logs de la app: volumen `applogs` (`docker compose -f docker-compose.prod.yml exec app tail -f storage/logs/php-error.log`).
 - Logs de contenedores con rotación (10 MB x 5).
 - Estado: `docker compose -f docker-compose.prod.yml ps`.
 - Mejora futura: ejecutar `app` con `read_only: true` una vez validado en el servidor.
 
-## 8. Tras la demostración (limpieza de datos demo)
+## 9. Tras la demostración (limpieza de datos demo)
 Ver `docs/PLAN_TRABAJO.md`, sección *Cierre*: respaldo completo, `db/reset_produccion.sql` y carga
 de los socios reales.
