@@ -25,6 +25,9 @@ services:
       - ./db/seed/colfe_demo_2026.sql:/docker-entrypoint-initdb.d/10-seed.sql:ro
       - ./db/migraciones/001_tbl_api_tokens.sql:/docker-entrypoint-initdb.d/20-001.sql:ro
       - ./db/migraciones/002_login_seguro.sql:/docker-entrypoint-initdb.d/21-002.sql:ro
+      - ./db/migraciones/003_deducible_asociado_activo.sql:/docker-entrypoint-initdb.d/22-003.sql:ro
+      # Solo demo: liquida las producciones que el seed dejó sin liquidar (ver el archivo)
+      - ./db/seed/003_demo_liquidar_pendientes.sql:/docker-entrypoint-initdb.d/30-demo-liquidar.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
       interval: 5s
