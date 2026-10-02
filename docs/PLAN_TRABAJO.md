@@ -110,14 +110,14 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 - [x] `db/`, `src/`, `config/`, `storage/` ya quedan fuera de la raíz web (verificar con `curl`) — verificado: 404
 
 ### 2.4 Producción
-- [ ] `docker-compose.prod.yml` (sin phpMyAdmin, BD sin puerto público, volumen persistente)
+- [x] `docker-compose.prod.yml` (sin phpMyAdmin, BD sin puerto público, volumen persistente) — `compose config` válido; **sin ejecutar en el VPS**
 - [ ] Subdominio en Cloudflare con HTTPS
 - [ ] Cookie `secure` y cabeceras de seguridad
 - [ ] `.env` solo en el servidor
 
 ### 2.5 Pipeline y respaldo
-- [ ] GitHub Actions: construir imagen y publicar en GHCR (`latest` y `sha-<commit>`)
-- [ ] Despliegue y rollback por tag
+- [x] GitHub Actions: construir imagen y publicar en GHCR (`latest` y `sha-<commit>`) — workflows `ci.yml` y `publicar.yml`
+- [x] Despliegue y rollback por tag — `deploy/desplegar.sh` y workflow manual `desplegar.yml`
 - [ ] Backup diario de MySQL a un destino fuera del VPS
 - [ ] Probar la restauración del backup
 
