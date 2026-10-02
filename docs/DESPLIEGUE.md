@@ -29,14 +29,27 @@ nano .env
 TAG=latest ./deploy/desplegar.sh                  # descarga imágenes, crea la base (seed + migraciones)
 docker compose -f docker-compose.prod.yml exec -e COLFE_CLAVE='CLAVE-LARGA-CON-NUMEROS' app \
   php db/tools/crear_usuario.php admin            # crea el administrador
-# Añadir deploy/nginx-vhost-ejemplo.conf a la configuración de portalcv-nginx-prod (ajustar dominio y
-# certificado, montados dentro de ese contenedor) y recargar:
-docker exec portalcv-nginx-prod nginx -t && docker exec portalcv-nginx-prod nginx -s reload
+# Publicar el subdominio: ver la sección 3 (el nginx de PortalCV debe cargar el bloque de COLFE).
 ```
 Comprobación: `curl -I https://colfe.sitiosapps.com/` → 200 y `tests/seguridad/smoke_endpoints.sh` con
 `BASE_URL=https://colfe.sitiosapps.com`.
 
-## 3. Actualizar
+## 3. Publicar el subdominio en el nginx de PortalCV
+El nginx de PortalCV (`/home/maomauro/Curriculum-Vitae-Web`, `docker-compose.prod.yml`) lleva su configuración
+dentro de la imagen y carga `/etc/nginx/conf.d/*.conf`. Solo monta `/etc/nginx/ssl` (carpeta del host).
+1. **Cloudflare:** registro DNS `colfe` → IP del VPS (con proxy) y un *certificado de origen* para
+   `colfe.sitiosapps.com` (o `*.sitiosapps.com`). Guardarlo en el host como
+   `/etc/nginx/ssl/colfe.sitiosapps.com.pem` y `.key` (la clave con permisos 600, dueño root).
+2. **Copiar el bloque** (en el VPS): `cp /opt/colfe_web/deploy/nginx-vhost-ejemplo.conf /home/maomauro/Curriculum-Vitae-Web/docker/colfe.conf`
+3. **Montarlo** en el servicio `nginx` de `docker-compose.prod.yml` de PortalCV, junto al volumen de ssl:
+   `- ./docker/colfe.conf:/etc/nginx/conf.d/colfe.conf:ro`
+4. **Probar antes de recargar** (si falla, no se toca nada): recrear solo el nginx y comprobar
+   `docker compose -f docker-compose.prod.yml up -d nginx && docker exec portalcv-nginx-prod nginx -t`.
+5. Comprobar: `curl -I https://colfe.sitiosapps.com/` → 200 y `https://portalcv.sitiosapps.com/` sigue igual.
+
+El bloque usa `resolver` y una variable en `proxy_pass` para que, si COLFE está apagado, **PortalCV no se caiga**.
+
+## 4. Actualizar
 Automático al publicar: el workflow **Publicar imágenes** crea `sha-<commit>` y `latest` en cada
 fusión a `main`, y `vX.Y.Z` al etiquetar. Para desplegar:
 - **Manual en el VPS:** `TAG=sha-abc1234 ./deploy/desplegar.sh`
@@ -45,23 +58,23 @@ fusión a `main`, y `vX.Y.Z` al etiquetar. Para desplegar:
 
 El script respalda la base antes de actualizar y verifica que la web responda 200.
 
-## 4. Rollback
+## 5. Rollback
 Volver a un tag anterior: `TAG=sha-<commit-anterior> ./deploy/desplegar.sh`. Las migraciones de
 `db/migraciones/` son aditivas e idempotentes; si una versión nueva añade una, hay que aplicarla a
 mano (ver sección 5) y la anterior sigue funcionando con la tabla extra.
 
-## 5. Migraciones sobre una base existente
+## 6. Migraciones sobre una base existente
 La inicialización automática solo corre con el volumen vacío. Para una base ya creada:
 ```bash
 docker compose -f docker-compose.prod.yml exec -T db sh -c \
   'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE"' < db/migraciones/00X_nombre.sql
 ```
 
-## 6. Variables de entorno (`.env` del servidor, nunca en git)
+## 7. Variables de entorno (`.env` del servidor, nunca en git)
 Ver `docker/env.docker.example`. Obligatorias: `DB_NAME`, `DB_USER`, `DB_PASS`, `MYSQL_ROOT_PASSWORD`.
 `ENVIRONMENT=production` es lo que usa el compose de producción.
 
-## 7. Respaldo y restauración
+## 8. Respaldo y restauración
 - **Diario:** `deploy/backup.sh` vuelca la base (tablas, procedimientos, funciones, triggers y eventos),
   quita los `DEFINER`, valida el archivo (gzip íntegro y cierre normal del volcado), guarda un
   `.sha256`, rota a 14 días y, si hay `BACKUP_REMOTE`, copia fuera del VPS con `rclone`.
@@ -87,13 +100,13 @@ SELECT fecha, username, origen, tabla, accion, id_registro, datos_antes, datos_d
 ```
 Un cambio hecho directamente en MySQL (sin pasar por la app) queda como origen `sistema`, sin usuario.
 
-## 8. Operación
+## 9. Operación
 - Logs de la app: volumen `applogs` (`docker compose -f docker-compose.prod.yml exec app tail -f storage/logs/php-error.log`).
 - Logs de contenedores con rotación (10 MB x 5).
 - Estado: `docker compose -f docker-compose.prod.yml ps`.
 - Mejora futura: ejecutar `app` con `read_only: true` una vez validado en el servidor.
 
-## 9. Tras la demostración: limpiar los datos demo
+## 10. Tras la demostración: limpiar los datos demo
 ```bash
 cd /opt/colfe_web
 ./deploy/reset_produccion.sh
