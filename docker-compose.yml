@@ -28,6 +28,7 @@ services:
       - ./db/migraciones/003_deducible_asociado_activo.sql:/docker-entrypoint-initdb.d/22-003.sql:ro
       # Solo demo: liquida las producciones que el seed dejó sin liquidar (ver el archivo)
       - ./db/seed/003_demo_liquidar_pendientes.sql:/docker-entrypoint-initdb.d/30-demo-liquidar.sql:ro
+      - ./db/seed/004_demo_cerrar_quincenas.sql:/docker-entrypoint-initdb.d/31-demo-cerrar.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
       interval: 5s

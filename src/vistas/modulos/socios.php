@@ -97,6 +97,7 @@ MODAL AGREGAR SOCIO
   <div class="modal-dialog">
     <div class="modal-content">
       <form method="post">
+      <?php echo csrfCampo(); ?>
         <div class="modal-header" style="background:#3c8dbc; color:white">
           <button type="button" class="close" data-dismiss="modal">&times;</button>
           <h4 class="modal-title">Agregar Socio</h4>
@@ -177,6 +178,7 @@ MODAL EDITAR SOCIO
   <div class="modal-dialog">
     <div class="modal-content">
       <form method="post">
+      <?php echo csrfCampo(); ?>
         <div class="modal-header" style="background:#3c8dbc; color:white">
           <button type="button" class="close" data-dismiss="modal">&times;</button>
           <h4 class="modal-title">Editar Socio</h4>

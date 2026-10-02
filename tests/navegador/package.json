@@ -1,0 +1,9 @@
+{
+  "name": "colfe-pruebas-navegador",
+  "private": true,
+  "type": "module",
+  "description": "Recorrido real en Chromium",
+  "devDependencies": {
+    "playwright": "^1.52.0"
+  }
+}

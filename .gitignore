@@ -25,3 +25,4 @@ storage/uploads/
 # Dependencias y caché de pruebas
 vendor/
 .phpunit.cache/
+tests/navegador/node_modules/

@@ -34,8 +34,11 @@ ACAO="$(curl -s -D - -o /dev/null -H 'Origin: https://evil.example' "$BASE_URL/a
 
 if [ -n "$APP_USER" ] && [ -n "$APP_PASS" ]; then
   echo "4) Con credenciales válidas"
-  curl -s -c "$JAR" -o /dev/null -d "ingUsuario=$APP_USER&ingPassword=$APP_PASS" "$BASE_URL/"
-  espera "sesión web: POST ajax/socios.ajax.php" 200 "$(codigo -b "$JAR" -X POST -d idSocio=1 "$BASE_URL/ajax/socios.ajax.php")"
+  LOGIN_TOKEN="$(curl -s -c "$JAR" -b "$JAR" "$BASE_URL/" | sed -n 's/.*name="csrf_token" value="\([0-9a-f]*\)".*/\1/p' | head -1)"
+  curl -s -c "$JAR" -b "$JAR" -o /dev/null -d "csrf_token=$LOGIN_TOKEN" -d "ingUsuario=$APP_USER" --data-urlencode "ingPassword=$APP_PASS" "$BASE_URL/"
+  CSRF="$(curl -s -b "$JAR" "$BASE_URL/inicio" | sed -n 's/.*name="csrf-token" content="\([0-9a-f]*\)".*/\1/p')"
+  [ -n "$CSRF" ] && ok_msg="token CSRF obtenido" || { echo "  FALLA no se obtuvo el token CSRF de la página"; FALLOS=$((FALLOS+1)); }
+  espera "sesión web: POST ajax/socios.ajax.php (con token)" 200 "$(codigo -b "$JAR" -H "X-CSRF-Token: $CSRF" -X POST -d idSocio=1 "$BASE_URL/ajax/socios.ajax.php")"
   espera "sesión web: GET reportes/recibo.php" 200 "$(codigo -b "$JAR" "$BASE_URL/reportes/recibo.php?fecha=2026-08-15")"
   RESP="$(curl -s -H 'Content-Type: application/json' -d "{\"username\":\"$APP_USER\",\"password\":\"$APP_PASS\"}" "$BASE_URL/api/apiLogin.php")"
   TOKEN="$(printf '%s' "$RESP" | sed -n 's/.*"token":"\([0-9a-f]\{64\}\)".*/\1/p')"

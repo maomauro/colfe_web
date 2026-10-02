@@ -137,9 +137,9 @@ class ControladorSocios
 	=============================================*/
 	static public function ctrBorrarSocio()
 	{
-		if (isset($_GET["idSocio"])) {
+		if (isset($_POST["idSocio"])) {
 			$tabla = "tbl_socios";
-			$datos = $_GET["idSocio"];
+			$datos = $_POST["idSocio"];
 
 			$respuesta = ModeloSocios::mdlBorrarSocio($tabla, $datos);
 

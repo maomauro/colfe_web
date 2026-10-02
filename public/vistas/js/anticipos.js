@@ -79,7 +79,7 @@ $(document).on("click", ".btnEliminarAnticipo", function(){
 		confirmButtonText: 'Si, borrar anticipo!'
 	}).then(function(result){
 		if (result.value) {
-			window.location = "anticipos?idAnticipo="+idAnticipo;
+			colfeEnviarPost("anticipos", { idAnticipo: idAnticipo });
 		}
 	});
 });

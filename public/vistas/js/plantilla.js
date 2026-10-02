@@ -2,8 +2,9 @@
 =     SESIÓN EXPIRADA: volver al ingreso ante un 401   =
 =====================================================*/
 $(document).ajaxError(function (event, xhr) {
-    // En el login (no hay sesión) un 401 no debe redirigir: la página se recargaría en bucle
-    if (xhr && xhr.status === 401 && $('#ingUsuario').length === 0) {
+    // Solo en páginas con sesión (llevan el meta del token CSRF): en el login un 401 no debe redirigir,
+    // o la página se recargaría en bucle.
+    if (xhr && xhr.status === 401 && $('meta[name="csrf-token"]').length) {
         window.location = 'inicio'; // sin sesión, la plantilla muestra el login
     }
 });
