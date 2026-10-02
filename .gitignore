@@ -16,3 +16,8 @@ test_api_*.php
 Thumbs.db
 .idea/
 .vscode/
+
+# Logs y archivos subidos (solo se conserva .gitkeep)
+storage/logs/*
+!storage/logs/.gitkeep
+storage/uploads/
