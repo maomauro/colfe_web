@@ -1,5 +1,10 @@
 $(function () {
-    $.getJSON('api/apiTotalLiquidacion.php', function (data) {
+    // Solo en el dashboard: este archivo se carga en todas las páginas (también en el login)
+    if (!$('#areaChartProduccion').length) {
+        return;
+    }
+    // Endpoint de la interfaz web (sesión); api/apiTotalLiquidacion.php queda para la app móvil (token)
+    $.getJSON('ajax/inicio.ajax.php', function (data) {
 
         // --- FILTRAR SOLO LOS ÚLTIMOS 6 MESES ---
         var mesesUnicos = Array.from(new Set(data.map(item => item.fecha_liquidacion.substring(0, 7)))).sort();
