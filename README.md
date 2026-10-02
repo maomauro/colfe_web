@@ -69,6 +69,10 @@ colfe_web/
 
    # Migraciones (después del esquema o del seed, en orden numérico)
    mysql -u root -p colfe_db < db/migraciones/001_tbl_api_tokens.sql
+   mysql -u root -p colfe_db < db/migraciones/002_login_seguro.sql
+
+   # Crear el usuario administrador (la migración 002 elimina admin/admin y user/12345)
+   COLFE_CLAVE='una-clave-larga-con-numeros-123' php db/tools/crear_usuario.php admin
    ```
 
 3. **Configurar variables de entorno**
@@ -155,13 +159,15 @@ El sistema utiliza las siguientes tablas principales:
 Implementado:
 - Consultas con PDO y sentencias preparadas
 - Lista blanca de rutas en el router
+- Contraseñas con `password_hash` (bcrypt); clave mínima de 10 caracteres con letras y números
+- Bloqueo por intentos fallidos (5 por usuario / 20 por IP cada 15 min) y nuevo id de sesión al ingresar
+- Sesión con vencimiento por inactividad (`SESSION_TIMEOUT`)
 - Cookies de sesión `httponly`
 - Guard de sesión en `ajax/` y `reportes/`; token real (hash en BD, vence a las 24 h) en `api/`
 - CORS cerrado por defecto (`CORS_ALLOWED_ORIGINS`)
 - Prueba de seguridad: `tests/seguridad/smoke_endpoints.sh`
 
 **Pendiente antes de publicar** (ver `docs/PLAN_TRABAJO.md`, Fases 0 y 1):
-- Contraseñas con hash y bloqueo por intentos (Fase 1.3)
 - Configuración segura por defecto (Fase 1.5)
 - Protección CSRF y registro de auditoría (no implementados todavía)
 

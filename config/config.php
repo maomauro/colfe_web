@@ -17,9 +17,11 @@ define('APP_URL', 'http://localhost/colfe_web');
 define('TIMEZONE', 'America/Bogota');
 
 // Configuración de seguridad
-define('SESSION_TIMEOUT', 3600); // 1 hora
-define('MAX_LOGIN_ATTEMPTS', 3);
-define('PASSWORD_MIN_LENGTH', 8);
+define('SESSION_TIMEOUT', (int)(getenv('SESSION_TIMEOUT') ?: 3600)); // inactividad máxima en segundos (1 h)
+define('MAX_LOGIN_ATTEMPTS', 5);      // fallos por usuario dentro de la ventana de bloqueo
+define('MAX_LOGIN_ATTEMPTS_IP', 20);  // fallos por IP dentro de la ventana de bloqueo
+define('LOGIN_LOCK_MINUTES', 15);     // ventana y duración del bloqueo
+define('PASSWORD_MIN_LENGTH', 10);
 
 // Configuración de archivos
 define('UPLOAD_PATH', dirname(__DIR__) . '/storage/uploads/');
