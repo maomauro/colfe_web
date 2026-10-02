@@ -1,0 +1,19 @@
+# Normaliza el fin de línea (evita falsos cambios entre Windows y Linux)
+* text=auto eol=lf
+*.sql text eol=lf
+*.php text eol=lf
+*.js text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+
+# Binarios
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary

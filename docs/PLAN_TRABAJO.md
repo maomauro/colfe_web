@@ -25,8 +25,8 @@ Decisiones ya tomadas:
 - [x] Subir cambios locales (API móvil, anticipos, dump 2026-09-29) — PR #1
 - [x] Script `db/tools/desplazar_fechas.py` y dump `db/colfe_db_demo_2026.sql` — PR #2
 - [ ] **P1** Probar la restauración de `colfe_db_demo_2026.sql` desde cero en MySQL 8.0
-- [ ] **P1** Crear `.gitignore` (`.env`, `logs/`, `test_*.php`, `test_api_*.php`)
-- [ ] **P1** Crear `.gitattributes` para normalizar fin de línea
+- [x] **P1** Crear `.gitignore` (`.env`, `logs/`, `test_*.php`, `test_api_*.php`)
+- [x] **P1** Crear `.gitattributes` para normalizar fin de línea
 - [ ] **P1** Archivar los dumps antiguos (`colfe_db.sql`, `colfe_db_20250717.sql`) y dejar uno solo como base
 - [ ] **P1** Corregir `README.md`: importar el esquema vigente y quitar lo que no existe (CSRF, auditoría)
 - [ ] **P1** Corregir `README_TESTS.md` (documenta tests inexistentes)
