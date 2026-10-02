@@ -84,6 +84,9 @@ Para empezar de cero: `docker compose down -v`.
    # Migraciones (después del esquema o del seed, en orden numérico)
    mysql -u root -p colfe_db < db/migraciones/001_tbl_api_tokens.sql
    mysql -u root -p colfe_db < db/migraciones/002_login_seguro.sql
+   mysql -u root -p colfe_db < db/migraciones/003_deducible_asociado_activo.sql
+   # Solo con datos demo: liquida las producciones que el seed dejó sin liquidar
+   mysql -u root -p colfe_db < db/seed/003_demo_liquidar_pendientes.sql
 
    # Crear el usuario administrador (la migración 002 elimina admin/admin y user/12345)
    COLFE_CLAVE='una-clave-larga-con-numeros-123' php db/tools/crear_usuario.php admin
@@ -172,6 +175,17 @@ Implementado:
 - Protección CSRF y registro de auditoría (no implementados todavía)
 
 > El sistema **no debe exponerse a internet** hasta completar la Fase 1.
+
+## 🧪 Pruebas
+
+```bash
+composer install
+ENVIRONMENT=development DB_HOST=127.0.0.1 DB_NAME=colfe_db DB_USER=... DB_PASS=... vendor/bin/phpunit   # liquidación
+BASE_URL=http://127.0.0.1:8080 APP_USER=admin APP_PASS=... tests/seguridad/smoke_endpoints.sh           # seguridad
+```
+
+Las pruebas de liquidación recalculan cada quincena sin usar el procedimiento almacenado y la comparan
+con lo guardado; **escriben en la base**, úsense solo con una base desechable. Se ejecutan en el CI.
 
 ## 🐛 Solución de Problemas
 

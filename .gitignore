@@ -21,3 +21,7 @@ Thumbs.db
 storage/logs/*
 !storage/logs/.gitkeep
 storage/uploads/
+
+# Dependencias y caché de pruebas
+vendor/
+.phpunit.cache/

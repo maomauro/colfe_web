@@ -41,6 +41,7 @@ jobs:
         with:
           php-version: "8.4"
           extensions: pdo_mysql, mbstring, iconv
+          tools: composer
           coverage: none
 
       - name: Sintaxis PHP (php -l)
@@ -62,11 +63,18 @@ jobs:
           mysql < db/seed/colfe_demo_2026.sql
           mysql colfe_db < db/migraciones/001_tbl_api_tokens.sql
           mysql colfe_db < db/migraciones/002_login_seguro.sql
+          mysql colfe_db < db/migraciones/003_deducible_asociado_activo.sql
+          mysql colfe_db < db/seed/003_demo_liquidar_pendientes.sql
           mysql colfe_db -e "GRANT ALL ON colfe_db.* TO 'colfe_app'@'%'; FLUSH PRIVILEGES;"
           mysql colfe_db -N -e "SELECT 'socios', COUNT(*) FROM tbl_socios UNION ALL SELECT 'recoleccion', COUNT(*) FROM tbl_recoleccion UNION ALL SELECT 'liquidacion', COUNT(*) FROM tbl_liquidacion"
 
       - name: Crear usuario administrador
         run: COLFE_CLAVE="$APP_PASS" php db/tools/crear_usuario.php "$APP_USER"
+
+      - name: Pruebas de liquidación (PHPUnit)
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          vendor/bin/phpunit
 
       - name: Arrancar la aplicación
         run: |

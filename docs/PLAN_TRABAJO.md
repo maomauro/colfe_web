@@ -130,10 +130,10 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 
 ## Fase 3: Confianza en el negocio (P2, en paralelo al staging)
 
-- [ ] Pruebas PHPUnit de liquidación (deducibles, anticipos, precios por quincena)
-- [ ] Validar una quincena completa contra un cálculo manual
-- [ ] Revisar las 27 producciones sin liquidar que quedaron en el demo
-- [ ] Liquidar desde la app la 2da quincena de feb 2025 (quedó sin liquidar a propósito)
+- [x] Pruebas PHPUnit de liquidación (deducibles, anticipos, precios por quincena) — 18 pruebas / 988 aserciones, en el CI
+- [x] Validar una quincena completa contra un cálculo manual — recálculo independiente de una quincena (2da feb-2025, 107 socios) y de las 4.066 liquidaciones
+- [x] Revisar las 27 producciones sin liquidar que quedaron en el demo — causa: deducible de «asociado» con estado NULL (migración 003); eran 1.026 producciones de 27 socios
+- [ ] Liquidar desde la app la 2da quincena de feb 2025 (queda pendiente a propósito en el demo; las pruebas ya verificaron que el procedimiento la calcula bien)
 - [ ] CSRF en formularios y ajax
 - [ ] Log de auditoría en liquidaciones y anticipos
 - [ ] Roles de usuario (administrador / consulta)
