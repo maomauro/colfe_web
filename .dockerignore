@@ -1,0 +1,17 @@
+.git
+.github
+.env
+.env.*
+!env.example
+storage/logs/*
+docs
+tests
+db/seed
+db/schema
+db/migraciones
+db/tools/origen
+node_modules
+**/*.log
+.DS_Store
+Dockerfile
+docker-compose*.yml

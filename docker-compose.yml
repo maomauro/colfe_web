@@ -1,0 +1,81 @@
+# Desarrollo local: mismo stack que producción (nginx + php-fpm + MySQL 8.0), con el código montado.
+#
+#   cp docker/env.docker.example .env
+#   docker compose up -d --build
+#   docker compose exec -e COLFE_CLAVE='una-clave-larga-con-numeros-123' app php db/tools/crear_usuario.php admin
+#   -> http://localhost:8080         (phpMyAdmin opcional: docker compose --profile tools up -d  -> http://localhost:8081)
+#
+# La base se inicializa sola la primera vez desde db/seed + db/migraciones.
+# Para empezar de cero: docker compose down -v
+
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?defina MYSQL_ROOT_PASSWORD en .env}
+      MYSQL_DATABASE: ${DB_NAME:?defina DB_NAME en .env}
+      MYSQL_USER: ${DB_USER:?defina DB_USER en .env}
+      MYSQL_PASSWORD: ${DB_PASS:?defina DB_PASS en .env}
+      TZ: America/Bogota
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_general_ci", "--log-bin-trust-function-creators=1"]
+    volumes:
+      - dbdata:/var/lib/mysql
+      # Se ejecutan en orden alfabético solo la primera vez (volumen vacío)
+      - ./db/seed/colfe_demo_2026.sql:/docker-entrypoint-initdb.d/10-seed.sql:ro
+      - ./db/migraciones/001_tbl_api_tokens.sql:/docker-entrypoint-initdb.d/20-001.sql:ro
+      - ./db/migraciones/002_login_seguro.sql:/docker-entrypoint-initdb.d/21-002.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 40s
+
+  app:
+    build:
+      context: .
+      target: app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DB_HOST: db
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      SESSION_TIMEOUT: ${SESSION_TIMEOUT:-3600}
+      API_TOKEN_TTL: ${API_TOKEN_TTL:-86400}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
+    volumes:
+      - ./:/var/www/html   # edición en caliente
+
+  web:
+    build:
+      context: .
+      target: web
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      REAL_IP_HEADER: ${REAL_IP_HEADER:-X-Forwarded-For}
+      TRUSTED_PROXY_CIDR: ${TRUSTED_PROXY_CIDR:-172.16.0.0/12}
+    volumes:
+      - ./public:/var/www/html/public:ro
+    ports:
+      - "${WEB_PORT:-8080}:80"
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    profiles: ["tools"]
+    environment:
+      PMA_HOST: db
+    ports:
+      - "8081:80"
+    depends_on:
+      - db
+
+volumes:
+  dbdata:

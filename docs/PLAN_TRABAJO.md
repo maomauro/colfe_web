@@ -99,15 +99,15 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 - [ ] `APP_URL` y `API_URL` por variable de entorno
 
 ### 2.2 Docker local
-- [ ] `Dockerfile` (php-fpm con `pdo_mysql`)
-- [ ] `docker-compose.yml` (nginx, php-fpm, MySQL 8.0, phpMyAdmin)
-- [ ] La BD se inicializa sola desde el dump demo
-- [ ] Quitar `DEFINER=root@localhost` de la vista `v_anticipos_completos`
+- [x] `Dockerfile` (php-fpm con `pdo_mysql`) — imagen Debian (iconv //TRANSLIT no funciona en Alpine). **Build sin ejecutar: lo prueba Edgar**
+- [x] `docker-compose.yml` (nginx, php-fpm, MySQL 8.0, phpMyAdmin) — `compose config` válido; **`up` sin ejecutar**
+- [x] La BD se inicializa sola desde el dump demo — seed + migraciones 001/002 montados en `initdb.d`
+- [x] Quitar `DEFINER=root@localhost` de la vista `v_anticipos_completos` — resuelto: el seed 2026 no trae `DEFINER` explícito
 
 ### 2.3 nginx
-- [ ] `root` apuntando a `public/` y `try_files` hacia `index.php?ruta=` (reemplaza `.htaccess`)
-- [ ] Mantener un `.htaccess` mínimo dentro de `public/` para Laragon/Apache
-- [ ] `db/`, `src/`, `config/`, `storage/` ya quedan fuera de la raíz web (verificar con `curl`)
+- [x] `root` apuntando a `public/` y `try_files` hacia `index.php?ruta=` (reemplaza `.htaccess`) — verificado con nginx real (rutas, bloqueos, IP real, cabeceras)
+- [x] Mantener un `.htaccess` mínimo dentro de `public/` para Laragon/Apache
+- [x] `db/`, `src/`, `config/`, `storage/` ya quedan fuera de la raíz web (verificar con `curl`) — verificado: 404
 
 ### 2.4 Producción
 - [ ] `docker-compose.prod.yml` (sin phpMyAdmin, BD sin puerto público, volumen persistente)

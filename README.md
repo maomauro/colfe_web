@@ -59,6 +59,20 @@ colfe_web/
    cd colfe_web
    ```
 
+### Opción recomendada: Docker (mismo stack que producción)
+
+```bash
+cp docker/env.docker.example .env          # ajustar claves
+docker compose up -d --build               # nginx + php-fpm + MySQL 8.0
+docker compose exec -e COLFE_CLAVE='una-clave-larga-con-numeros-123' app php db/tools/crear_usuario.php admin
+# -> http://localhost:8080   (phpMyAdmin: docker compose --profile tools up -d -> http://localhost:8081)
+```
+
+La base se inicializa sola la primera vez con `db/seed` y `db/migraciones`.
+Para empezar de cero: `docker compose down -v`.
+
+### Instalación manual (Laragon u otro)
+
 2. **Configurar la base de datos**
    ```bash
    # Opción A (recomendada): esquema + datos demo (fechas 2025-2026)
