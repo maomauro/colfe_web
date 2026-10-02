@@ -4,7 +4,9 @@ Complementa el diagnóstico del 29 sep 2026. Basado en lectura del código del r
 (commit `432c0ae`). Objetivo: definir la estructura final **una sola vez**, para no rehacer
 la seguridad ni el despliegue.
 
-## 1. Estructura actual y sus problemas
+## 1. Estructura anterior a la Fase 0 y sus problemas (registro histórico)
+
+> Esta sección describe **cómo estaba el proyecto antes de reestructurarlo**. Están resueltos E1 a E9, E11 y E12. **E10 sigue pendiente (P2):** `bower_components` (18 MB, 567 archivos) y `plugins` (2,4 MB) siguen versionados sin gestor de dependencias. El estado actual de la estructura es el de la sección 2.
 
 ```
 colfe_web/            ← hoy toda la carpeta es la raíz web
@@ -96,7 +98,7 @@ Reglas de la estructura:
 | `ajax/prediccion.ajax.php`, `vistas/modulos/prediccion.php`, `vistas/js/prediccion.js` | **se eliminan** | quitar `<script>` de la plantilla si existe |
 | `ajax/logs.log` | se elimina del repo | `storage/logs/` |
 | `db/*.sql` | `db/schema/`, `db/seed/` | ver plan |
-| `.htaccess` | `docker/nginx.conf` (`try_files`) | se conserva un `.htaccess` mínimo para Laragon/Apache |
+| `.htaccess` | `docker/nginx/default.conf.template` (`try_files`) | se conserva un `.htaccess` mínimo para Laragon/Apache |
 | `test_simple.php` | se elimina | pruebas reales en `tests/` |
 
 ## 4. Orden de ejecución recomendado
@@ -108,6 +110,6 @@ directamente en su ubicación final, sin moverlos después.
 2. Fase 1: seguridad sobre la estructura final.
 3. Fase 2: Docker y despliegue (nginx con `root /var/www/html/public`).
 
-Riesgo de la Fase 0: el proyecto no tiene pruebas automáticas. Se mitiga con cambios
+Riesgo que tenía la Fase 0 (el proyecto no tenía entonces pruebas automáticas; hoy sí). Se mitigó con cambios
 mecánicos (mover y reemplazar rutas, sin tocar lógica), una verificación de sintaxis y un
 recorrido manual de cada módulo en Laragon antes de fusionar.
