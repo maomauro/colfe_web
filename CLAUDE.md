@@ -34,7 +34,7 @@ AdminLTE + jQuery + DataTables. Destino: VPS Contabo, nginx, Docker, subdominio 
 
 ## Verificación mínima antes de abrir un PR
 - `php -l` sobre todos los `.php` modificados.
-- Arranque local: `php -S localhost:8080 -t public` (cuando exista `public/`).
+- Arranque local: `php -S localhost:8080 -t public docker/php-dev-router.php`.
 - Recorrido manual del módulo tocado; el proyecto aún no tiene pruebas automáticas.
 - Sin MySQL no se prueba la lógica de liquidación: decirlo en el PR si no se pudo probar.
 

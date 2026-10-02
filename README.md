@@ -24,19 +24,24 @@ Sistema web completo para la gestión de liquidaciones lecheras que incluye:
 
 ```
 colfe_web/
-├── ajax/                 # Endpoints AJAX
-├── api/                  # APIs REST
-├── controladores/        # Lógica de control
-├── db/                   # Scripts de base de datos
-├── modelos/              # Acceso a datos
-├── vistas/               # Interfaz de usuario
-│   ├── js/              # JavaScript
-│   ├── css/             # Estilos
-│   ├── modulos/         # Vistas PHP
-│   └── bower_components/ # Dependencias frontend
-├── config.php           # Configuración centralizada
-├── index.php            # Punto de entrada
-└── .htaccess            # Configuración Apache
+├── public/               # ÚNICA raíz web (nginx / Apache apuntan aquí)
+│   ├── index.php         # Punto de entrada (router)
+│   ├── ajax/             # Endpoints AJAX
+│   ├── api/              # APIs REST (app Android)
+│   ├── reportes/         # Recibos y reportes PDF/HTML
+│   ├── vistas/           # Solo estáticos: js, css, dist, img, plugins, libs
+│   └── .htaccess         # Reescritura para Apache
+├── src/                  # Código de la aplicación (fuera de la raíz web)
+│   ├── bootstrap.php     # Arranque común
+│   ├── controladores/    # Lógica de control
+│   ├── modelos/          # Acceso a datos
+│   ├── vistas/           # plantilla.php y modulos/ (plantillas PHP)
+│   └── libs/fpdf/        # Librería PDF
+├── config/config.php     # Configuración centralizada
+├── storage/logs/         # Logs de la aplicación
+├── db/                   # schema/, seed/ y tools/ de base de datos
+├── docker/               # Utilidades de despliegue y desarrollo
+└── docs/                 # Plan de trabajo y diagnósticos
 ```
 
 ## 🛠️ Requisitos
@@ -74,13 +79,15 @@ colfe_web/
 
 4. **Configurar permisos**
    ```bash
-   chmod 755 -R vistas/
-   chmod 755 logs/
+   chmod 755 -R storage/
    ```
 
 5. **Acceder al sistema**
    ```
-   http://localhost/colfe_web
+   # Servidor de desarrollo (raíz web = public/):
+   php -S localhost:8080 -t public docker/php-dev-router.php
+   # -> http://localhost:8080
+   # En Laragon: apuntar un host virtual a la carpeta public/
    ```
 
 ## 🔧 Configuración
@@ -170,7 +177,7 @@ Si encuentras errores de DataTables, verifica:
 ## 📝 Logs
 
 Los logs se almacenan en:
-- `logs/`: Logs de aplicación
+- `storage/logs/`: Logs de aplicación
 - `ajax/logs.log`: Logs de operaciones AJAX
 
 ## 🤝 Contribución

@@ -1,0 +1,23 @@
+<?php
+require_once __DIR__ . '/../modelos/liquidacion.modelo.php';
+class ControladorLiquidacion
+{
+    /*=============================================
+    MOSTRAR LIQUIDACIONES
+    =============================================*/
+    static public function ctrMostrarLiquidacion($item, $valor)
+    {
+        $respuesta = ModeloLiquidacion::mdlMostrarLiquidacion($item, $valor);
+        return $respuesta;
+    }
+   
+    /*=============================================
+    TOTAL LIQUIDACIONES
+    =============================================*/
+    static public function ctrTotalLiquidacion()
+    {
+        $respuesta = ModeloLiquidacion::mdlTotalLiquidacion();
+        return $respuesta;
+    }
+
+}

@@ -27,9 +27,9 @@ Decisiones ya tomadas:
 - [ ] **P1** Probar la restauración de `colfe_db_demo_2026.sql` desde cero en MySQL 8.0
 - [x] **P1** Crear `.gitignore` (`.env`, `logs/`, `test_*.php`, `test_api_*.php`)
 - [x] **P1** Crear `.gitattributes` para normalizar fin de línea
-- [ ] **P1** Reorganizar `db/`: `schema/` (esquema sin datos), `seed/` (demo 2026), archivar dumps antiguos
-- [ ] **P1** Corregir `README.md`: importar el esquema vigente y quitar lo que no existe (CSRF, auditoría)
-- [ ] **P1** Corregir `README_TESTS.md` (documenta tests inexistentes)
+- [x] **P1** Reorganizar `db/`: `schema/` (esquema sin datos), `seed/` (demo 2026), archivar dumps antiguos
+- [x] **P1** Corregir `README.md`: importar el esquema vigente y quitar lo que no existe (CSRF, auditoría)
+- [x] **P1** Corregir `README_TESTS.md` (documenta tests inexistentes)
 
 ---
 
@@ -38,17 +38,17 @@ Decisiones ya tomadas:
 Detalle y mapa de movimientos: [`DIAGNOSTICO_ESTRUCTURA.md`](DIAGNOSTICO_ESTRUCTURA.md).
 Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicación final.
 
-- [ ] Aprobar la estructura objetivo (`public/` + `src/` + `config/` + `storage/`)
-- [ ] Crear rama y mover con `git mv` (conserva historial): estáticos a `public/vistas/`, código a `src/`
-- [ ] Mover `ajax/` y `api/` a `public/`; mover `recibo.php` y `reporte_recoleccion.php` a `public/reportes/`
-- [ ] Mover `config.php` a `config/config.php` y `fpdf` a `src/libs/fpdf/`
-- [ ] Reemplazar los 20 `require_once $_SERVER["DOCUMENT_ROOT"]."/colfe_web/..."` por rutas con `__DIR__` / `BASE_PATH`
-- [ ] Crear `src/bootstrap.php` (config, zona horaria, errores, cookies, sesión) y cargarlo desde `public/index.php`
-- [ ] Actualizar los 4 enlaces a los reportes (`liquidacion.js`, `recoleccion.js`, 2 vistas)
-- [ ] Eliminar predicción: `prediccion.ajax.php`, `prediccion.php`, `prediccion.js`
-- [ ] Eliminar `ajax/logs.log` y `test_simple.php`; logs a `storage/logs/`
-- [ ] Verificar: `php -l` de todos los archivos y arranque con `php -S` sobre `public/`
-- [ ] Recorrer cada módulo en Laragon (socios, calendario, recolección, producción, deducibles, precios, anticipos, liquidación, recibos)
+- [x] Aprobar la estructura objetivo (`public/` + `src/` + `config/` + `storage/`) — aprobada por Edgar al autorizar continuar
+- [x] Crear rama y mover con `git mv` (conserva historial): estáticos a `public/vistas/`, código a `src/`
+- [x] Mover `ajax/` y `api/` a `public/`; mover `recibo.php` y `reporte_recoleccion.php` a `public/reportes/`
+- [x] Mover `config.php` a `config/config.php` y `fpdf` a `src/libs/fpdf/`
+- [x] Reemplazar los 20 `require_once $_SERVER["DOCUMENT_ROOT"]."/colfe_web/..."` por rutas con `__DIR__` / `BASE_PATH`
+- [x] Crear `src/bootstrap.php` (config, zona horaria, errores, cookies, sesión) y cargarlo desde `public/index.php`
+- [x] Actualizar los 4 enlaces a los reportes (`liquidacion.js`, `recoleccion.js`, 2 vistas)
+- [x] Eliminar predicción: `prediccion.ajax.php`, `prediccion.php`, `prediccion.js`
+- [x] Eliminar `ajax/logs.log` y `test_simple.php`; logs a `storage/logs/`
+- [x] Verificar: `php -l` de todos los archivos y arranque con `php -S` sobre `public/`
+- [ ] **Pendiente de Edgar:** recorrer cada módulo en Laragon (socios, calendario, recolección, producción, deducibles, precios, anticipos, liquidación, recibos)
 
 **Salida Fase 0:** el sitio funciona igual que antes, solo `public/` es accesible por HTTP.
 
