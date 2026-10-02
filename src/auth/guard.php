@@ -8,6 +8,7 @@
  */
 require_once __DIR__ . '/../bootstrap.php';
 require_once __DIR__ . '/../modelos/tokens.modelo.php';
+require_once __DIR__ . '/csrf.php';
 
 function guardRechazar($formato, $mensaje, $codigo = 401)
 {
@@ -41,6 +42,12 @@ function guardSesion($formato = 'json')
         session_write_close();
         guardRechazar($formato, 'Sesión no iniciada o expirada');
     }
+    // Peticiones que modifican datos: token CSRF (cabecera X-CSRF-Token) y origen válidos
+    if (!csrfEsMetodoSeguro() && (!csrfOrigenValido() || !csrfTokenValido())) {
+        session_write_close();
+        csrfExigir($formato);
+    }
+
     // Actividad reciente: renueva el plazo y libera el bloqueo de sesión de inmediato,
     // para que varias llamadas AJAX en paralelo no se encolen.
     $_SESSION['ultima_actividad'] = time();

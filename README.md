@@ -87,6 +87,7 @@ Para empezar de cero: `docker compose down -v`.
    mysql -u root -p colfe_db < db/migraciones/003_deducible_asociado_activo.sql
    # Solo con datos demo: liquida las producciones que el seed dejó sin liquidar
    mysql -u root -p colfe_db < db/seed/003_demo_liquidar_pendientes.sql
+   mysql -u root -p colfe_db < db/seed/004_demo_cerrar_quincenas.sql   # cierra quincenas para que el dashboard tenga datos
 
    # Crear el usuario administrador (la migración 002 elimina admin/admin y user/12345)
    COLFE_CLAVE='una-clave-larga-con-numeros-123' php db/tools/crear_usuario.php admin

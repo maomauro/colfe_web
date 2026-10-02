@@ -9,6 +9,7 @@
         <p class="login-box-msg">Inicia sesión para comenzar</p>
 
         <form method="post">
+      <?php echo csrfCampo(); ?>
             <div class="form-group has-feedback">
                 <input type="text" class="form-control" placeholder="Usuario" id="ingUsuario" name="ingUsuario" required autocomplete="username">
                 <span class="glyphicon glyphicon-user form-control-feedback"></span>

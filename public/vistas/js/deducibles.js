@@ -145,7 +145,7 @@ $(document).on("click", ".btnEliminarDeducible", function () {
     confirmButtonText: "Si, borrar deducible!",
   }).then(function (result) {
     if (result.value) {
-      window.location = "index.php?ruta=deducibles&idDeducible=" + idDeducible;
+      colfeEnviarPost("deducibles", { idDeducible: idDeducible });
     }
   });
 });

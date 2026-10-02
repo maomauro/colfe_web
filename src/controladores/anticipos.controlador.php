@@ -130,9 +130,9 @@ class ControladorAnticipos
 	=============================================*/
 	static public function ctrBorrarAnticipo()
 	{
-		if (isset($_GET["idAnticipo"])) {
+		if (isset($_POST["idAnticipo"])) {
 			$tabla = "tbl_anticipos";
-			$datos = $_GET["idAnticipo"];
+			$datos = $_POST["idAnticipo"];
 
 			$respuesta = ModeloAnticipos::mdlBorrarAnticipo($tabla, $datos);
 

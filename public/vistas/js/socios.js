@@ -180,7 +180,7 @@ $(document).on("click", ".btnEliminarSocio", function () {
 		confirmButtonText: 'Si, borrar socio!'
 	}).then(function (result) {
 		if (result.value) {
-			window.location = "index.php?ruta=socios&idSocio=" + idSocio;
+			colfeEnviarPost("socios", { idSocio: idSocio });
 		}
 	})
 })

@@ -16,6 +16,10 @@ if (isset($_SESSION["iniciarSesion"]) && isset($_SESSION["ultima_actividad"])
 if (isset($_SESSION["iniciarSesion"])) {
     $_SESSION["ultima_actividad"] = time();
 }
+
+// CSRF: todo formulario POST (incluido el login) debe traer su token antes de procesarse
+require_once SRC_PATH . '/auth/csrf.php';
+csrfExigir('html');
 ?>
 
 <!DOCTYPE html>
@@ -67,6 +71,20 @@ if (isset($_SESSION["iniciarSesion"])) {
     <!-- ===================== PLUGINS DE JAVASCRIPT ===================== -->
     <!-- jQuery (Local) -->
     <script src="vistas/libs/external/js/jquery-3.6.0.min.js"></script>
+    <?php if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok") { ?>
+    <meta name="csrf-token" content="<?php echo htmlspecialchars(csrfToken(), ENT_QUOTES, 'UTF-8'); ?>">
+    <script>
+        // Todo $.ajax lleva el token CSRF; colfeEnviarPost() envía un POST con token (borrados)
+        $.ajaxSetup({ headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') } });
+        function colfeEnviarPost(url, datos) {
+            var f = $('<form method="post"></form>').attr('action', url);
+            f.append($('<input type="hidden" name="csrf_token">').val($('meta[name="csrf-token"]').attr('content')));
+            $.each(datos || {}, function (k, v) { f.append($('<input type="hidden">').attr('name', k).val(v)); });
+            $('body').append(f);
+            f.trigger('submit');
+        }
+    </script>
+    <?php } ?>
     <!-- Bootstrap -->
     <script src="vistas/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <!-- DataTables (Local) -->

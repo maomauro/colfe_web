@@ -13,7 +13,11 @@ FALLOS=0; JAR="$(mktemp)"; trap 'rm -f "$JAR"' EXIT
 ok()  { printf "  ok    %s\n" "$1"; }
 mal() { printf "  FALLA %s\n" "$1"; FALLOS=$((FALLOS+1)); }
 chk() { if [ "$2" = "$3" ]; then ok "$1 ($3)"; else mal "$1: esperado $2, recibió $3"; fi; }
-web() { curl -s -c "$JAR" -b "$JAR" -d "ingUsuario=$1" --data-urlencode "ingPassword=$2" "$BASE_URL/"; }
+# El login lleva su token CSRF: se pide la página, se extrae el campo oculto y se envía con el formulario
+web() {
+  local t; t="$(curl -s -c "$JAR" -b "$JAR" "$BASE_URL/" | sed -n 's/.*name="csrf_token" value="\([0-9a-f]*\)".*/\1/p' | head -1)"
+  curl -s -c "$JAR" -b "$JAR" -d "csrf_token=$t" -d "ingUsuario=$1" --data-urlencode "ingPassword=$2" "$BASE_URL/"
+}
 api() { curl -s -o /tmp/auth_api.json -w "%{http_code}" -H 'Content-Type: application/json' -d "{\"username\":\"$1\",\"password\":\"$2\"}" "$BASE_URL/api/apiLogin.php"; }
 
 echo "1) Credenciales"
@@ -25,7 +29,8 @@ echo "2) Sesión"
 rm -f "$JAR"; curl -s -c "$JAR" -o /dev/null "$BASE_URL/"; ANTES="$(awk '/PHPSESSID/{print $7}' "$JAR")"
 web "$APP_USER" "$APP_PASS" >/dev/null; DESPUES="$(awk '/PHPSESSID/{print $7}' "$JAR")"
 [ -n "$ANTES" ] && [ "$ANTES" != "$DESPUES" ] && ok "el id de sesión cambia al ingresar (anti fijación)" || mal "el id de sesión no cambió"
-chk "ajax con sesión" 200 "$(curl -s -b "$JAR" -o /dev/null -w '%{http_code}' -X POST -d idSocio=1 "$BASE_URL/ajax/socios.ajax.php")"
+TOK="$(curl -s -b "$JAR" "$BASE_URL/inicio" | sed -n 's/.*name="csrf-token" content="\([0-9a-f]*\)".*/\1/p')"
+chk "ajax con sesión" 200 "$(curl -s -b "$JAR" -H "X-CSRF-Token: $TOK" -o /dev/null -w '%{http_code}' -X POST -d idSocio=1 "$BASE_URL/ajax/socios.ajax.php")"
 curl -s -b "$JAR" -c "$JAR" -o /dev/null "$BASE_URL/salir"
 chk "ajax tras cerrar sesión" 401 "$(curl -s -b "$JAR" -o /dev/null -w '%{http_code}' -X POST -d idSocio=1 "$BASE_URL/ajax/socios.ajax.php")"
 

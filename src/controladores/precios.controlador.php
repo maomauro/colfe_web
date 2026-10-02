@@ -125,9 +125,9 @@ class ControladorPrecios
 	=============================================*/
 	static public function ctrBorrarPrecio()
 	{
-		if (isset($_GET["idPrecio"])) {
+		if (isset($_POST["idPrecio"])) {
 			$tabla = "tbl_precios";
-			$datos = $_GET["idPrecio"];
+			$datos = $_POST["idPrecio"];
 
 			$respuesta = ModeloPrecios::mdlBorrarPrecio($tabla, $datos);
 

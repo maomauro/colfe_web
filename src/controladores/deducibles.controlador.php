@@ -150,9 +150,9 @@ class ControladorDeducibles
 	=============================================*/
 	static public function ctrBorrarDeducible()
 	{
-		if (isset($_GET["idDeducible"])) {
+		if (isset($_POST["idDeducible"])) {
 			$tabla = "tbl_deducibles";
-			$datos = $_GET["idDeducible"];
+			$datos = $_POST["idDeducible"];
 
 			$respuesta = ModeloDeducibles::mdlBorrarDeducible($tabla, $datos);
 

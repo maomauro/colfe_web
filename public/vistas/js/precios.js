@@ -143,7 +143,7 @@ $(document).on("click", ".btnEliminarPrecio", function () {
     confirmButtonText: "Si, borrar precio!",
   }).then(function (result) {
     if (result.value) {
-      window.location = "index.php?ruta=precios&idPrecio=" + idPrecio;
+      colfeEnviarPost("precios", { idPrecio: idPrecio });
     }
   });
 });
