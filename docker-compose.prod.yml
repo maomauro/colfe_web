@@ -3,7 +3,8 @@
 # El rollback es volver a desplegar con un tag anterior.
 #
 # Diferencias con docker-compose.yml: sin código montado, sin phpMyAdmin, MySQL sin puerto
-# publicado y nginx solo en 127.0.0.1 (lo expone el nginx del servidor, con HTTPS).
+# publicado y sin puertos 80/443: el nginx del servidor (contenedor de PortalCV) lo publica con
+# HTTPS y llega a colfe por la red Docker compartida PROXY_NETWORK, con el alias «colfe-web».
 # El archivo .env vive SOLO en el servidor.
 
 name: colfe
@@ -72,11 +73,19 @@ services:
     environment:
       REAL_IP_HEADER: ${REAL_IP_HEADER:-X-Forwarded-For}
       TRUSTED_PROXY_CIDR: ${TRUSTED_PROXY_CIDR:-172.16.0.0/12}
-    ports:
-      - "127.0.0.1:${WEB_PORT:-8081}:80"
+    networks:
+      default:
+      proxy:
+        aliases: [colfe-web]
     security_opt:
       - no-new-privileges:true
     logging: *logging
+
+networks:
+  # Red del nginx del servidor (existe ya; ver docs/DESPLIEGUE.md para averiguar su nombre)
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK:?defina PROXY_NETWORK (red del nginx del servidor)}
 
 volumes:
   dbdata:

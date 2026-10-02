@@ -19,7 +19,7 @@ recorrido en Chromium. «Publicar imágenes» ya generó las imágenes `app` y `
 **Depende de Edgar (nadie más puede hacerlo):**
 - [ ] Probar la app Android (cambia `apiValidarToken`: 401 si el token es inválido; el token es real y vence a las 24 h; las claves son las nuevas).
 - [ ] Probar `docker compose up -d --build` en su equipo y recorrer la app (el sandbox no tiene Docker; el CI solo construye las imágenes).
-- [ ] **D2:** cómo corre PortalCV en el VPS (el vhost de ejemplo asume nginx del servidor + proxy a `127.0.0.1:8081`).
+- [x] **D2:** PortalCV corre en Docker con `portalcv-nginx-prod` en 80/443 y MariaDB 11. COLFE usa su propio MySQL 8.0 y se une a la red de ese nginx (`PROXY_NETWORK`, alias `colfe-web`).
 - [ ] **D5:** ¿cubrir del 27 ago al 30 sep 2026 con datos generados, o cargarlos desde la app durante la demostración?
 - [ ] Destino externo de respaldos (`rclone`) y cron.
 - [ ] VPS: subdominio en Cloudflare, certificado de origen, secretos del workflow *Desplegar* (`produccion`).

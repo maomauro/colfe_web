@@ -22,12 +22,13 @@ echo ">> Levantando servicios"
 TAG="$TAG" $COMPOSE up -d --remove-orphans
 
 echo ">> Esperando que la web responda"
-PUERTO="$(grep -E '^WEB_PORT=' .env | cut -d= -f2 || true)"; PUERTO="${PUERTO:-8081}"
+# Sin puertos publicados: se consulta desde dentro del contenedor web
 for i in $(seq 1 30); do
-  codigo="$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:${PUERTO}/" || true)"
-  [ "$codigo" = "200" ] && { echo "   OK (HTTP 200)"; break; }
+  if $COMPOSE exec -T web wget -q -O /dev/null http://127.0.0.1/ 2>/dev/null; then
+    echo "   OK (HTTP 200)"; break
+  fi
   sleep 2
-  [ "$i" = 30 ] && { echo "   La web no respondió 200 (último código: $codigo). Revise: $COMPOSE logs --tail=100"; exit 1; }
+  [ "$i" = 30 ] && { echo "   La web no respondió. Revise: $COMPOSE logs --tail=100"; exit 1; }
 done
 
 echo ">> Desplegado: $TAG"
