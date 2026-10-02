@@ -32,11 +32,20 @@ AdminLTE + jQuery + DataTables. Destino: VPS Contabo, nginx, Docker, subdominio 
 - Cambios mecánicos primero (mover/renombrar con `git mv`), lógica después.
 - La app Android consume `api/`: avisar a Edgar antes de cambiar contratos de la API.
 
-## Verificación mínima antes de abrir un PR
+## Verificación antes de abrir un PR
 - `php -l` sobre todos los `.php` modificados.
-- Arranque local: `php -S localhost:8080 -t public docker/php-dev-router.php`.
-- Recorrido manual del módulo tocado; el proyecto aún no tiene pruebas automáticas.
-- Sin MySQL no se prueba la lógica de liquidación: decirlo en el PR si no se pudo probar.
+- Arranque local: `php -S localhost:8080 -t public docker/php-dev-router.php` (con `ENVIRONMENT=development` y las `DB_*`) o `docker compose up -d --build`.
+- Pruebas (el CI las ejecuta en MySQL 8.0, pero conviene correrlas antes):
+  - `vendor/bin/phpunit` (tras `composer install`): liquidación y auditoría. **Escriben en la base**: usar una desechable.
+  - `tests/seguridad/*.sh` (endpoints, autenticación, CSRF, auditoría) con `BASE_URL`, `APP_USER`, `APP_PASS`.
+  - `tests/navegador/recorrido.mjs` (Playwright): login, módulos sin errores de JS y borrado con confirmación.
+- Lo que toque JavaScript o formularios **debe probarse en navegador**: las pruebas con `curl` no ven errores de JS (así se coló un bucle de login).
+- Si el sandbox no tiene MySQL/Docker, decirlo en el PR; el CI cubre MySQL 8.0 y el build de las imágenes.
+- No incluir `vendor/` ni `.phpunit.cache/` en un commit (están en `.gitignore`; con `git add` explícito y no `-A` en ramas viejas).
+
+## Fusión de PR apilados
+Si una rama se apoya en otra, **fusionar siempre contra `main`** (o redirigir la base a `main` antes). Fusionar un PR
+contra su rama base deja el contenido varado fuera de `main`, aunque GitHub lo muestre como «merged».
 
 ## Idioma y estilo
 - Respuestas, commits y documentación en español, tono profesional y cercano.

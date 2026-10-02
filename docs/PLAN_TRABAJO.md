@@ -12,25 +12,21 @@ Decisiones ya tomadas:
 
 ## Estado actual (2 oct 2026)
 
-**Hecho y probado:** reestructura (Fase 0), seguridad (Fase 1), Docker y despliegue (Fase 2), pruebas de liquidación,
-CSRF, auditoría y script de reinicio. El CI corre en MySQL 8.0 real: lint, seed + migraciones, 27 pruebas PHPUnit,
-pruebas de seguridad (endpoints, autenticación, CSRF, auditoría) y un recorrido en Chromium.
-
-**Cadena de PR (se fusionan en este orden; cada uno se apoya en el anterior):**
-`#5 Fase 0` → `#6 endpoints` → `#7 contraseñas` → `#8 configuración` → `#9 Docker` → `#10 despliegue/CI`
-→ `#11 respaldo` → `#12 pruebas de liquidación` → `#13 reinicio` → `#14 CSRF` → `#15 auditoría`.
-Tras fusionar cada uno, el siguiente debe retargetearse a `main` (GitHub lo hace solo si se borra la rama fusionada).
+**Todo el trabajo de las Fases 0 a 3 está fusionado en `main`** (PR #5 a #15) y el CI corre en cada push: lint, seed y
+migraciones en MySQL 8.0, 27 pruebas PHPUnit, pruebas de seguridad (endpoints, autenticación, CSRF, auditoría) y un
+recorrido en Chromium. «Publicar imágenes» ya generó las imágenes `app` y `web` en GHCR.
 
 **Depende de Edgar (nadie más puede hacerlo):**
-- [ ] Revisar y fusionar la cadena de PR.
-- [ ] Probar en Laragon/Docker con MySQL 8.0: `docker compose up -d --build` y recorrer la app.
-- [ ] Probar la app Android (cambia `apiValidarToken`: ahora 401 si el token es inválido; el token es real y vence a las 24 h; las claves son las nuevas).
+- [ ] Probar la app Android (cambia `apiValidarToken`: 401 si el token es inválido; el token es real y vence a las 24 h; las claves son las nuevas).
+- [ ] Probar `docker compose up -d --build` en su equipo y recorrer la app (el sandbox no tiene Docker; el CI solo construye las imágenes).
 - [ ] **D2:** cómo corre PortalCV en el VPS (el vhost de ejemplo asume nginx del servidor + proxy a `127.0.0.1:8081`).
 - [ ] **D5:** ¿cubrir del 27 ago al 30 sep 2026 con datos generados, o cargarlos desde la app durante la demostración?
 - [ ] Destino externo de respaldos (`rclone`) y cron.
-- [ ] VPS: subdominio en Cloudflare, certificado de origen, secretos del workflow *Desplegar*.
+- [ ] VPS: subdominio en Cloudflare, certificado de origen, secretos del workflow *Desplegar* (`produccion`).
 - [ ] Definir los **roles** (administrador / consulta): qué puede hacer cada uno.
 - [ ] Proteger `main` en GitHub exigiendo el CI en verde.
+- [ ] **Revisar GitHub Pages** (Settings → Pages): está activo y publica desde `main`. Si no es intencional, desactivarlo (ver D4).
+- [ ] Antes de la demostración: **revisar precios y deducibles** con la cooperativa (se conservan al limpiar el demo).
 
 ---
 
@@ -38,7 +34,7 @@ Tras fusionar cada uno, el siguiente debe retargetearse a `main` (GitHub lo hace
 
 - [ ] **D2** ¿Cómo convive con PortalCV en el VPS? (proxy compartido o puerto interno detrás del nginx existente)
 - [ ] **D3** ¿Qué versión de PHP corre en Laragon? (define la imagen php-fpm)
-- [ ] **D4** ¿El repositorio es público? (hoy contiene `admin/admin` en el dump)
+- [x] **D4** ¿El repositorio es público? **Sí, es público** y tiene GitHub Pages activo desde `main`. Consecuencias: el seed y los dumps antiguos del historial son datos sintéticos, pero `admin/admin` y `user/12345` estuvieron publicados (ya no existen: la migración 002 los elimina); nunca subir `.env`, claves ni datos reales de socios; los detalles de despliegue de `docs/` y `deploy/` son visibles.
 - [ ] **D5** ¿Cómo cubrir del 27 ago al 30 sep 2026? (generar con `spInsertIntoRecoleccion` o cargar desde la app)
 - [x] **D1** Datos reales: no se usan por ahora, se sigue con los demo
 
