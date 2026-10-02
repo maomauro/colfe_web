@@ -43,7 +43,7 @@ recorrido en Chromium. «Publicar imágenes» ya generó las imágenes `app` y `
 ## Sprint 0: Higiene del repositorio
 
 - [x] Subir cambios locales (API móvil, anticipos, dump 2026-09-29) — PR #1
-- [x] Script `db/tools/desplazar_fechas.py` y dump `db/colfe_db_demo_2026.sql` — PR #2
+- [x] Script `db/tools/desplazar_fechas.py` y dump `db/seed/colfe_demo_2026.sql` — PR #2
 - [x] **P1** Probar la restauración del seed desde cero en MySQL 8.0 — la hace el CI en cada PR (MySQL 8.0.46 real)
 - [x] **P1** Crear `.gitignore` (`.env`, `logs/`, `test_*.php`, `test_api_*.php`)
 - [x] **P1** Crear `.gitattributes` para normalizar fin de línea
@@ -80,7 +80,7 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 - [x] Crear `src/auth/guard.php` (`guardSesion()` y `guardToken()`) que responda 401
 - [x] **Nuevo (E1):** los módulos de `src/vistas/modulos/` solo se incluyen desde el router; confirmar que ninguno se ejecuta por URL
 - [x] **Nuevo (E2):** guard de sesión en `public/reportes/recibo.php` y `reporte_recoleccion.php`
-- [x] Incluir el guard en los 8 archivos de `ajax/` (prediccion se eliminó)
+- [x] Incluir el guard en los 9 archivos de `ajax/` (prediccion se eliminó; `inicio.ajax.php` se añadió para el dashboard)
 - [x] Incluir el guard en las 6 APIs de `api/` (`apiTotalLiquidacion` no tenía ningún control)
 - [x] Revisar `apiCrearRecoleccionesLote.php` y `apiRecoleccionQuincena.php` (control no confirmado)
 - [x] Probar con `curl` sin sesión: todo debe devolver 401
@@ -116,7 +116,7 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 
 ### 2.1 Código portable
 - [x] ~~Rutas con `__DIR__`~~ (se hace en la Fase 0)
-- [ ] `APP_URL` y `API_URL` por variable de entorno
+- [x] `APP_URL` y `API_URL` por variable de entorno — se eliminaron: ninguna se usaba
 
 ### 2.2 Docker local
 - [x] `Dockerfile` (php-fpm con `pdo_mysql`) — imagen Debian (iconv //TRANSLIT no funciona en Alpine). **Build sin ejecutar: lo prueba Edgar**
@@ -132,7 +132,7 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 ### 2.4 Producción
 - [x] `docker-compose.prod.yml` (sin phpMyAdmin, BD sin puerto público, volumen persistente) — `compose config` válido; **sin ejecutar en el VPS**
 - [ ] Subdominio en Cloudflare con HTTPS
-- [ ] Cookie `secure` y cabeceras de seguridad
+- [x] Cookie `secure` y cabeceras de seguridad — cookie `Secure` fuera de desarrollo; cabeceras en nginx (HSTS en el vhost de ejemplo)
 - [ ] `.env` solo en el servidor
 
 ### 2.5 Pipeline y respaldo
@@ -150,14 +150,16 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 
 ## Fase 3: Confianza en el negocio (P2, en paralelo al staging)
 
-- [x] Pruebas PHPUnit de liquidación (deducibles, anticipos, precios por quincena) — 18 pruebas / 988 aserciones, en el CI
+- [x] Pruebas PHPUnit de liquidación (deducibles, anticipos, precios por quincena) — 27 pruebas / 1.013 aserciones (18 de liquidación y 9 de auditoría), en el CI
 - [x] Validar una quincena completa contra un cálculo manual — recálculo independiente de una quincena (2da feb-2025, 107 socios) y de las 4.066 liquidaciones
 - [x] Revisar las 27 producciones sin liquidar que quedaron en el demo — causa: deducible de «asociado» con estado NULL (migración 003); eran 1.026 producciones de 27 socios
 - [ ] Liquidar desde la app la 2da quincena de feb 2025 (queda pendiente a propósito en el demo; las pruebas ya verificaron que el procedimiento la calcula bien)
 - [x] CSRF en formularios y ajax — token por sesión + verificación de Origin; los 4 borrados (antes por GET) pasan a POST
 - [x] Log de auditoría en liquidaciones y anticipos — migración 004: 16 triggers sobre liquidaciones, anticipos, precios, deducibles, socios y edición de recolección; usuario y origen (web/api/sistema) y valores antes/después en JSON; vista `v_auditoria`. **Falta una pantalla para consultarla** (hoy es por SQL)
 - [ ] Roles de usuario (administrador / consulta)
-- [ ] CI con lint y pruebas, y métricas DORA básicas
+- [ ] **P2** Dependencias del frontend (hallazgo E10): `bower_components` (18 MB) y `plugins` (2,4 MB) están versionados sin gestor de dependencias; pasar a `npm` con versiones fijadas
+- [x] CI con lint y pruebas — `.github/workflows/ci.yml`
+- [ ] Métricas DORA básicas (frecuencia de despliegue, tiempo de entrega): aún sin implementar
 - [ ] Probar la app Android contra el servidor de producción
 
 ---
@@ -175,11 +177,11 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 
 ## Criterios de salida (go / no-go)
 
-- [ ] Ningún endpoint responde datos sin sesión o token válido
-- [ ] Contraseñas con hash y `admin/admin` eliminado
-- [ ] Solo `public/` es accesible por HTTP; `db/`, `src/`, `config/`, `.git` devuelven 404
-- [ ] Ningún reporte ni módulo se abre por URL directa sin sesión
-- [ ] Restauración de BD probada desde el esquema versionado
-- [ ] Cálculo de liquidación validado contra una quincena
-- [ ] Backup diario funcionando y restauración probada
+- [x] Ningún endpoint responde datos sin sesión o token válido — `tests/seguridad/smoke_endpoints.sh`, en el CI
+- [x] Contraseñas con hash y `admin/admin` eliminado — migración 002 + `auth_test.sh`
+- [x] Solo `public/` es accesible por HTTP; `db/`, `src/`, `config/`, `.git` devuelven 404 — probado con `php -S` y con nginx real; falta confirmarlo en el contenedor
+- [x] Ningún reporte ni módulo se abre por URL directa sin sesión — `smoke_endpoints.sh`
+- [x] Restauración de BD probada desde el esquema versionado — el CI restaura el seed en MySQL 8.0 en cada PR
+- [x] Cálculo de liquidación validado contra una quincena — contra un recálculo independiente (demo). **Falta validarlo con una quincena real de COLFE**
+- [ ] Backup diario funcionando y restauración probada — scripts probados en local; **falta programarlo (cron) y el destino externo**
 - [ ] App Android probada contra producción

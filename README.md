@@ -26,30 +26,35 @@ Sistema web completo para la gestión de liquidaciones lecheras que incluye:
 colfe_web/
 ├── public/               # ÚNICA raíz web (nginx / Apache apuntan aquí)
 │   ├── index.php         # Punto de entrada (router)
-│   ├── ajax/             # Endpoints AJAX
-│   ├── api/              # APIs REST (app Android)
+│   ├── ajax/             # Endpoints AJAX de la interfaz (sesión + CSRF)
+│   ├── api/              # APIs REST para la app móvil (token)
 │   ├── reportes/         # Recibos y reportes PDF/HTML
 │   ├── vistas/           # Solo estáticos: js, css, dist, img, plugins, libs
 │   └── .htaccess         # Reescritura para Apache
 ├── src/                  # Código de la aplicación (fuera de la raíz web)
 │   ├── bootstrap.php     # Arranque común
+│   ├── auth/             # guard.php (sesión y token) y csrf.php
 │   ├── controladores/    # Lógica de control
 │   ├── modelos/          # Acceso a datos
 │   ├── vistas/           # plantilla.php y modulos/ (plantillas PHP)
 │   └── libs/fpdf/        # Librería PDF
-├── config/config.php     # Configuración centralizada
+├── config/config.php     # Configuración centralizada (variables de entorno)
 ├── storage/logs/         # Logs de la aplicación
-├── db/                   # schema/, seed/ y tools/ de base de datos
-├── docker/               # Utilidades de despliegue y desarrollo
-└── docs/                 # Plan de trabajo y diagnósticos
+├── db/                   # schema/, seed/, migraciones/, tools/ y reset_produccion.sql
+├── docker/               # nginx, php.ini, router de desarrollo y .env de ejemplo
+├── deploy/               # desplegar, respaldo, restauración y reinicio de producción
+├── tests/                # liquidacion/ (PHPUnit), seguridad/ (scripts) y navegador/ (Playwright)
+├── .github/workflows/    # CI, publicación de imágenes y despliegue
+├── docs/                 # Plan de trabajo, estructura y despliegue
+├── Dockerfile · docker-compose.yml · docker-compose.prod.yml
+└── composer.json · phpunit.xml · env.example · CLAUDE.md
 ```
 
 ## 🛠️ Requisitos
 
-- PHP 7.4 o superior
-- MySQL 5.7 o superior
-- Apache/Nginx
-- Composer (opcional)
+- **Recomendado:** Docker (Compose v2). Trae todo lo demás (PHP 8.4, nginx, MySQL 8.0).
+- **Sin Docker:** PHP 8.1 o superior (probado en 8.4) con `pdo_mysql`, `mbstring` e `iconv`; MySQL 8.0; Apache o nginx con la raíz web en `public/`.
+- Composer y Node.js solo para ejecutar las pruebas.
 
 ## ⚙️ Instalación
 
@@ -172,24 +177,34 @@ Implementado:
 - Cookies de sesión `httponly`
 - Guard de sesión en `ajax/` y `reportes/`; token real (hash en BD, vence a las 24 h) en `api/`
 - CORS cerrado por defecto (`CORS_ALLOWED_ORIGINS`)
-- Prueba de seguridad: `tests/seguridad/smoke_endpoints.sh`
 
-**Pendiente antes de publicar** (ver `docs/PLAN_TRABAJO.md`, Fases 0 y 1):
-- Configuración segura por defecto (Fase 1.5)
-- Protección CSRF y registro de auditoría (no implementados todavía)
+- **Protección CSRF** (token por sesión y verificación del origen) en formularios y AJAX; los borrados van por POST
+- Configuración segura por defecto: sin credenciales ni modo desarrollo implícitos, errores solo al log
+- Archivos fuera de la raíz web: `db/`, `src/`, `config/` y `storage/` no se sirven por HTTP
 
-> El sistema **no debe exponerse a internet** hasta completar la Fase 1.
+**Pendiente antes de publicar** (detalle en `docs/PLAN_TRABAJO.md`):
+- Roles de usuario (administrador / consulta)
+- Preparar el servidor: HTTPS, subdominio, respaldo externo y desplegar (ver `docs/DESPLIEGUE.md`)
+- Probar la app móvil contra la API protegida
 
 ## 🧪 Pruebas
 
+El CI las ejecuta en cada PR sobre MySQL 8.0. Para correrlas en local (**escriben en la base: usar una desechable**):
+
 ```bash
 composer install
-ENVIRONMENT=development DB_HOST=127.0.0.1 DB_NAME=colfe_db DB_USER=... DB_PASS=... vendor/bin/phpunit   # liquidación
-BASE_URL=http://127.0.0.1:8080 APP_USER=admin APP_PASS=... tests/seguridad/smoke_endpoints.sh           # seguridad
+export ENVIRONMENT=development DB_HOST=127.0.0.1 DB_NAME=colfe_db DB_USER=... DB_PASS=...
+vendor/bin/phpunit                                  # liquidación y auditoría (27 pruebas)
+
+export BASE_URL=http://127.0.0.1:8080 APP_USER=admin APP_PASS=...   # con la app en marcha
+tests/seguridad/smoke_endpoints.sh                  # ningún endpoint responde sin sesión o token
+tests/seguridad/auth_test.sh                        # contraseñas, bloqueo por intentos, sesión
+tests/seguridad/csrf_test.sh                        # token CSRF y borrados por POST
+tests/seguridad/auditoria_test.sh                   # quién hizo cada cambio
+(cd tests/navegador && npm install && npx playwright install chromium && node recorrido.mjs)   # navegador real
 ```
 
-Las pruebas de liquidación recalculan cada quincena sin usar el procedimiento almacenado y la comparan
-con lo guardado; **escriben en la base**, úsense solo con una base desechable. Se ejecutan en el CI.
+Las pruebas de liquidación recalculan cada quincena sin usar el procedimiento almacenado y la comparan con lo guardado.
 
 ## 🐛 Solución de Problemas
 
