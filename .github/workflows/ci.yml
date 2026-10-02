@@ -66,6 +66,7 @@ jobs:
           mysql colfe_db < db/migraciones/003_deducible_asociado_activo.sql
           mysql colfe_db < db/seed/003_demo_liquidar_pendientes.sql
           mysql colfe_db < db/seed/004_demo_cerrar_quincenas.sql
+          mysql colfe_db < db/migraciones/004_auditoria.sql
           mysql colfe_db -e "GRANT ALL ON colfe_db.* TO 'colfe_app'@'%'; FLUSH PRIVILEGES;"
           mysql colfe_db -N -e "SELECT 'socios', COUNT(*) FROM tbl_socios UNION ALL SELECT 'recoleccion', COUNT(*) FROM tbl_recoleccion UNION ALL SELECT 'liquidacion', COUNT(*) FROM tbl_liquidacion"
 
@@ -90,6 +91,9 @@ jobs:
 
       - name: Pruebas CSRF
         run: tests/seguridad/csrf_test.sh
+
+      - name: Pruebas de auditoría (atribución web)
+        run: tests/seguridad/auditoria_test.sh
 
       - uses: actions/setup-node@v4
         with:

@@ -74,6 +74,15 @@ Ver `docker/env.docker.example`. Obligatorias: `DB_NAME`, `DB_USER`, `DB_PASS`, 
   docker compose -f docker-compose.prod.yml start app web
   ```
 
+### Auditoría de cambios
+Cada cambio en liquidaciones, anticipos, precios, deducibles, socios y las ediciones de recolección queda en
+`tbl_auditoria` con el usuario, el origen (`web`, `api` o `sistema`) y los valores antes y después:
+```sql
+SELECT fecha, username, origen, tabla, accion, id_registro, datos_antes, datos_despues
+  FROM v_auditoria ORDER BY id_auditoria DESC LIMIT 50;
+```
+Un cambio hecho directamente en MySQL (sin pasar por la app) queda como origen `sistema`, sin usuario.
+
 ## 8. Operación
 - Logs de la app: volumen `applogs` (`docker compose -f docker-compose.prod.yml exec app tail -f storage/logs/php-error.log`).
 - Logs de contenedores con rotación (10 MB x 5).

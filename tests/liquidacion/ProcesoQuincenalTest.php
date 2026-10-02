@@ -40,6 +40,11 @@ final class ProcesoQuincenalTest extends BaseDeDatosTestCase
         self::ejecutar("DELETE FROM tbl_liquidacion WHERE fecha_liquidacion = ?", [self::FECHA]);
         self::ejecutar("DELETE FROM tbl_produccion  WHERE fecha = ?", [self::FECHA]);
         self::ejecutar("DELETE FROM tbl_anticipos WHERE observaciones = 'PRUEBA-LIQ'");
+        // La auditoría (migración 004) también registró lo que hizo la prueba: se limpia
+        self::ejecutar("DELETE FROM tbl_auditoria WHERE tabla = 'tbl_liquidacion'
+                          AND JSON_UNQUOTE(JSON_EXTRACT(COALESCE(datos_despues, datos_antes), '$.fecha_liquidacion')) = ?", [self::FECHA]);
+        self::ejecutar("DELETE FROM tbl_auditoria WHERE tabla = 'tbl_anticipos'
+                          AND JSON_UNQUOTE(JSON_EXTRACT(COALESCE(datos_despues, datos_antes), '$.observaciones')) = 'PRUEBA-LIQ'");
     }
 
     private static function llamar(string $fecha): void
@@ -139,6 +144,7 @@ final class ProcesoQuincenalTest extends BaseDeDatosTestCase
             $this->assertStringContainsString('asociado', $mensaje);
         } finally {
             self::ejecutar("UPDATE tbl_deducibles SET estado = 'activo' WHERE id_deducible = ?", [$idDeducible]);
+            self::ejecutar("DELETE FROM tbl_auditoria WHERE tabla = 'tbl_deducibles' AND id_registro = ?", [(string)$idDeducible]);
         }
         $this->assertSame([], ModeloCalendario::mdlVinculacionesSinTarifa(), 'el catálogo debe quedar como estaba');
     }

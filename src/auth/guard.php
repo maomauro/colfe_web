@@ -133,5 +133,7 @@ function guardToken($token = null)
     if (!$fila) {
         guardRechazar('json', 'Token de autenticación requerido o inválido');
     }
+    // Los cambios hechos con este token quedan atribuidos a su usuario en la auditoría
+    $GLOBALS['colfe_contexto'] = ['usuario' => (int)$fila['id_usuario'], 'origen' => 'api'];
     return $fila;
 }
