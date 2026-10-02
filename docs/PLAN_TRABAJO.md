@@ -49,7 +49,7 @@ recorrido en Chromium. «Publicar imágenes» ya generó las imágenes `app` y `
 - [x] **P1** Crear `.gitattributes` para normalizar fin de línea
 - [x] **P1** Reorganizar `db/`: `schema/` (esquema sin datos), `seed/` (demo 2026), archivar dumps antiguos
 - [x] **P1** Corregir `README.md`: importar el esquema vigente y quitar lo que no existe (CSRF, auditoría)
-- [x] **P1** Corregir `README_TESTS.md` (documenta tests inexistentes)
+- [x] **P1** `README_TESTS.md` (documentaba tests inexistentes): eliminado; las pruebas reales se explican en `README.md` y `CLAUDE.md`
 
 ---
 
