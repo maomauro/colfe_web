@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../../src/bootstrap.php';
+require_once __DIR__ . '/../../src/auth/guard.php';
+guardSesion();
 require_once __DIR__ . '/../../src/controladores/recoleccion.controlador.php';
 require_once __DIR__ . '/../../src/modelos/recoleccion.modelo.php';
 

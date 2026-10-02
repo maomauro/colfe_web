@@ -1,6 +1,8 @@
 <?php
 
 require_once __DIR__ . '/../../src/bootstrap.php';
+require_once __DIR__ . '/../../src/auth/guard.php';
+guardSesion();
 require_once __DIR__ . '/../../src/controladores/calendario.controlador.php';
 require_once __DIR__ . '/../../src/modelos/calendario.modelo.php';
 

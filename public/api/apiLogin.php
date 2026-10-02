@@ -2,16 +2,8 @@
 // apiLogin.php
 
 // Configurar headers para API
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
-
-// Manejar preflight OPTIONS request
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+require_once __DIR__ . '/../../src/auth/guard.php';
+apiCabeceras('POST, OPTIONS', 'Content-Type');
 
 // Solo permitir método POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -66,9 +58,10 @@ try {
     // Verificar si el usuario existe y la contraseña es correcta
     if ($respuesta && $respuesta["username"] == $datos['username'] && $respuesta["password"] == $datos['password']) {
         
-        // Generar token simple (en producción usar JWT)
+        // Token aleatorio de 64 hex; en la base de datos solo se guarda su hash
         $token = bin2hex(random_bytes(32));
         $timestamp = time();
+        ModeloTokens::mdlCrearToken($respuesta['id'], $token, API_TOKEN_TTL);
         
         // Devolver respuesta exitosa
         echo json_encode([
@@ -81,7 +74,7 @@ try {
                 'rol' => isset($respuesta['rol']) ? $respuesta['rol'] : 'usuario',
                 'token' => $token,
                 'timestamp' => $timestamp,
-                'expires_at' => $timestamp + (24 * 60 * 60) // 24 horas
+                'expires_at' => $timestamp + API_TOKEN_TTL
             ]
         ]);
         

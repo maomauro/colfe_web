@@ -66,6 +66,9 @@ colfe_web/
 
    # Opción B: solo el esquema, sin datos
    mysql -u root -p < db/schema/colfe_schema.sql
+
+   # Migraciones (después del esquema o del seed, en orden numérico)
+   mysql -u root -p colfe_db < db/migraciones/001_tbl_api_tokens.sql
    ```
 
 3. **Configurar variables de entorno**
@@ -153,10 +156,13 @@ Implementado:
 - Consultas con PDO y sentencias preparadas
 - Lista blanca de rutas en el router
 - Cookies de sesión `httponly`
+- Guard de sesión en `ajax/` y `reportes/`; token real (hash en BD, vence a las 24 h) en `api/`
+- CORS cerrado por defecto (`CORS_ALLOWED_ORIGINS`)
+- Prueba de seguridad: `tests/seguridad/smoke_endpoints.sh`
 
 **Pendiente antes de publicar** (ver `docs/PLAN_TRABAJO.md`, Fases 0 y 1):
-- Autenticación en `ajax/`, `api/`, reportes y módulos
-- Contraseñas con hash y token real en la API móvil
+- Contraseñas con hash y bloqueo por intentos (Fase 1.3)
+- Configuración segura por defecto (Fase 1.5)
 - Protección CSRF y registro de auditoría (no implementados todavía)
 
 > El sistema **no debe exponerse a internet** hasta completar la Fase 1.

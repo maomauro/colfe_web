@@ -4,6 +4,8 @@ ini_set('display_errors', 0);
 error_reporting(0);
 
 require_once __DIR__ . '/../../src/bootstrap.php';
+require_once __DIR__ . '/../../src/auth/guard.php';
+guardSesion();
 require_once __DIR__ . '/../../src/controladores/socios.controlador.php';
 require_once __DIR__ . '/../../src/modelos/socios.modelo.php';
 
