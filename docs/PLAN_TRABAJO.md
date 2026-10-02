@@ -71,11 +71,11 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 - [ ] **Pendiente de Edgar:** probar la app Android contra el cambio. Cambia solo `apiValidarToken` (ahora 401 si el token es inválido) y el token pasa a ser real
 
 ### 1.3 Contraseñas y sesión
-- [ ] Cambiar a `password_hash()` y `password_verify()`
-- [ ] Migrar el usuario y eliminar `admin/admin` y `user/12345`
-- [ ] Exigir contraseña nueva y fuerte (quitar la restricción alfanumérica)
-- [ ] `session_regenerate_id()` al iniciar sesión
-- [ ] Bloqueo por intentos (usar `MAX_LOGIN_ATTEMPTS`)
+- [x] Cambiar a `password_hash()` y `password_verify()`
+- [x] Migrar el usuario y eliminar `admin/admin` y `user/12345` (migración 002 + `db/tools/crear_usuario.php`)
+- [x] Exigir contraseña nueva y fuerte (quitar la restricción alfanumérica)
+- [x] `session_regenerate_id()` al iniciar sesión
+- [x] Bloqueo por intentos (usar `MAX_LOGIN_ATTEMPTS`)
 
 ### 1.4 Superficie de ataque
 - [x] ~~Eliminar `prediccion.ajax.php`~~ (se hace en la Fase 0)

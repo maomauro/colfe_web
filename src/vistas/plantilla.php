@@ -2,6 +2,20 @@
 
 date_default_timezone_set('America/Bogota');
 session_start();
+
+// Buffer de salida: el login se procesa dentro del HTML y debe poder enviar cabeceras
+// (nuevo id de sesión) después de haber empezado a escribir la página.
+ob_start();
+
+// Sesión vencida por inactividad: se cierra y se vuelve a pedir el ingreso
+if (isset($_SESSION["iniciarSesion"]) && isset($_SESSION["ultima_actividad"])
+    && (time() - (int)$_SESSION["ultima_actividad"]) > SESSION_TIMEOUT) {
+    $_SESSION = [];
+    session_regenerate_id(true);
+}
+if (isset($_SESSION["iniciarSesion"])) {
+    $_SESSION["ultima_actividad"] = time();
+}
 ?>
 
 <!DOCTYPE html>

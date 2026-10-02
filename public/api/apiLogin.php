@@ -35,34 +35,20 @@ try {
         exit();
     }
 
-    // Incluir el modelo de usuarios
-    require_once __DIR__ . '/../../src/bootstrap.php';
-    require_once __DIR__ . '/../../src/modelos/usuarios.modelo.php';
-    
-    // Validar formato de usuario y contraseña (solo alfanumérico)
-    if (!preg_match('/^[a-zA-Z0-9]+$/', $datos['username']) || !preg_match('/^[a-zA-Z0-9]+$/', $datos['password'])) {
-        echo json_encode([
-            'status' => 'error',
-            'message' => 'Usuario y contraseña solo pueden contener letras y números'
-        ]);
-        exit();
-    }
+    // Autenticación compartida con el login web: hash de clave y bloqueo por intentos
+    require_once __DIR__ . '/../../src/controladores/usuarios.controlador.php';
+    require_once __DIR__ . '/../../src/modelos/tokens.modelo.php';
 
-    // Consultar usuario en la base de datos
-    $tabla = "tbl_usuarios";
-    $item = "username";
-    $valor = $datos['username'];
-    
-    $respuesta = ModeloUsuarios::mdlMostrarUsuarios($tabla, $item, $valor);
+    $r = ControladorUsuarios::ctrAutenticar($datos['username'], $datos['password']);
 
-    // Verificar si el usuario existe y la contraseña es correcta
-    if ($respuesta && $respuesta["username"] == $datos['username'] && $respuesta["password"] == $datos['password']) {
-        
+    if ($r['estado'] === 'ok') {
+        $respuesta = $r['usuario'];
+
         // Token aleatorio de 64 hex; en la base de datos solo se guarda su hash
         $token = bin2hex(random_bytes(32));
         $timestamp = time();
         ModeloTokens::mdlCrearToken($respuesta['id'], $token, API_TOKEN_TTL);
-        
+
         // Devolver respuesta exitosa
         echo json_encode([
             'status' => 'success',
@@ -77,14 +63,21 @@ try {
                 'expires_at' => $timestamp + API_TOKEN_TTL
             ]
         ]);
-        
+
+    } elseif ($r['estado'] === 'bloqueado') {
+        http_response_code(429);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Demasiados intentos fallidos. Intente de nuevo en ' . (int)LOGIN_LOCK_MINUTES . ' minutos.'
+        ]);
+
     } else {
         echo json_encode([
             'status' => 'error',
             'message' => 'Usuario o contraseña incorrectos'
         ]);
     }
-    
+
 } catch (Exception $e) {
     error_log("Error en API de login: " . $e->getMessage());
     http_response_code(500);

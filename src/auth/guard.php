@@ -31,12 +31,20 @@ SESIÓN WEB
 function guardSesion($formato = 'json')
 {
     if (session_status() === PHP_SESSION_NONE) {
-        // read_and_close libera el bloqueo: varias llamadas AJAX en paralelo no se encolan
-        session_start(['read_and_close' => true]);
+        session_start();
     }
-    if (!isset($_SESSION['iniciarSesion']) || $_SESSION['iniciarSesion'] !== 'ok') {
+    $ok = isset($_SESSION['iniciarSesion']) && $_SESSION['iniciarSesion'] === 'ok';
+    $vencida = $ok && isset($_SESSION['ultima_actividad'])
+        && (time() - (int)$_SESSION['ultima_actividad']) > SESSION_TIMEOUT;
+
+    if (!$ok || $vencida) {
+        session_write_close();
         guardRechazar($formato, 'Sesión no iniciada o expirada');
     }
+    // Actividad reciente: renueva el plazo y libera el bloqueo de sesión de inmediato,
+    // para que varias llamadas AJAX en paralelo no se encolen.
+    $_SESSION['ultima_actividad'] = time();
+    session_write_close();
 }
 
 /*=============================================
