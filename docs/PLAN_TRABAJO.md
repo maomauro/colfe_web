@@ -10,6 +10,30 @@ Decisiones ya tomadas:
 
 ---
 
+## Estado actual (2 oct 2026)
+
+**Hecho y probado:** reestructura (Fase 0), seguridad (Fase 1), Docker y despliegue (Fase 2), pruebas de liquidación,
+CSRF, auditoría y script de reinicio. El CI corre en MySQL 8.0 real: lint, seed + migraciones, 27 pruebas PHPUnit,
+pruebas de seguridad (endpoints, autenticación, CSRF, auditoría) y un recorrido en Chromium.
+
+**Cadena de PR (se fusionan en este orden; cada uno se apoya en el anterior):**
+`#5 Fase 0` → `#6 endpoints` → `#7 contraseñas` → `#8 configuración` → `#9 Docker` → `#10 despliegue/CI`
+→ `#11 respaldo` → `#12 pruebas de liquidación` → `#13 reinicio` → `#14 CSRF` → `#15 auditoría`.
+Tras fusionar cada uno, el siguiente debe retargetearse a `main` (GitHub lo hace solo si se borra la rama fusionada).
+
+**Depende de Edgar (nadie más puede hacerlo):**
+- [ ] Revisar y fusionar la cadena de PR.
+- [ ] Probar en Laragon/Docker con MySQL 8.0: `docker compose up -d --build` y recorrer la app.
+- [ ] Probar la app Android (cambia `apiValidarToken`: ahora 401 si el token es inválido; el token es real y vence a las 24 h; las claves son las nuevas).
+- [ ] **D2:** cómo corre PortalCV en el VPS (el vhost de ejemplo asume nginx del servidor + proxy a `127.0.0.1:8081`).
+- [ ] **D5:** ¿cubrir del 27 ago al 30 sep 2026 con datos generados, o cargarlos desde la app durante la demostración?
+- [ ] Destino externo de respaldos (`rclone`) y cron.
+- [ ] VPS: subdominio en Cloudflare, certificado de origen, secretos del workflow *Desplegar*.
+- [ ] Definir los **roles** (administrador / consulta): qué puede hacer cada uno.
+- [ ] Proteger `main` en GitHub exigiendo el CI en verde.
+
+---
+
 ## Decisiones pendientes
 
 - [ ] **D2** ¿Cómo convive con PortalCV en el VPS? (proxy compartido o puerto interno detrás del nginx existente)
@@ -24,7 +48,7 @@ Decisiones ya tomadas:
 
 - [x] Subir cambios locales (API móvil, anticipos, dump 2026-09-29) — PR #1
 - [x] Script `db/tools/desplazar_fechas.py` y dump `db/colfe_db_demo_2026.sql` — PR #2
-- [ ] **P1** Probar la restauración de `colfe_db_demo_2026.sql` desde cero en MySQL 8.0
+- [x] **P1** Probar la restauración del seed desde cero en MySQL 8.0 — la hace el CI en cada PR (MySQL 8.0.46 real)
 - [x] **P1** Crear `.gitignore` (`.env`, `logs/`, `test_*.php`, `test_api_*.php`)
 - [x] **P1** Crear `.gitattributes` para normalizar fin de línea
 - [x] **P1** Reorganizar `db/`: `schema/` (esquema sin datos), `seed/` (demo 2026), archivar dumps antiguos
