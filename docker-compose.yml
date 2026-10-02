@@ -8,6 +8,8 @@
 # La base se inicializa sola la primera vez desde db/seed + db/migraciones.
 # Para empezar de cero: docker compose down -v
 
+name: colfe   # proyecto «colfe» con servicios colfe-db-1, colfe-app-1 y colfe-web-1 (igual que producción)
+
 services:
   db:
     image: mysql:8.0
