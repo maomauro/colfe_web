@@ -4,11 +4,12 @@ Stack: **Docker Compose** (nginx + php-fpm + MySQL 8.0) detrás del nginx del se
 atiende a PortalCV en 80/443 y publica COLFE con HTTPS. Las imágenes las construye el pipeline.
 
 ```
-Cloudflare ─► nginx del VPS (HTTPS, :443) ─► 127.0.0.1:8081 ─► [web nginx] ─► [app php-fpm] ─► [db MySQL]
+Cloudflare ─► portalcv-nginx-prod (HTTPS, :443) ─► red compartida ─► colfe-web:80 [web nginx] ─► [app php-fpm] ─► [db MySQL]
 ```
 
-> Supuesto D2: COLFE no comparte contenedores con PortalCV; el nginx del servidor solo hace de
-> proxy. Si PortalCV usa otro esquema (Traefik, Caddy), basta cambiar el vhost de ejemplo.
+> Decisión D2: en el VPS el nginx es un **contenedor** (`portalcv-nginx-prod`) que ya ocupa 80/443.
+> COLFE no publica puertos: su contenedor `web` se une a la red Docker de ese nginx
+> (`PROXY_NETWORK`) con el alias `colfe-web`. COLFE usa su propio MySQL 8.0 (no el MariaDB de PortalCV).
 
 ## 1. Requisitos del servidor
 - Docker y Docker Compose v2.
@@ -20,14 +21,17 @@ Cloudflare ─► nginx del VPS (HTTPS, :443) ─► 127.0.0.1:8081 ─► [web 
 ```bash
 sudo git clone git@github.com:maomauro/colfe_web.git /opt/colfe_web && cd /opt/colfe_web
 cp docker/env.docker.example .env && chmod 600 .env
-# Editar .env: DB_PASS y MYSQL_ROOT_PASSWORD fuertes, WEB_PORT=8081 y ENVIRONMENT=production
+# Red del nginx de PortalCV (copie el nombre que muestre):
+docker inspect portalcv-nginx-prod --format '{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}'
+# Editar .env: DB_PASS y MYSQL_ROOT_PASSWORD fuertes, ENVIRONMENT=production y PROXY_NETWORK=<red de arriba>
 nano .env
 
 TAG=latest ./deploy/desplegar.sh                  # descarga imágenes, crea la base (seed + migraciones)
 docker compose -f docker-compose.prod.yml exec -e COLFE_CLAVE='CLAVE-LARGA-CON-NUMEROS' app \
   php db/tools/crear_usuario.php admin            # crea el administrador
-sudo cp deploy/nginx-vhost-ejemplo.conf /etc/nginx/conf.d/colfe.conf   # ajustar dominio y certificado
-sudo nginx -t && sudo systemctl reload nginx
+# Añadir deploy/nginx-vhost-ejemplo.conf a la configuración de portalcv-nginx-prod (ajustar dominio y
+# certificado, montados dentro de ese contenedor) y recargar:
+docker exec portalcv-nginx-prod nginx -t && docker exec portalcv-nginx-prod nginx -s reload
 ```
 Comprobación: `curl -I https://colfe.sitiosapps.com/` → 200 y `tests/seguridad/smoke_endpoints.sh` con
 `BASE_URL=https://colfe.sitiosapps.com`.
