@@ -1,90 +1,88 @@
 <?php
 /**
- * Archivo de configuración centralizado para COLFE_WEB
- * Configuración de base de datos, rutas y configuraciones generales
+ * Configuración centralizada de COLFE_WEB.
+ * Todo viene de variables de entorno (o de .env en desarrollo local; ver env.example).
+ * No hay credenciales ni modo "desarrollo" por defecto: lo que falta se rechaza.
  */
 
-// Configuración de base de datos
-define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-define('DB_NAME', getenv('DB_NAME') ?: 'colfe_db');
-define('DB_USER', getenv('DB_USER') ?: 'desarrollo');
-define('DB_PASS', getenv('DB_PASS') ?: 'desarrollo');
+/** Variable obligatoria: si falta, la aplicación no arranca (sin revelar detalles al navegador). */
+function envRequerida($nombre)
+{
+    $valor = getenv($nombre);
+    if ($valor === false || $valor === '') {
+        error_log("Configuración incompleta: falta la variable de entorno $nombre");
+        if (PHP_SAPI === 'cli') {
+            fwrite(STDERR, "Falta la variable de entorno $nombre (ver env.example)\n");
+        } else {
+            http_response_code(500);
+            header('Content-Type: text/plain; charset=UTF-8');
+            echo "Error de configuración del servidor.";
+        }
+        exit(1);
+    }
+    return $valor;
+}
 
-// Configuración de la aplicación
+// Entorno: production por defecto. Para desarrollo hay que declararlo explícitamente.
+$entorno = getenv('ENVIRONMENT') ?: 'production';
+if (!in_array($entorno, ['production', 'staging', 'development'], true)) {
+    $entorno = 'production';
+}
+define('ENVIRONMENT', $entorno);
+
+// Base de datos (sin valores por defecto)
+define('DB_HOST', envRequerida('DB_HOST'));
+define('DB_NAME', envRequerida('DB_NAME'));
+define('DB_USER', envRequerida('DB_USER'));
+define('DB_PASS', envRequerida('DB_PASS'));
+
+// Aplicación
 define('APP_NAME', 'COLFE - Sistema de Liquidación Lechera');
 define('APP_VERSION', '1.0.0');
-define('APP_URL', 'http://localhost/colfe_web');
 define('TIMEZONE', 'America/Bogota');
 
-// Configuración de seguridad
+// Seguridad
 define('SESSION_TIMEOUT', (int)(getenv('SESSION_TIMEOUT') ?: 3600)); // inactividad máxima en segundos (1 h)
 define('MAX_LOGIN_ATTEMPTS', 5);      // fallos por usuario dentro de la ventana de bloqueo
 define('MAX_LOGIN_ATTEMPTS_IP', 20);  // fallos por IP dentro de la ventana de bloqueo
 define('LOGIN_LOCK_MINUTES', 15);     // ventana y duración del bloqueo
 define('PASSWORD_MIN_LENGTH', 10);
 
-// Configuración de archivos
-define('UPLOAD_PATH', dirname(__DIR__) . '/storage/uploads/');
-define('MAX_FILE_SIZE', 5 * 1024 * 1024); // 5MB
-define('ALLOWED_EXTENSIONS', ['jpg', 'jpeg', 'png', 'pdf', 'xlsx', 'xls']);
-
-// Configuración de logs
-define('LOG_PATH', dirname(__DIR__) . '/storage/logs/');
-define('LOG_LEVEL', 'INFO'); // DEBUG, INFO, WARNING, ERROR
-
-// Configuración de API
-define('API_URL', 'http://localhost:8000');
-define('API_TIMEOUT', 30);
-define('API_TOKEN_TTL', (int)(getenv('API_TOKEN_TTL') ?: 86400)); // vigencia del token móvil: 24 h
-// Orígenes web autorizados para CORS en la API (separados por coma). Vacío = ninguno.
+// API móvil
+define('API_TOKEN_TTL', (int)(getenv('API_TOKEN_TTL') ?: 86400)); // vigencia del token: 24 h
+// Orígenes web autorizados para CORS (separados por coma). Vacío = ninguno.
 define('CORS_ALLOWED_ORIGINS', getenv('CORS_ALLOWED_ORIGINS') ?: '');
 
-// Configuración de correo (si se implementa)
-define('SMTP_HOST', getenv('SMTP_HOST') ?: '');
-define('SMTP_PORT', getenv('SMTP_PORT') ?: 587);
-define('SMTP_USER', getenv('SMTP_USER') ?: '');
-define('SMTP_PASS', getenv('SMTP_PASS') ?: '');
+// Logs (fuera de la raíz web)
+define('LOG_PATH', dirname(__DIR__) . '/storage/logs/');
+if (!is_dir(LOG_PATH)) {
+    @mkdir(LOG_PATH, 0755, true);
+}
 
-// Configuración de entorno
-define('ENVIRONMENT', getenv('ENVIRONMENT') ?: 'development'); // development, staging, production
-
-// Funciones de utilidad
-function isProduction() {
+function isProduction()
+{
     return ENVIRONMENT === 'production';
 }
 
-function isDevelopment() {
+function isDevelopment()
+{
     return ENVIRONMENT === 'development';
 }
 
-function debug($data) {
-    if (isDevelopment()) {
-        echo '<pre>';
-        print_r($data);
-        echo '</pre>';
-    }
-}
-
-// Configuración de zona horaria
+// Zona horaria
 date_default_timezone_set(TIMEZONE);
 
-// Configuración de sesión
+// Sesión
 ini_set('session.cookie_httponly', 1);
 ini_set('session.use_only_cookies', 1);
-if (isProduction()) {
+ini_set('session.use_strict_mode', 1);
+ini_set('session.cookie_samesite', 'Lax');
+if (!isDevelopment()) {
     ini_set('session.cookie_secure', 1);
 }
 
-// Configuración de errores
-if (isDevelopment()) {
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
-} else {
-    error_reporting(0);
-    ini_set('display_errors', 0);
-}
-
-// Configuración de logs
-if (!is_dir(LOG_PATH)) {
-    mkdir(LOG_PATH, 0755, true);
-}
+// Errores: nunca se muestran fuera de desarrollo; siempre se registran en storage/logs
+error_reporting(E_ALL);
+ini_set('log_errors', 1);
+ini_set('error_log', LOG_PATH . 'php-error.log');
+ini_set('display_errors', isDevelopment() ? 1 : 0);

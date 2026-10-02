@@ -83,10 +83,10 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 - [x] Restringir CORS (hoy `Access-Control-Allow-Origin: *`)
 
 ### 1.5 Configuración
-- [ ] `config/config.php` lee todo de variables de entorno, sin credenciales por defecto
-- [ ] `ENVIRONMENT=production` por defecto (sin `display_errors`), aplicado desde el bootstrap (E5)
-- [ ] Usuario de BD propio con clave fuerte (no `desarrollo/desarrollo`)
-- [ ] Confirmar que ningún `$item` o `$tabla` interpolado viene de la petición
+- [x] `config/config.php` lee todo de variables de entorno, sin credenciales por defecto
+- [x] `ENVIRONMENT=production` por defecto (sin `display_errors`), aplicado desde el bootstrap (E5)
+- [x] Usuario de BD propio con clave fuerte (no `desarrollo/desarrollo`): el código ya no trae credenciales por defecto; **crear el usuario de BD de producción queda para el despliegue (Fase 2)**
+- [x] Confirmar que ningún `$item` o `$tabla` interpolado viene de la petición (auditado: todos son literales; sin inyección SQL)
 
 **Salida Fase 1:** los 5 bloqueantes cerrados y probados.
 
