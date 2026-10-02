@@ -3,7 +3,7 @@
 Desplaza +N años todas las fechas del dump de la base demo de COLFE.
 
 Uso:
-    python3 db/tools/desplazar_fechas.py db/colfe_db_20260929.sql db/colfe_db_demo_2026.sql [--anios 1]
+    python3 db/tools/desplazar_fechas.py db/tools/origen/colfe_db_20260929.sql db/seed/colfe_demo_2026.sql [--anios 1]
 
 Qué hace
   - Solo toca filas de INSERT de las tablas con fechas (lee los literales
