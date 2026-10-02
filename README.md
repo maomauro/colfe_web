@@ -77,12 +77,12 @@ colfe_web/
 
 3. **Configurar variables de entorno**
    ```bash
-   # Copiar el archivo de ejemplo
+   # Solo desarrollo local: copiar el ejemplo y completar usuario y clave de la BD
    cp env.example .env
-   
-   # Editar con tus credenciales
-   nano .env
    ```
+   La aplicación **no arranca** si faltan `DB_HOST`, `DB_NAME`, `DB_USER` o `DB_PASS`
+   (no hay credenciales por defecto). `ENVIRONMENT` es `production` si no se define;
+   use `development` solo en local. En Docker/producción las variables las define el servidor.
 
 4. **Configurar permisos**
    ```bash
@@ -101,31 +101,17 @@ colfe_web/
 
 ### Variables de Entorno
 
-Crear un archivo `.env` basado en `env.example`:
+Ver `env.example`. Resumen:
 
-```env
-# Base de Datos
-DB_HOST=localhost
-DB_NAME=colfe_db
-DB_USER=tu_usuario
-DB_PASS=tu_password
+| Variable | Obligatoria | Descripción |
+|---|---|---|
+| `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS` | Sí | Conexión a MySQL; sin valores por defecto |
+| `ENVIRONMENT` | No | `production` (por defecto), `staging` o `development` |
+| `SESSION_TIMEOUT` | No | Inactividad máxima de la sesión web en segundos (3600) |
+| `API_TOKEN_TTL` | No | Vigencia del token móvil en segundos (86400) |
+| `CORS_ALLOWED_ORIGINS` | No | Orígenes web autorizados en la API, separados por coma |
 
-# Entorno
-ENVIRONMENT=development
-
-# API
-API_URL=http://localhost:8000
-```
-
-### Base de Datos
-
-El sistema utiliza las siguientes tablas principales:
-- `tbl_socios`: Información de socios
-- `tbl_produccion`: Registro de producción
-- `tbl_recoleccion`: Control de recolección
-- `tbl_liquidacion`: Liquidaciones realizadas
-- `tbl_precios`: Precios por quincena
-- `tbl_deducibles`: Deducibles aplicables
+Fuera de desarrollo los errores no se muestran: se registran en `storage/logs/php-error.log`.
 
 ## 📊 Módulos Principales
 
