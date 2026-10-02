@@ -2,16 +2,8 @@
 // apiCrearRecoleccionesLote.php
 
 // Configurar headers para API
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-
-// Manejar preflight OPTIONS request
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+require_once __DIR__ . '/../../src/auth/guard.php';
+apiCabeceras('GET, POST, OPTIONS', 'Content-Type, Authorization');
 
 // Solo permitir método POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -23,37 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
-// Función para validar token
-function validarToken($token) {
-    if (empty($token)) {
-        return false;
-    }
-    
-    // Validación simple del formato del token
-    if (strlen($token) === 64 && ctype_xdigit($token)) {
-        return true;
-    }
-    
-    return false;
-}
-
-// Obtener token del header Authorization o parámetro
-$token = null;
-if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
-    $token = str_replace('Bearer ', '', $_SERVER['HTTP_AUTHORIZATION']);
-} elseif (isset($_GET['token'])) {
-    $token = $_GET['token'];
-}
-
-// Validar token
-if (!validarToken($token)) {
-    http_response_code(401);
-    echo json_encode([
-        'status' => 'error',
-        'message' => 'Token de autenticación requerido o inválido'
-    ]);
-    exit();
-}
+// Autenticación: token guardado en la base de datos (401 si no es válido)
+$usuarioApi = guardToken();
 
 try {
     // Obtener datos del body de la petición

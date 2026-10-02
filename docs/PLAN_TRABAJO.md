@@ -57,36 +57,36 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 ## Fase 1: Seguridad (P0, obligatoria antes de publicar)
 
 ### 1.1 Autenticación de endpoints
-- [ ] Crear `src/auth/guard.php` (`guardSesion()` y `guardToken()`) que responda 401
-- [ ] **Nuevo (E1):** los módulos de `src/vistas/modulos/` solo se incluyen desde el router; confirmar que ninguno se ejecuta por URL
-- [ ] **Nuevo (E2):** guard de sesión en `public/reportes/recibo.php` y `reporte_recoleccion.php`
-- [ ] Incluir el guard en los 10 archivos de `ajax/`
-- [ ] Incluir el guard en las 6 APIs de `api/`
-- [ ] Revisar `apiCrearRecoleccionesLote.php` y `apiRecoleccionQuincena.php` (control no confirmado)
-- [ ] Probar con `curl` sin sesión: todo debe devolver 401
+- [x] Crear `src/auth/guard.php` (`guardSesion()` y `guardToken()`) que responda 401
+- [x] **Nuevo (E1):** los módulos de `src/vistas/modulos/` solo se incluyen desde el router; confirmar que ninguno se ejecuta por URL
+- [x] **Nuevo (E2):** guard de sesión en `public/reportes/recibo.php` y `reporte_recoleccion.php`
+- [x] Incluir el guard en los 8 archivos de `ajax/` (prediccion se eliminó)
+- [x] Incluir el guard en las 6 APIs de `api/` (`apiTotalLiquidacion` no tenía ningún control)
+- [x] Revisar `apiCrearRecoleccionesLote.php` y `apiRecoleccionQuincena.php` (control no confirmado)
+- [x] Probar con `curl` sin sesión: todo debe devolver 401
 
 ### 1.2 Token de la API móvil
-- [ ] Guardar el token (o JWT firmado) con usuario y expiración
-- [ ] Validar el token real en `apiValidarToken.php` y `apiSocios.php`
-- [ ] Probar la app Android contra el cambio (rompe hasta actualizar la app)
+- [x] Guardar el token (o JWT firmado) con usuario y expiración
+- [x] Validar el token real en `apiValidarToken.php` y `apiSocios.php`
+- [ ] **Pendiente de Edgar:** probar la app Android contra el cambio. Cambia solo `apiValidarToken` (ahora 401 si el token es inválido) y el token pasa a ser real
 
 ### 1.3 Contraseñas y sesión
-- [ ] Cambiar a `password_hash()` y `password_verify()`
-- [ ] Migrar el usuario y eliminar `admin/admin` y `user/12345`
-- [ ] Exigir contraseña nueva y fuerte (quitar la restricción alfanumérica)
-- [ ] `session_regenerate_id()` al iniciar sesión
-- [ ] Bloqueo por intentos (usar `MAX_LOGIN_ATTEMPTS`)
+- [x] Cambiar a `password_hash()` y `password_verify()`
+- [x] Migrar el usuario y eliminar `admin/admin` y `user/12345` (migración 002 + `db/tools/crear_usuario.php`)
+- [x] Exigir contraseña nueva y fuerte (quitar la restricción alfanumérica)
+- [x] `session_regenerate_id()` al iniciar sesión
+- [x] Bloqueo por intentos (usar `MAX_LOGIN_ATTEMPTS`)
 
 ### 1.4 Superficie de ataque
 - [x] ~~Eliminar `prediccion.ajax.php`~~ (se hace en la Fase 0)
-- [ ] Confirmar que no queda ningún `test_*.php` ni `shell_exec` en el código
-- [ ] Restringir CORS (hoy `Access-Control-Allow-Origin: *`)
+- [x] Confirmar que no queda ningún `test_*.php` ni `shell_exec` en el código
+- [x] Restringir CORS (hoy `Access-Control-Allow-Origin: *`)
 
 ### 1.5 Configuración
-- [ ] `config/config.php` lee todo de variables de entorno, sin credenciales por defecto
-- [ ] `ENVIRONMENT=production` por defecto (sin `display_errors`), aplicado desde el bootstrap (E5)
-- [ ] Usuario de BD propio con clave fuerte (no `desarrollo/desarrollo`)
-- [ ] Confirmar que ningún `$item` o `$tabla` interpolado viene de la petición
+- [x] `config/config.php` lee todo de variables de entorno, sin credenciales por defecto
+- [x] `ENVIRONMENT=production` por defecto (sin `display_errors`), aplicado desde el bootstrap (E5)
+- [x] Usuario de BD propio con clave fuerte (no `desarrollo/desarrollo`): el código ya no trae credenciales por defecto; **crear el usuario de BD de producción queda para el despliegue (Fase 2)**
+- [x] Confirmar que ningún `$item` o `$tabla` interpolado viene de la petición (auditado: todos son literales; sin inyección SQL)
 
 **Salida Fase 1:** los 5 bloqueantes cerrados y probados.
 
@@ -99,15 +99,15 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 - [ ] `APP_URL` y `API_URL` por variable de entorno
 
 ### 2.2 Docker local
-- [ ] `Dockerfile` (php-fpm con `pdo_mysql`)
-- [ ] `docker-compose.yml` (nginx, php-fpm, MySQL 8.0, phpMyAdmin)
-- [ ] La BD se inicializa sola desde el dump demo
-- [ ] Quitar `DEFINER=root@localhost` de la vista `v_anticipos_completos`
+- [x] `Dockerfile` (php-fpm con `pdo_mysql`) — imagen Debian (iconv //TRANSLIT no funciona en Alpine). **Build sin ejecutar: lo prueba Edgar**
+- [x] `docker-compose.yml` (nginx, php-fpm, MySQL 8.0, phpMyAdmin) — `compose config` válido; **`up` sin ejecutar**
+- [x] La BD se inicializa sola desde el dump demo — seed + migraciones 001/002 montados en `initdb.d`
+- [x] Quitar `DEFINER=root@localhost` de la vista `v_anticipos_completos` — resuelto: el seed 2026 no trae `DEFINER` explícito
 
 ### 2.3 nginx
-- [ ] `root` apuntando a `public/` y `try_files` hacia `index.php?ruta=` (reemplaza `.htaccess`)
-- [ ] Mantener un `.htaccess` mínimo dentro de `public/` para Laragon/Apache
-- [ ] `db/`, `src/`, `config/`, `storage/` ya quedan fuera de la raíz web (verificar con `curl`)
+- [x] `root` apuntando a `public/` y `try_files` hacia `index.php?ruta=` (reemplaza `.htaccess`) — verificado con nginx real (rutas, bloqueos, IP real, cabeceras)
+- [x] Mantener un `.htaccess` mínimo dentro de `public/` para Laragon/Apache
+- [x] `db/`, `src/`, `config/`, `storage/` ya quedan fuera de la raíz web (verificar con `curl`) — verificado: 404
 
 ### 2.4 Producción
 - [ ] `docker-compose.prod.yml` (sin phpMyAdmin, BD sin puerto público, volumen persistente)

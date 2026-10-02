@@ -172,8 +172,10 @@ class ModeloSocios
             $stmt = Conexion::conectar()->prepare($sql);
             
             // Bind de parámetros
+            // bindValue (no bindParam): en un foreach bindParam enlaza todos los marcadores
+            // a la misma variable y los filtros combinados devolvían resultados vacíos.
             foreach ($params as $key => $value) {
-                $stmt->bindParam($key, $value, PDO::PARAM_STR);
+                $stmt->bindValue($key, $value, PDO::PARAM_STR);
             }
             
             $stmt->execute();

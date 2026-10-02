@@ -26,7 +26,7 @@ AdminLTE + jQuery + DataTables. Destino: VPS Contabo, nginx, Docker, subdominio 
 ## Reglas del proyecto
 - Los datos son **demo** (fechas 2025-2026), se usan en pruebas y producción. Tras la
   demostración se limpian con `db/reset_produccion.sql`. No cargar datos reales antes.
-- Nunca versionar secretos, `.env` ni credenciales. Nunca `admin/admin` fuera del seed demo.
+- Nunca versionar secretos, `.env` ni credenciales. El seed ya no deja usuarios: se crean con `db/tools/crear_usuario.php`.
 - Las URLs públicas (`vistas/...`, `ajax/...`, `api/...`) no cambian al reestructurar.
 - Seguridad antes de publicar: ver Fase 1 del plan (guard de sesión y token, hash de claves).
 - Cambios mecánicos primero (mover/renombrar con `git mv`), lógica después.

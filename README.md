@@ -59,6 +59,20 @@ colfe_web/
    cd colfe_web
    ```
 
+### Opción recomendada: Docker (mismo stack que producción)
+
+```bash
+cp docker/env.docker.example .env          # ajustar claves
+docker compose up -d --build               # nginx + php-fpm + MySQL 8.0
+docker compose exec -e COLFE_CLAVE='una-clave-larga-con-numeros-123' app php db/tools/crear_usuario.php admin
+# -> http://localhost:8080   (phpMyAdmin: docker compose --profile tools up -d -> http://localhost:8081)
+```
+
+La base se inicializa sola la primera vez con `db/seed` y `db/migraciones`.
+Para empezar de cero: `docker compose down -v`.
+
+### Instalación manual (Laragon u otro)
+
 2. **Configurar la base de datos**
    ```bash
    # Opción A (recomendada): esquema + datos demo (fechas 2025-2026)
@@ -66,16 +80,23 @@ colfe_web/
 
    # Opción B: solo el esquema, sin datos
    mysql -u root -p < db/schema/colfe_schema.sql
+
+   # Migraciones (después del esquema o del seed, en orden numérico)
+   mysql -u root -p colfe_db < db/migraciones/001_tbl_api_tokens.sql
+   mysql -u root -p colfe_db < db/migraciones/002_login_seguro.sql
+
+   # Crear el usuario administrador (la migración 002 elimina admin/admin y user/12345)
+   COLFE_CLAVE='una-clave-larga-con-numeros-123' php db/tools/crear_usuario.php admin
    ```
 
 3. **Configurar variables de entorno**
    ```bash
-   # Copiar el archivo de ejemplo
+   # Solo desarrollo local: copiar el ejemplo y completar usuario y clave de la BD
    cp env.example .env
-   
-   # Editar con tus credenciales
-   nano .env
    ```
+   La aplicación **no arranca** si faltan `DB_HOST`, `DB_NAME`, `DB_USER` o `DB_PASS`
+   (no hay credenciales por defecto). `ENVIRONMENT` es `production` si no se define;
+   use `development` solo en local. En Docker/producción las variables las define el servidor.
 
 4. **Configurar permisos**
    ```bash
@@ -94,31 +115,17 @@ colfe_web/
 
 ### Variables de Entorno
 
-Crear un archivo `.env` basado en `env.example`:
+Ver `env.example`. Resumen:
 
-```env
-# Base de Datos
-DB_HOST=localhost
-DB_NAME=colfe_db
-DB_USER=tu_usuario
-DB_PASS=tu_password
+| Variable | Obligatoria | Descripción |
+|---|---|---|
+| `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS` | Sí | Conexión a MySQL; sin valores por defecto |
+| `ENVIRONMENT` | No | `production` (por defecto), `staging` o `development` |
+| `SESSION_TIMEOUT` | No | Inactividad máxima de la sesión web en segundos (3600) |
+| `API_TOKEN_TTL` | No | Vigencia del token móvil en segundos (86400) |
+| `CORS_ALLOWED_ORIGINS` | No | Orígenes web autorizados en la API, separados por coma |
 
-# Entorno
-ENVIRONMENT=development
-
-# API
-API_URL=http://localhost:8000
-```
-
-### Base de Datos
-
-El sistema utiliza las siguientes tablas principales:
-- `tbl_socios`: Información de socios
-- `tbl_produccion`: Registro de producción
-- `tbl_recoleccion`: Control de recolección
-- `tbl_liquidacion`: Liquidaciones realizadas
-- `tbl_precios`: Precios por quincena
-- `tbl_deducibles`: Deducibles aplicables
+Fuera de desarrollo los errores no se muestran: se registran en `storage/logs/php-error.log`.
 
 ## 📊 Módulos Principales
 
@@ -152,11 +159,16 @@ El sistema utiliza las siguientes tablas principales:
 Implementado:
 - Consultas con PDO y sentencias preparadas
 - Lista blanca de rutas en el router
+- Contraseñas con `password_hash` (bcrypt); clave mínima de 10 caracteres con letras y números
+- Bloqueo por intentos fallidos (5 por usuario / 20 por IP cada 15 min) y nuevo id de sesión al ingresar
+- Sesión con vencimiento por inactividad (`SESSION_TIMEOUT`)
 - Cookies de sesión `httponly`
+- Guard de sesión en `ajax/` y `reportes/`; token real (hash en BD, vence a las 24 h) en `api/`
+- CORS cerrado por defecto (`CORS_ALLOWED_ORIGINS`)
+- Prueba de seguridad: `tests/seguridad/smoke_endpoints.sh`
 
 **Pendiente antes de publicar** (ver `docs/PLAN_TRABAJO.md`, Fases 0 y 1):
-- Autenticación en `ajax/`, `api/`, reportes y módulos
-- Contraseñas con hash y token real en la API móvil
+- Configuración segura por defecto (Fase 1.5)
 - Protección CSRF y registro de auditoría (no implementados todavía)
 
 > El sistema **no debe exponerse a internet** hasta completar la Fase 1.

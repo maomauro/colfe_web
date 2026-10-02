@@ -1,0 +1,57 @@
+# nginx de COLFE. Variables (envsubst): REAL_IP_HEADER, TRUSTED_PROXY_CIDR.
+# Solo se sirve public/. db/, src/, config/ y storage/ no existen dentro de esta imagen.
+
+# IP real del cliente (necesaria para el bloqueo de intentos de login)
+set_real_ip_from ${TRUSTED_PROXY_CIDR};
+real_ip_header   ${REAL_IP_HEADER};
+real_ip_recursive on;
+
+server {
+    listen 80;
+    server_name _;
+    root /var/www/html/public;
+    index index.php;
+
+    server_tokens off;
+    client_max_body_size 8m;
+
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "geolocation=(), camera=(), microphone=()" always;
+
+    # Archivos ocultos (.git, .env, .htaccess): nunca
+    location ~ /\. { deny all; return 404; }
+
+    # Los plugins estáticos no ejecutan PHP
+    location ~* ^/vistas/.*\.php$ { return 404; }
+
+    # Estáticos con caché
+    location ~* ^/vistas/.*\.(css|js|png|jpe?g|gif|ico|svg|woff2?|ttf|eot|map)$ {
+        expires 7d;
+        add_header Cache-Control "public";
+        add_header X-Content-Type-Options "nosniff" always;
+        try_files $uri =404;
+    }
+
+    # Rutas amigables: /socios -> index.php?ruta=socios (equivale al .htaccess)
+    location / {
+        try_files $uri $uri/ @ruta;
+    }
+    location @ruta {
+        rewrite ^/$ /index.php last;
+        rewrite ^/([-a-zA-Z0-9]+)/?$ /index.php?ruta=$1 last;
+        return 404;
+    }
+
+    # PHP-FPM
+    location ~ \.php$ {
+        try_files $uri =404;
+        fastcgi_pass app:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param HTTP_PROXY "";
+        fastcgi_read_timeout 60s;
+    }
+}

@@ -2,16 +2,8 @@
 // apiValidarToken.php
 
 // Configurar headers para API
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-
-// Manejar preflight OPTIONS request
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+require_once __DIR__ . '/../../src/auth/guard.php';
+apiCabeceras('POST, OPTIONS', 'Content-Type, Authorization');
 
 // Solo permitir método POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -43,28 +35,31 @@ try {
         exit();
     }
 
-    $token = $datos['token'];
+    $token = trim((string)$datos['token']);
     $timestamp = time();
 
-    // En una implementación real, aquí validarías el token contra la base de datos
-    // Por ahora, hacemos una validación simple del formato
-    if (strlen($token) === 64 && ctype_xdigit($token)) {
-        // Token válido (formato correcto)
+    // Validación real: el token debe existir en la base de datos y no estar vencido
+    $fila = apiTokenValido($token) ? ModeloTokens::mdlValidarToken($token) : false;
+
+    if ($fila) {
         echo json_encode([
             'status' => 'success',
             'message' => 'Token válido',
             'data' => [
                 'valid' => true,
-                'timestamp' => $timestamp
+                'timestamp' => $timestamp,
+                'user_id' => (int)$fila['id_usuario'],
+                'expires_at' => strtotime($fila['expira_en'])
             ]
         ]);
     } else {
+        http_response_code(401);
         echo json_encode([
             'status' => 'error',
             'message' => 'Token inválido'
         ]);
     }
-    
+
 } catch (Exception $e) {
     error_log("Error en API de validación de token: " . $e->getMessage());
     http_response_code(500);
