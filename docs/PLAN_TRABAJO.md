@@ -10,11 +10,15 @@ Decisiones ya tomadas:
 
 ---
 
-## Estado actual (2 oct 2026)
+## Estado actual (3 oct 2026)
 
 **Todo el trabajo de las Fases 0 a 3 está fusionado en `main`** (PR #5 a #15) y el CI corre en cada push: lint, seed y
 migraciones en MySQL 8.0, 27 pruebas PHPUnit, pruebas de seguridad (endpoints, autenticación, CSRF, auditoría) y un
 recorrido en Chromium. «Publicar imágenes» ya generó las imágenes `app` y `web` en GHCR.
+
+**COLFE está desplegado y publicado en `https://colfe.sitiosapps.com`** (VPS Contabo, Docker, detrás del nginx de PortalCV,
+con certificado de origen de Cloudflare en modo *Completo (estricto)*). Edgar verificó HTTPS, login de `admin` y todas las
+páginas el 3 oct 2026. Corre con los datos demo.
 
 **Depende de Edgar (nadie más puede hacerlo):**
 - [ ] Probar la app Android (cambia `apiValidarToken`: 401 si el token es inválido; el token es real y vence a las 24 h; las claves son las nuevas).
@@ -22,7 +26,8 @@ recorrido en Chromium. «Publicar imágenes» ya generó las imágenes `app` y `
 - [x] **D2:** PortalCV corre en Docker con `portalcv-nginx-prod` en 80/443 y MariaDB 11. COLFE usa su propio MySQL 8.0 y se une a la red de ese nginx (`PROXY_NETWORK`, alias `colfe-web`).
 - [ ] **D5:** ¿cubrir del 27 ago al 30 sep 2026 con datos generados, o cargarlos desde la app durante la demostración?
 - [ ] Destino externo de respaldos (`rclone`) y cron.
-- [ ] VPS: subdominio en Cloudflare, certificado de origen, secretos del workflow *Desplegar* (`produccion`).
+- [x] VPS: subdominio en Cloudflare y certificado de origen (`colfe.sitiosapps.com`) — hecho el 3 oct 2026.
+- [ ] Secretos del workflow *Desplegar* (`produccion`: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, `VPS_KNOWN_HOSTS`).
 - [ ] Definir los **roles** (administrador / consulta): qué puede hacer cada uno.
 - [ ] Proteger `main` en GitHub exigiendo el CI en verde.
 - [ ] **Revisar GitHub Pages** (Settings → Pages): está activo y publica desde `main`. Si no es intencional, desactivarlo (ver D4).
@@ -32,8 +37,8 @@ recorrido en Chromium. «Publicar imágenes» ya generó las imágenes `app` y `
 
 ## Decisiones pendientes
 
-- [ ] **D2** ¿Cómo convive con PortalCV en el VPS? (proxy compartido o puerto interno detrás del nginx existente)
-- [ ] **D3** ¿Qué versión de PHP corre en Laragon? (define la imagen php-fpm)
+- [x] **D2** ¿Cómo convive con PortalCV en el VPS? **Proxy compartido:** `portalcv-nginx-prod` (contenedor) carga `colfe.conf` y alcanza a `colfe-web` por la red de PortalCV; COLFE usa su propio MySQL 8.0. El bloque vive también en el repositorio de PortalCV (`docker/colfe.conf`).
+- [x] **D3** ¿Qué versión de PHP corre en Laragon? **8.1.10** (MySQL 8.0.30). La app soporta 8.1+; las imágenes Docker usan PHP 8.4 y el desarrollo local recomendado es Docker.
 - [x] **D4** ¿El repositorio es público? **Sí, es público** y tiene GitHub Pages activo desde `main`. Consecuencias: el seed y los dumps antiguos del historial son datos sintéticos, pero `admin/admin` y `user/12345` estuvieron publicados (ya no existen: la migración 002 los elimina); nunca subir `.env`, claves ni datos reales de socios; los detalles de despliegue de `docs/` y `deploy/` son visibles.
 - [ ] **D5** ¿Cómo cubrir del 27 ago al 30 sep 2026? (generar con `spInsertIntoRecoleccion` o cargar desde la app)
 - [x] **D1** Datos reales: no se usan por ahora, se sigue con los demo
@@ -130,10 +135,10 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 - [x] `db/`, `src/`, `config/`, `storage/` ya quedan fuera de la raíz web (verificar con `curl`) — verificado: 404
 
 ### 2.4 Producción
-- [x] `docker-compose.prod.yml` (sin phpMyAdmin, BD sin puerto público, volumen persistente) — `compose config` válido; **sin ejecutar en el VPS**
-- [ ] Subdominio en Cloudflare con HTTPS
+- [x] `docker-compose.prod.yml` (sin phpMyAdmin, BD sin puerto público, volumen persistente) — ejecutado en el VPS el 3 oct 2026 con `TAG=latest ./deploy/desplegar.sh`
+- [x] Subdominio en Cloudflare con HTTPS — `https://colfe.sitiosapps.com`
 - [x] Cookie `secure` y cabeceras de seguridad — cookie `Secure` fuera de desarrollo; cabeceras en nginx (HSTS en el vhost de ejemplo)
-- [ ] `.env` solo en el servidor
+- [x] `.env` solo en el servidor — `/opt/colfe_web/.env` (`chmod 600`, claves generadas con `openssl rand -hex 16`)
 
 ### 2.5 Pipeline y respaldo
 - [x] GitHub Actions: construir imagen y publicar en GHCR (`latest` y `sha-<commit>`) — workflows `ci.yml` y `publicar.yml`
@@ -144,7 +149,7 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 ### 2.6 Datos hasta hoy
 - [ ] Cubrir del 27 ago al 30 sep 2026 según la decisión D5
 
-**Salida Fase 2:** staging en el subdominio con HTTPS y backup restaurable.
+**Salida Fase 2:** staging en el subdominio con HTTPS y backup restaurable. *Falta el respaldo programado (cron) con destino externo.*
 
 ---
 
