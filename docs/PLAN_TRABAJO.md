@@ -30,7 +30,7 @@ páginas el 3 oct 2026. Corre con los datos demo.
 - [x] VPS: subdominio en Cloudflare y certificado de origen (`colfe.sitiosapps.com`) — hecho el 3 oct 2026.
 - [ ] Secretos del workflow *Desplegar* (`produccion`: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, `VPS_KNOWN_HOSTS`).
 - [ ] Definir los **roles** (administrador / consulta): qué puede hacer cada uno.
-- [x] Flujo de ramas `feature → develop → main` con `main` y `develop` protegidas (PR y CI obligatorios, «Verificar rama de origen» en `main`, sin saltarse la regla), igual que Curriculum-Vitae-Web — hecho el 8 oct 2026. Pendiente menor: dejar `develop` como rama por defecto del repo (Settings → General → Default branch).
+- [x] Flujo de ramas `feature → develop → main` con `main` y `develop` protegidas (PR y CI obligatorios, «Verificar rama de origen» en `main`, sin saltarse la regla), igual que Curriculum-Vitae-Web — hecho el 8 oct 2026. `develop` es además la rama por defecto del repo.
 - [x] Restauración del respaldo de COLFE probada en el VPS el 8 oct 2026 (`probar_restauracion.sh`): conteos idénticos, 4 procedimientos, 1 función y 24 triggers.
 - [ ] **Revisar GitHub Pages** (Settings → Pages): está activo y publica desde `main`. Si no es intencional, desactivarlo (ver D4).
 - [ ] Antes de la demostración: **revisar precios y deducibles** con la cooperativa (se conservan al limpiar el demo).
