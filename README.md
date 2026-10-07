@@ -227,11 +227,13 @@ Los logs se almacenan en:
 
 ## 🤝 Contribución
 
-1. Fork el proyecto
-2. Crear una rama para tu feature
-3. Commit tus cambios
-4. Push a la rama
-5. Abrir un Pull Request
+Flujo de ramas: **feature → `develop` → `main`** (`main` y `develop` están protegidas; ver `CLAUDE.md`).
+
+1. Partir de `develop` actualizado y crear una rama para tu feature (`fase-N/tema`)
+2. Commit tus cambios
+3. Push a la rama
+4. Abrir un Pull Request **contra `develop`** (el CI debe quedar en verde)
+5. Para publicar: Pull Request `develop` → `main`
 
 ## 📄 Licencia
 

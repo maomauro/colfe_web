@@ -4,7 +4,7 @@ Portal de liquidación lechera de la cooperativa COLFE. PHP + MySQL 8.0, MVC pro
 AdminLTE + jQuery + DataTables. Destino: VPS Contabo, nginx, Docker, subdominio de sitiosapps.com.
 
 ## Antes de empezar cualquier tarea
-1. `git fetch origin` y partir de `main` actualizado.
+1. `git fetch origin` y partir de `develop` actualizado.
 2. Leer `docs/PLAN_TRABAJO.md` (fuente de verdad del avance) y `docs/DIAGNOSTICO_ESTRUCTURA.md`.
 3. Si hay otra sesión trabajando (otro chat o VS Code), no tocar su rama ni sus archivos.
 
@@ -15,9 +15,13 @@ AdminLTE + jQuery + DataTables. Destino: VPS Contabo, nginx, Docker, subdominio 
 - El chat no es memoria: si algo se decide, se escribe en estos archivos.
 
 ## Ramas y PR
-- `main` siempre estable; solo se cambia por PR.
-- Una rama por tarea o grupo corto de tareas: `fase-N/tema` (ej. `fase-0/reestructura`,
-  `fase-1/seguridad-endpoints`, `fase-2/docker`), siempre desde `main` actualizado.
+- Flujo: **feature → `develop` → `main`**. Ramas permanentes: `main` (producción, siempre estable) y `develop` (integración).
+  Ambas están protegidas: solo se cambian por PR, con el CI en verde y las conversaciones resueltas.
+- Una rama por tarea o grupo corto de tareas: `fase-N/tema` (ej. `fase-1/seguridad-endpoints`,
+  `fase-2/docker`), siempre desde `develop` actualizado. El PR de la feature va **contra `develop`**.
+- Cuando `develop` está listo para publicar, se abre un PR `develop` → `main`. Un PR hacia `main` desde
+  cualquier otra rama falla el check «Verificar rama de origen» (`.github/workflows/enforce-develop-to-main.yml`).
+- Publicar imágenes (`publicar.yml`) corre en cada fusión a `main`; el despliegue al VPS sigue siendo manual (`desplegar.yml`).
 - Commits en español, descriptivos, un cambio lógico por commit.
 - Al terminar: marcar casillas en `docs/PLAN_TRABAJO.md` dentro del mismo PR.
 - Etiquetas al cerrar hitos: `v0.1-seguridad`, `v0.2-staging`, `v1.0-produccion`.
@@ -44,8 +48,8 @@ AdminLTE + jQuery + DataTables. Destino: VPS Contabo, nginx, Docker, subdominio 
 - No incluir `vendor/` ni `.phpunit.cache/` en un commit (están en `.gitignore`; con `git add` explícito y no `-A` en ramas viejas).
 
 ## Fusión de PR apilados
-Si una rama se apoya en otra, **fusionar siempre contra `main`** (o redirigir la base a `main` antes). Fusionar un PR
-contra su rama base deja el contenido varado fuera de `main`, aunque GitHub lo muestre como «merged».
+Si una rama se apoya en otra, **fusionar siempre contra `develop`** (o redirigir la base a `develop` antes). Fusionar un PR
+contra su rama base deja el contenido varado fuera de `develop` y de `main`, aunque GitHub lo muestre como «merged».
 
 ## Idioma y estilo
 - Respuestas, commits y documentación en español, tono profesional y cercano.
