@@ -25,7 +25,8 @@ páginas el 3 oct 2026. Corre con los datos demo.
 - [x] Probar `docker compose up -d --build` en su equipo y recorrer la app — hecho el 2 oct 2026 en Windows (Docker 29, Compose v5): los tres contenedores levantan, se crea `admin` con `crear_usuario.php`, el login funciona y se ven todas las páginas.
 - [x] **D2:** PortalCV corre en Docker con `portalcv-nginx-prod` en 80/443 y MariaDB 11. COLFE usa su propio MySQL 8.0 y se une a la red de ese nginx (`PROXY_NETWORK`, alias `colfe-web`).
 - [ ] **D5:** ¿cubrir del 27 ago al 30 sep 2026 con datos generados, o cargarlos desde la app durante la demostración?
-- [ ] Destino externo de respaldos (`rclone`) y cron.
+- [ ] Programar el respaldo semanal (cron) en el VPS: **decidido** semanal, solo en el VPS (`/srv/sitiosapps/_backups/colfe`), 8 copias. El destino externo (`rclone`) queda opcional para cuando haya datos reales.
+- [x] Reorganizar el VPS bajo `/srv/sitiosapps/` (`Curriculum-Vitae-Web/`, `colfe/`, `_backups/`) — hecho el 8 oct 2026; ver `DESPLIEGUE.md`, sección 0.
 - [x] VPS: subdominio en Cloudflare y certificado de origen (`colfe.sitiosapps.com`) — hecho el 3 oct 2026.
 - [ ] Secretos del workflow *Desplegar* (`produccion`: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, `VPS_KNOWN_HOSTS`).
 - [ ] Definir los **roles** (administrador / consulta): qué puede hacer cada uno.
@@ -138,18 +139,18 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 - [x] `docker-compose.prod.yml` (sin phpMyAdmin, BD sin puerto público, volumen persistente) — ejecutado en el VPS el 3 oct 2026 con `TAG=latest ./deploy/desplegar.sh`
 - [x] Subdominio en Cloudflare con HTTPS — `https://colfe.sitiosapps.com`
 - [x] Cookie `secure` y cabeceras de seguridad — cookie `Secure` fuera de desarrollo; cabeceras en nginx (HSTS en el vhost de ejemplo)
-- [x] `.env` solo en el servidor — `/opt/colfe_web/.env` (`chmod 600`, claves generadas con `openssl rand -hex 16`)
+- [x] `.env` solo en el servidor — `/srv/sitiosapps/colfe/.env` (`chmod 600`, claves generadas con `openssl rand -hex 16`)
 
 ### 2.5 Pipeline y respaldo
 - [x] GitHub Actions: construir imagen y publicar en GHCR (`latest` y `sha-<commit>`) — workflows `ci.yml` y `publicar.yml`
 - [x] Despliegue y rollback por tag — `deploy/desplegar.sh` y workflow manual `desplegar.yml`
-- [x] Backup diario de MySQL a un destino fuera del VPS — `deploy/backup.sh` (rclone). **Falta que Edgar elija el destino externo y configure `rclone`**
+- [x] Backup de MySQL — `deploy/backup.sh`, semanal y local por decisión de Edgar (8 copias en `/srv/sitiosapps/_backups/colfe`); copia externa con `rclone` opcional
 - [x] Probar la restauración del backup — `deploy/probar_restauracion.sh`, probado: conteos idénticos
 
 ### 2.6 Datos hasta hoy
 - [ ] Cubrir del 27 ago al 30 sep 2026 según la decisión D5
 
-**Salida Fase 2:** staging en el subdominio con HTTPS y backup restaurable. *Falta el respaldo programado (cron) con destino externo.*
+**Salida Fase 2:** staging en el subdominio con HTTPS y backup restaurable. *Falta programar el respaldo semanal (cron) en el VPS.*
 
 ---
 
@@ -188,5 +189,5 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 - [x] Ningún reporte ni módulo se abre por URL directa sin sesión — `smoke_endpoints.sh`
 - [x] Restauración de BD probada desde el esquema versionado — el CI restaura el seed en MySQL 8.0 en cada PR
 - [x] Cálculo de liquidación validado contra una quincena — contra un recálculo independiente (demo). **Falta validarlo con una quincena real de COLFE**
-- [ ] Backup diario funcionando y restauración probada — scripts probados en local; **falta programarlo (cron) y el destino externo**
+- [ ] Backup semanal funcionando y restauración probada — scripts probados en local; **falta programarlo (cron) en el VPS**
 - [ ] App Android probada contra producción

@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# Respaldo diario de la base de datos de COLFE.
+# Respaldo de la base de datos de COLFE (se programa semanal; ver deploy/cron-ejemplo.txt).
 #   ./deploy/backup.sh
 # Variables opcionales:
-#   BACKUP_DIR       carpeta de destino (por defecto /var/backups/colfe)
-#   RETENTION_DAYS   días que se conservan los respaldos locales (por defecto 14)
+#   BACKUP_DIR       carpeta de destino (por defecto /srv/sitiosapps/_backups/colfe)
+#   RETENTION_DAYS   días que se conservan los respaldos locales (por defecto 56 = 8 respaldos semanales)
 #   BACKUP_REMOTE    destino rclone fuera del VPS, p. ej. "r2:colfe-backups" (si falta, solo local)
 #   DUMP_CMD         comando que escribe el volcado por stdout (para pruebas; por defecto usa docker compose)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 COMPOSE="${COMPOSE:-docker compose -f docker-compose.prod.yml}"
-BACKUP_DIR="${BACKUP_DIR:-/var/backups/colfe}"
-RETENTION_DAYS="${RETENTION_DAYS:-14}"
+BACKUP_DIR="${BACKUP_DIR:-/srv/sitiosapps/_backups/colfe}"
+RETENTION_DAYS="${RETENTION_DAYS:-56}"
 ENV_FILE="${ENV_FILE:-.env}"
 
 leer_env() { grep -E "^$1=" "$ENV_FILE" 2>/dev/null | head -1 | cut -d= -f2- || true; }

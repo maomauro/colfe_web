@@ -1,5 +1,7 @@
 # Tareas programadas en el VPS (crontab -e, como el usuario que ejecuta Docker)
-# Respaldo diario a las 02:15, con copia fuera del VPS si BACKUP_REMOTE está definido
-15 2 * * *  cd /opt/colfe_web && BACKUP_REMOTE="r2:colfe-backups" ./deploy/backup.sh >> /var/log/colfe-backup.log 2>&1
-# Prueba de restauración cada domingo a las 03:30 (un respaldo sin probar no es un respaldo)
-30 3 * * 0  cd /opt/colfe_web && ./deploy/probar_restauracion.sh >> /var/log/colfe-restauracion.log 2>&1
+# Antes de la primera vez: mkdir -p /srv/sitiosapps/_backups/colfe
+# Respaldo semanal (domingo 02:15), solo en el VPS: 8 copias (56 días) en /srv/sitiosapps/_backups/colfe.
+# Para copiar además fuera del VPS, anteponga BACKUP_REMOTE="r2:colfe-backups" (requiere rclone).
+15 2 * * 0  cd /srv/sitiosapps/colfe && ./deploy/backup.sh >> /srv/sitiosapps/_backups/colfe/backup.log 2>&1
+# Prueba de restauración el mismo domingo a las 03:30 (un respaldo sin probar no es un respaldo)
+30 3 * * 0  cd /srv/sitiosapps/colfe && ./deploy/probar_restauracion.sh >> /srv/sitiosapps/_backups/colfe/restauracion.log 2>&1
