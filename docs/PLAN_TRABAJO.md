@@ -30,7 +30,7 @@ páginas el 3 oct 2026. Corre con los datos demo.
 - [x] VPS: subdominio en Cloudflare y certificado de origen (`colfe.sitiosapps.com`) — hecho el 3 oct 2026.
 - [ ] Secretos del workflow *Desplegar* (`produccion`: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, `VPS_KNOWN_HOSTS`).
 - [ ] Definir los **roles** (administrador / consulta): qué puede hacer cada uno.
-- [ ] Proteger `main` en GitHub exigiendo el CI en verde.
+- [ ] Flujo de ramas `feature → develop → main` con `main` y `develop` protegidas (CI y «Verificar rama de origen» obligatorios), igual que Curriculum-Vitae-Web. En curso: workflow `enforce-develop-to-main.yml` listo; faltan crear `develop` y activar las reglas en GitHub.
 - [ ] **Revisar GitHub Pages** (Settings → Pages): está activo y publica desde `main`. Si no es intencional, desactivarlo (ver D4).
 - [ ] Antes de la demostración: **revisar precios y deducibles** con la cooperativa (se conservan al limpiar el demo).
 
