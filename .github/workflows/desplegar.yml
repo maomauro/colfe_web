@@ -3,7 +3,7 @@ name: Desplegar
 # Manual: elige el tag de imagen a desplegar (sha-abc1234, v0.2.0, latest).
 # El rollback es volver a ejecutar con un tag anterior.
 # Requiere los secretos del repositorio: VPS_HOST, VPS_USER, VPS_SSH_KEY, VPS_KNOWN_HOSTS
-# y, opcionalmente, VPS_PORT y VPS_DIR (por defecto /opt/colfe_web).
+# y, opcionalmente, VPS_PORT y VPS_DIR (por defecto /srv/sitiosapps/colfe).
 on:
   workflow_dispatch:
     inputs:
@@ -36,4 +36,4 @@ jobs:
           printf '%s\n' "$SSH_KEY" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
           printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
           ssh -i ~/.ssh/id_deploy -p "${VPS_PORT:-22}" -o StrictHostKeyChecking=yes \
-            "$VPS_USER@$VPS_HOST" "cd '${VPS_DIR:-/opt/colfe_web}' && TAG='$TAG' ./deploy/desplegar.sh"
+            "$VPS_USER@$VPS_HOST" "cd '${VPS_DIR:-/srv/sitiosapps/colfe}' && TAG='$TAG' ./deploy/desplegar.sh"

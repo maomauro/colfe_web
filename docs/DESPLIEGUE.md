@@ -11,6 +11,21 @@ Cloudflare ─► portalcv-nginx-prod (HTTPS, :443) ─► red compartida ─►
 > COLFE no publica puertos: su contenedor `web` se une a la red Docker de ese nginx
 > (`PROXY_NETWORK`) con el alias `colfe-web`. COLFE usa su propio MySQL 8.0 (no el MariaDB de PortalCV).
 
+## 0. Estructura de carpetas en el VPS
+Todos los proyectos viven bajo una raíz común, un subdirectorio por proyecto:
+```
+/srv/sitiosapps/
+├── Curriculum-Vitae-Web/   PortalCV y el nginx compartido (docker-compose.prod.yml)
+├── colfe/                  COLFE (este repositorio, con su .env)
+└── _backups/               respaldos de los proyectos (colfe/, ...)
+```
+- El nombre de la carpeta de PortalCV no debe cambiar: de él salen el proyecto Compose `curriculum-vitae-web`,
+  su volumen de MariaDB y la red `curriculum-vitae-web_portalcv-net-prod` que usa COLFE (`PROXY_NETWORK`).
+- COLFE fija `name: colfe` en su compose, así que sus volúmenes no dependen del nombre de la carpeta.
+- `/home/maomauro/Curriculum-Vitae-Web` es un enlace simbólico a la carpeta nueva: los workflows y el script de
+  respaldo de PortalCV aún usan `~/Curriculum-Vitae-Web`. Se puede quitar cuando se actualicen esas referencias.
+- Los certificados de origen siguen en `/etc/nginx/ssl` (ruta absoluta, fuera de los proyectos).
+
 ## 1. Requisitos del servidor
 - Docker y Docker Compose v2.
 - Acceso del servidor al repositorio (clave de despliegue de solo lectura) y a `ghcr.io`
@@ -19,7 +34,7 @@ Cloudflare ─► portalcv-nginx-prod (HTTPS, :443) ─► red compartida ─►
 
 ## 2. Primera instalación
 ```bash
-sudo git clone git@github.com:maomauro/colfe_web.git /opt/colfe_web && cd /opt/colfe_web
+sudo git clone git@github.com:maomauro/colfe_web.git /srv/sitiosapps/colfe && cd /srv/sitiosapps/colfe
 cp docker/env.docker.example .env && chmod 600 .env
 # Red del nginx de PortalCV (copie el nombre que muestre):
 docker inspect portalcv-nginx-prod --format '{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}'
@@ -35,12 +50,12 @@ Comprobación: `curl -I https://colfe.sitiosapps.com/` → 200 y `tests/segurida
 `BASE_URL=https://colfe.sitiosapps.com`.
 
 ## 3. Publicar el subdominio en el nginx de PortalCV
-El nginx de PortalCV (`/home/maomauro/Curriculum-Vitae-Web`, `docker-compose.prod.yml`) lleva su configuración
+El nginx de PortalCV (`/srv/sitiosapps/Curriculum-Vitae-Web`, `docker-compose.prod.yml`) lleva su configuración
 dentro de la imagen y carga `/etc/nginx/conf.d/*.conf`. Solo monta `/etc/nginx/ssl` (carpeta del host).
 1. **Cloudflare:** registro DNS `colfe` → IP del VPS (con proxy) y un *certificado de origen* para
    `colfe.sitiosapps.com` (o `*.sitiosapps.com`). Guardarlo en el host como
    `/etc/nginx/ssl/colfe.sitiosapps.com.pem` y `.key` (la clave con permisos 600, dueño root).
-2. **Copiar el bloque** (en el VPS): `cp /opt/colfe_web/deploy/nginx-vhost-ejemplo.conf /home/maomauro/Curriculum-Vitae-Web/docker/colfe.conf`
+2. **Copiar el bloque** (en el VPS): `cp /srv/sitiosapps/colfe/deploy/nginx-vhost-ejemplo.conf /srv/sitiosapps/Curriculum-Vitae-Web/docker/colfe.conf`
 3. **Montarlo** en el servicio `nginx` de `docker-compose.prod.yml` de PortalCV, junto al volumen de ssl:
    `- ./docker/colfe.conf:/etc/nginx/conf.d/colfe.conf:ro`
 4. **Probar antes de recargar** (si falla, no se toca nada): recrear solo el nginx y comprobar
@@ -75,9 +90,9 @@ Ver `docker/env.docker.example`. Obligatorias: `DB_NAME`, `DB_USER`, `DB_PASS`, 
 `ENVIRONMENT=production` es lo que usa el compose de producción.
 
 ## 8. Respaldo y restauración
-- **Diario:** `deploy/backup.sh` vuelca la base (tablas, procedimientos, funciones, triggers y eventos),
+- **Semanal:** `deploy/backup.sh` vuelca la base (tablas, procedimientos, funciones, triggers y eventos),
   quita los `DEFINER`, valida el archivo (gzip íntegro y cierre normal del volcado), guarda un
-  `.sha256`, rota a 14 días y, si hay `BACKUP_REMOTE`, copia fuera del VPS con `rclone`.
+  `.sha256`, rota a 56 días (8 respaldos semanales) y, si hay `BACKUP_REMOTE`, copia fuera del VPS con `rclone`.
 - **Programarlo:** ver `deploy/cron-ejemplo.txt`. `desplegar.sh` también respalda antes de cada actualización.
 - **Fuera del VPS:** configurar `rclone config` con un destino (Cloudflare R2, Backblaze B2, Google Drive...)
   y definir `BACKUP_REMOTE`. Sin eso el respaldo vive en el mismo servidor y no protege de su pérdida.
@@ -86,7 +101,7 @@ Ver `docker/env.docker.example`. Obligatorias: `DB_NAME`, `DB_USER`, `DB_PASS`, 
 - **Restaurar de verdad** (en emergencia, con la app detenida):
   ```bash
   docker compose -f docker-compose.prod.yml stop app web
-  zcat /var/backups/colfe/colfe_AAAAMMDD_HHMMSS.sql.gz | docker compose -f docker-compose.prod.yml exec -T \
+  zcat /srv/sitiosapps/_backups/colfe/colfe_AAAAMMDD_HHMMSS.sql.gz | docker compose -f docker-compose.prod.yml exec -T \
     -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" db mysql -uroot colfe_db
   docker compose -f docker-compose.prod.yml start app web
   ```
@@ -108,7 +123,7 @@ Un cambio hecho directamente en MySQL (sin pasar por la app) queda como origen `
 
 ## 10. Tras la demostración: limpiar los datos demo
 ```bash
-cd /opt/colfe_web
+cd /srv/sitiosapps/colfe
 ./deploy/reset_produccion.sh
 ```
 El script **muestra qué va a borrar**, exige escribir `BORRAR-DATOS-DEMO`, **hace un respaldo previo y se

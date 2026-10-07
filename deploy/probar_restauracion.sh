@@ -7,7 +7,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 COMPOSE="${COMPOSE:-docker compose -f docker-compose.prod.yml}"
-BACKUP_DIR="${BACKUP_DIR:-/var/backups/colfe}"
+BACKUP_DIR="${BACKUP_DIR:-/srv/sitiosapps/_backups/colfe}"
 ENV_FILE="${ENV_FILE:-.env}"
 leer_env() { grep -E "^$1=" "$ENV_FILE" 2>/dev/null | head -1 | cut -d= -f2- || true; }
 
