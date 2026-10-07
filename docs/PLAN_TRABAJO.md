@@ -25,12 +25,13 @@ páginas el 3 oct 2026. Corre con los datos demo.
 - [x] Probar `docker compose up -d --build` en su equipo y recorrer la app — hecho el 2 oct 2026 en Windows (Docker 29, Compose v5): los tres contenedores levantan, se crea `admin` con `crear_usuario.php`, el login funciona y se ven todas las páginas.
 - [x] **D2:** PortalCV corre en Docker con `portalcv-nginx-prod` en 80/443 y MariaDB 11. COLFE usa su propio MySQL 8.0 y se une a la red de ese nginx (`PROXY_NETWORK`, alias `colfe-web`).
 - [ ] **D5:** ¿cubrir del 27 ago al 30 sep 2026 con datos generados, o cargarlos desde la app durante la demostración?
-- [ ] Programar el respaldo semanal (cron) en el VPS: **decidido** semanal, solo en el VPS (`/srv/sitiosapps/_backups/colfe`), 8 copias. El destino externo (`rclone`) queda opcional para cuando haya datos reales.
+- [x] Programar el respaldo semanal (cron) en el VPS: **decidido** semanal, solo en el VPS (`/srv/sitiosapps/_backups/colfe`), 8 copias. El destino externo (`rclone`) queda opcional para cuando haya datos reales.
 - [x] Reorganizar el VPS bajo `/srv/sitiosapps/` (`Curriculum-Vitae-Web/`, `colfe/`, `_backups/`) — hecho el 8 oct 2026; ver `DESPLIEGUE.md`, sección 0.
 - [x] VPS: subdominio en Cloudflare y certificado de origen (`colfe.sitiosapps.com`) — hecho el 3 oct 2026.
 - [ ] Secretos del workflow *Desplegar* (`produccion`: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, `VPS_KNOWN_HOSTS`).
 - [ ] Definir los **roles** (administrador / consulta): qué puede hacer cada uno.
-- [ ] Flujo de ramas `feature → develop → main` con `main` y `develop` protegidas (CI y «Verificar rama de origen» obligatorios), igual que Curriculum-Vitae-Web. En curso: workflow `enforce-develop-to-main.yml` listo; faltan crear `develop` y activar las reglas en GitHub.
+- [x] Flujo de ramas `feature → develop → main` con `main` y `develop` protegidas (PR y CI obligatorios, «Verificar rama de origen» en `main`, sin saltarse la regla), igual que Curriculum-Vitae-Web — hecho el 8 oct 2026. Pendiente menor: dejar `develop` como rama por defecto del repo (Settings → General → Default branch).
+- [x] Restauración del respaldo de COLFE probada en el VPS el 8 oct 2026 (`probar_restauracion.sh`): conteos idénticos, 4 procedimientos, 1 función y 24 triggers.
 - [ ] **Revisar GitHub Pages** (Settings → Pages): está activo y publica desde `main`. Si no es intencional, desactivarlo (ver D4).
 - [ ] Antes de la demostración: **revisar precios y deducibles** con la cooperativa (se conservan al limpiar el demo).
 
@@ -150,7 +151,7 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 ### 2.6 Datos hasta hoy
 - [ ] Cubrir del 27 ago al 30 sep 2026 según la decisión D5
 
-**Salida Fase 2:** staging en el subdominio con HTTPS y backup restaurable. *Falta programar el respaldo semanal (cron) en el VPS.*
+**Salida Fase 2:** staging en el subdominio con HTTPS y backup restaurable. *Respaldo semanal programado y restauración probada en el VPS.*
 
 ---
 
@@ -189,5 +190,5 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 - [x] Ningún reporte ni módulo se abre por URL directa sin sesión — `smoke_endpoints.sh`
 - [x] Restauración de BD probada desde el esquema versionado — el CI restaura el seed en MySQL 8.0 en cada PR
 - [x] Cálculo de liquidación validado contra una quincena — contra un recálculo independiente (demo). **Falta validarlo con una quincena real de COLFE**
-- [ ] Backup semanal funcionando y restauración probada — scripts probados en local; **falta programarlo (cron) en el VPS**
+- [x] Backup semanal funcionando y restauración probada — cron semanal (domingo 02:15) programado en el VPS y restauración verificada el 8 oct 2026 (solo local, 8 copias; copia externa opcional)
 - [ ] App Android probada contra producción
