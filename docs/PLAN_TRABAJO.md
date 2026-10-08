@@ -168,8 +168,8 @@ Objetivo: documentación completa, versionada junto al código y alineada con el
 Todo en `docs/`, con un índice `docs/README.md`. Tamaño: **S** pequeño · **M** mediano · **L** grande. Responsable: **E** Edgar · **C** Claude.
 
 ### 4.1 Diccionario de datos
-- [ ] **P1 · M · C** `docs/DICCIONARIO_DATOS.md`: por tabla (`tbl_socios`, `tbl_recoleccion`, `tbl_produccion`, `tbl_liquidacion`, `tbl_precios`, `tbl_deducibles`, `tbl_anticipos`, `tbl_usuarios`, `tbl_api_tokens`, `tbl_login_intentos`, `tbl_auditoria`): columna, tipo, nulos, valor por defecto, claves y restricciones (`PK`, `FK`, `UNIQUE`, `CHECK`), significado de negocio, valores válidos y migración que la creó
-- [ ] **P1 · S · C** Incluir vistas (`v_anticipos_completos`, `v_auditoria`), procedimientos y funciones, y los 24 triggers (qué dispara cada uno)
+- [x] **P1 · M · C** `docs/DICCIONARIO_DATOS.md`: por tabla (`tbl_socios`, `tbl_recoleccion`, `tbl_produccion`, `tbl_liquidacion`, `tbl_precios`, `tbl_deducibles`, `tbl_anticipos`, `tbl_usuarios`, `tbl_api_tokens`, `tbl_login_intentos`, `tbl_auditoria`): columna, tipo, nulos, valor por defecto, claves y restricciones (`PK`, `FK`, `UNIQUE`, `CHECK`), significado de negocio, valores válidos y migración que la creó
+- [x] **P1 · S · C** Incluir vistas (`v_anticipos_completos`, `v_auditoria`), procedimientos y funciones, y los 24 triggers (qué dispara cada uno)
 - [ ] **P1 · S · E** Validar las definiciones de negocio que no se deduzcan del código (se marcan `[por confirmar]`)
 - [ ] **P2 · S · C** Migración 006 con `COMMENT` en las columnas, para que el esquema se documente solo
 - [ ] **P2 · S · C** Enlazar el diccionario desde el diagrama ER y mostrar columnas clave en el ER
