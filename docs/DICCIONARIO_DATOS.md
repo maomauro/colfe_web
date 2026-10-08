@@ -105,8 +105,8 @@ Precio de la leche por tipo de vinculación. Solo el `activo` se usa al liquidar
 |---|---|---|---|---|---|---|
 | `id_precio` | `int` | No | — | PK | Identificador interno del precio. | Entero autoincremental. |
 | `vinculacion` | `enum('asociado','proveedor')` | No | — | — | Tipo de socio al que aplica el precio. | `asociado` o `proveedor`. |
-| `precio` | `decimal(10,2)` | No | — | — | Precio pagado por litro de leche, en pesos colombianos `[por confirmar]` la moneda y si incluye bonificaciones. | Decimal > 0. |
-| `fecha` | `date` | Sí | — | — | Fecha en que se registró el precio. La aplicación la asigna al crear el registro. `[por confirmar]` si debe leerse como «vigente desde». | Fecha. |
+| `precio` | `decimal(10,2)` | No | — | — | Precio base pagado por litro de leche, en pesos colombianos (confirmado por Edgar el 8 oct 2026; no incluye bonificaciones). | Decimal > 0. |
+| `fecha` | `date` | Sí | — | — | Hoy guarda la fecha en que se registró el precio. **Diseño acordado:** pasará a ser `fecha_inicio`, con una `fecha_fin` (vacía = abierto) y sin solapes por vinculación; ver el plan, Fase 5.2. | Fecha. |
 | `estado` | `enum('activo','inactivo')` | No | — | — | Si es el precio vigente. Debe haber a lo sumo uno `activo` por vinculación. | `activo` o `inactivo`. |
 
 **Restricciones e índices**
@@ -125,10 +125,10 @@ Descuentos por tipo de vinculación: porcentaje de Fedegán y valores fijos de a
 |---|---|---|---|---|---|---|
 | `id_deducible` | `int` | No | — | PK | Identificador interno del conjunto de deducibles. | Entero autoincremental. |
 | `vinculacion` | `enum('asociado','proveedor')` | No | — | — | Tipo de socio al que aplican los deducibles. | `asociado` o `proveedor`. |
-| `fedegan` | `decimal(5,2)` | No | — | — | Porcentaje de los ingresos que se descuenta por Fedegán (contribución parafiscal ganadera). | Decimal entre 0 y 100 (porcentaje, no fracción). |
-| `administracion` | `decimal(10,2)` | No | — | — | Valor fijo en pesos que se descuenta por administración en cada liquidación. `[por confirmar]` si es por quincena y por socio. | Decimal ≥ 0. |
-| `ahorro` | `decimal(10,2)` | No | — | — | Valor fijo en pesos que se descuenta como ahorro del socio en cada liquidación. `[por confirmar]` si es por quincena y por socio. | Decimal ≥ 0. |
-| `fecha` | `date` | Sí | — | — | Fecha en que se registró el conjunto de deducibles. `[por confirmar]` si debe leerse como «vigente desde». | Fecha. |
+| `fedegan` | `decimal(5,2)` | No | — | — | Porcentaje de los ingresos que se descuenta por Fedegán (contribución parafiscal ganadera). `[por confirmar]` | Decimal entre 0 y 100 (porcentaje, no fracción). |
+| `administracion` | `decimal(10,2)` | No | — | — | Valor fijo en pesos que se descuenta por administración a cada socio en cada liquidación (confirmado por Edgar el 8 oct 2026). | Decimal ≥ 0. |
+| `ahorro` | `decimal(10,2)` | No | — | — | Valor fijo en pesos que se descuenta como ahorro a cada socio en cada liquidación (confirmado por Edgar el 8 oct 2026). Hoy no existe un registro del ahorro acumulado de cada socio; ver el plan, Fase 5.2. | Decimal ≥ 0. |
+| `fecha` | `date` | Sí | — | — | Fecha en que se registró el conjunto de deducibles. Hoy no define vigencia por rango de fechas. | Fecha. |
 | `estado` | `enum('activo','inactivo')` | No | — | — | Si es el conjunto vigente. Debe haber a lo sumo uno `activo` por vinculación. | `activo` o `inactivo`. |
 
 **Restricciones e índices**
@@ -327,10 +327,16 @@ Son 24. Los de validación dan un error `SQLSTATE 45000` con un mensaje en espa�
 
 ## Por confirmar con la cooperativa
 
-Definiciones de negocio que el código no permite afirmar. Responde cada una y se quita la marca `[por confirmar]` de arriba:
+1. **`tbl_deducibles.fedegan`:** ¿es el porcentaje de la contribución parafiscal de Fedegán sobre los ingresos brutos? (hoy 0,75 %)
 
-1. **`tbl_precios.precio`:** ¿es pesos colombianos por litro? ¿Incluye bonificaciones o calidad, o es solo el precio base?
-2. **`tbl_precios.fecha` y `tbl_deducibles.fecha`:** hoy la aplicación guarda la fecha en que se creó el registro. ¿Debe significar «vigente desde» para poder liquidar con el precio que regía en cada quincena?
-3. **`tbl_deducibles.administracion` y `ahorro`:** el cálculo los trata como valores fijos en pesos por cada liquidación. ¿Son por quincena y por socio, o deberían ser un porcentaje?
-4. **`tbl_deducibles.fedegan`:** ¿es el porcentaje de la contribución parafiscal de Fedegán sobre los ingresos brutos?
+Confirmadas por Edgar el 8 oct 2026: el precio es base, en pesos por litro y con historial por fechas; `administracion` y `ahorro` son valores fijos por socio en cada liquidación.
 
+## Reglas de negocio acordadas y aún no implementadas
+
+El esquema actual no las cumple todavía. Están en el plan (Fase 5.2) y se documentarán en `LIQUIDACION.md` (4.2):
+
+- **Precios con vigencia:** `tbl_precios` como historial con `fecha_inicio` y `fecha_fin` (vacía = abierto), sin solapes por vinculación.
+- **Liquidación fija o variable:** el administrador elige al liquidar. *Fija:* toda la quincena con el precio vigente en la fecha de cierre. *Variable:* cada día con el precio que regía ese día. Se guarda en `tbl_liquidacion`, con el desglose por tramos en una columna JSON; se puede reliquidar con el otro tipo mientras la liquidación no esté cerrada. Ejemplo numérico: [`ejemplos/ejemplo_liquidacion_fija_vs_variable.xlsx`](ejemplos/ejemplo_liquidacion_fija_vs_variable.xlsx).
+- **Saldo negativo de anticipos:** si los anticipos superan el pago de la quincena, el saldo se arrastra como descuento a la siguiente quincena. Hoy el neto puede salir negativo y no se arrastra.
+- **Ahorro como garantía:** un registro del ahorro de cada socio (con los saldos que ya tenía antes del sistema), para descontar de él los anticipos pendientes si el socio se retira.
+- **Tope de los anticipos:** se aprueba un anticipo si cabe en el neto estimado de la quincena **o** en el ahorro del socio; basta con cubrir uno de los dos.
