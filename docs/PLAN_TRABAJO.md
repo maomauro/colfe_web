@@ -1,6 +1,6 @@
 # ColfeWeb: plan de trabajo hacia producción
 
-Base: diagnóstico técnico del 29 sep 2026. Marca `[x]` al terminar cada tarea.
+Base: diagnóstico técnico del 29 sep 2026, ampliado con el diagnóstico v2 del 8 oct 2026 (Fases 4 a 6). Marca `[x]` al terminar cada tarea.
 Prioridad: **P0** bloqueante · **P1** importante · **P2** deseable.
 
 Decisiones ya tomadas:
@@ -10,7 +10,7 @@ Decisiones ya tomadas:
 
 ---
 
-## Estado actual (3 oct 2026)
+## Estado actual (8 oct 2026)
 
 **Todo el trabajo de las Fases 0 a 3 está fusionado en `main`** (PR #5 a #15) y el CI corre en cada push: lint, seed y
 migraciones en MySQL 8.0, 27 pruebas PHPUnit, pruebas de seguridad (endpoints, autenticación, CSRF, auditoría) y un
@@ -21,19 +21,13 @@ con certificado de origen de Cloudflare en modo *Completo (estricto)*). Edgar ve
 páginas el 3 oct 2026. Corre con los datos demo.
 
 **Depende de Edgar (nadie más puede hacerlo):**
-- [ ] Probar la app Android (cambia `apiValidarToken`: 401 si el token es inválido; el token es real y vence a las 24 h; las claves son las nuevas).
 - [x] Probar `docker compose up -d --build` en su equipo y recorrer la app — hecho el 2 oct 2026 en Windows (Docker 29, Compose v5): los tres contenedores levantan, se crea `admin` con `crear_usuario.php`, el login funciona y se ven todas las páginas.
 - [x] **D2:** PortalCV corre en Docker con `portalcv-nginx-prod` en 80/443 y MariaDB 11. COLFE usa su propio MySQL 8.0 y se une a la red de ese nginx (`PROXY_NETWORK`, alias `colfe-web`).
-- [ ] **D5:** ¿cubrir del 27 ago al 30 sep 2026 con datos generados, o cargarlos desde la app durante la demostración?
 - [x] Programar el respaldo semanal (cron) en el VPS: **decidido** semanal, solo en el VPS (`/srv/sitiosapps/_backups/colfe`), 8 copias. El destino externo (`rclone`) queda opcional para cuando haya datos reales.
-- [ ] Respaldo conjunto fuera del VPS para `/srv/sitiosapps` (COLFE semanal y PortalCV mensual), a definir en otro proyecto. Copiar la carpeta no respalda las bases de datos (viven en volúmenes de Docker): debe incluir `_backups` con los volcados al día, además del código, los `.env` y los certificados. Hoy todas las copias están solo en el VPS; pasa a ser importante antes de cargar los socios reales.
 - [x] Reorganizar el VPS bajo `/srv/sitiosapps/` (`Curriculum-Vitae-Web/`, `colfe/`, `_backups/`) — hecho el 8 oct 2026; ver `DESPLIEGUE.md`, sección 0.
 - [x] VPS: subdominio en Cloudflare y certificado de origen (`colfe.sitiosapps.com`) — hecho el 3 oct 2026.
-- [ ] Secretos del workflow *Desplegar* (`produccion`: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, `VPS_KNOWN_HOSTS`).
-- [ ] Definir los **roles** (administrador / consulta): qué puede hacer cada uno.
 - [x] Flujo de ramas `feature → develop → main` con `main` y `develop` protegidas (PR y CI obligatorios, «Verificar rama de origen» en `main`, sin saltarse la regla), igual que Curriculum-Vitae-Web — hecho el 8 oct 2026. `develop` es además la rama por defecto del repo.
 - [x] Restauración del respaldo de COLFE probada en el VPS el 8 oct 2026 (`probar_restauracion.sh`): conteos idénticos, 4 procedimientos, 1 función y 24 triggers.
-- [ ] **Revisar GitHub Pages** (Settings → Pages): está activo y publica desde `main`. Si no es intencional, desactivarlo (ver D4).
 - [ ] Antes de la demostración: **revisar precios y deducibles** con la cooperativa (se conservan al limpiar el demo).
 
 ---
@@ -63,7 +57,7 @@ páginas el 3 oct 2026. Corre con los datos demo.
 
 ## Fase 0: Reestructura del proyecto (P0, antes de la seguridad)
 
-Detalle y mapa de movimientos: [`DIAGNOSTICO_ESTRUCTURA.md`](DIAGNOSTICO_ESTRUCTURA.md).
+Detalle y mapa de movimientos (documento histórico; la estructura ya está aplicada): [`DIAGNOSTICO_ESTRUCTURA.md`](DIAGNOSTICO_ESTRUCTURA.md).
 Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicación final.
 
 - [x] Aprobar la estructura objetivo (`public/` + `src/` + `config/` + `storage/`) — aprobada por Edgar al autorizar continuar
@@ -76,7 +70,7 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 - [x] Eliminar predicción: `prediccion.ajax.php`, `prediccion.php`, `prediccion.js`
 - [x] Eliminar `ajax/logs.log` y `test_simple.php`; logs a `storage/logs/`
 - [x] Verificar: `php -l` de todos los archivos y arranque con `php -S` sobre `public/`
-- [ ] **Pendiente de Edgar:** recorrer cada módulo en Laragon (socios, calendario, recolección, producción, deducibles, precios, anticipos, liquidación, recibos)
+- [x] Recorrer cada módulo: se hace sobre Docker (ver 2.2); Laragon ya no es el entorno de referencia
 
 **Salida Fase 0:** el sitio funciona igual que antes, solo `public/` es accesible por HTTP.
 
@@ -96,7 +90,6 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 ### 1.2 Token de la API móvil
 - [x] Guardar el token (o JWT firmado) con usuario y expiración
 - [x] Validar el token real en `apiValidarToken.php` y `apiSocios.php`
-- [ ] **Pendiente de Edgar:** probar la app Android contra el cambio. Cambia solo `apiValidarToken` (ahora 401 si el token es inválido) y el token pasa a ser real
 
 ### 1.3 Contraseñas y sesión
 - [x] Cambiar a `password_hash()` y `password_verify()`
@@ -161,17 +154,93 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 - [x] Pruebas PHPUnit de liquidación (deducibles, anticipos, precios por quincena) — 27 pruebas / 1.013 aserciones (18 de liquidación y 9 de auditoría), en el CI
 - [x] Validar una quincena completa contra un cálculo manual — recálculo independiente de una quincena (2da feb-2025, 107 socios) y de las 4.066 liquidaciones
 - [x] Revisar las 27 producciones sin liquidar que quedaron en el demo — causa: deducible de «asociado» con estado NULL (migración 003); eran 1.026 producciones de 27 socios
-- [ ] Liquidar desde la app la 2da quincena de feb 2025 (queda pendiente a propósito en el demo; las pruebas ya verificaron que el procedimiento la calcula bien)
 - [x] CSRF en formularios y ajax — token por sesión + verificación de Origin; los 4 borrados (antes por GET) pasan a POST
 - [x] Log de auditoría en liquidaciones y anticipos — migración 004: 16 triggers sobre liquidaciones, anticipos, precios, deducibles, socios y edición de recolección; usuario y origen (web/api/sistema) y valores antes/después en JSON; vista `v_auditoria`. **Falta una pantalla para consultarla** (hoy es por SQL)
 - [x] Integridad del modelo, bloque 1 (migración 005): `NOT NULL` en FK y columnas críticas, `UNIQUE` en `tbl_recoleccion(id_socio, fecha)` y `tbl_socios(identificacion)`, `CHECK` de litros, precios, deducibles y anticipos, e índice `tbl_recoleccion(fecha, estado)`. Probada en la base de desarrollo (con copia previa), en una base nueva desde el seed y repetida (idempotente). **Aplicada en el VPS el 8 oct 2026** (carpeta `/srv/sitiosapps/colfe`), con comprobaciones previas en 0 y respaldo antes de aplicar; verificadas las 8 restricciones, el índice, los 24 triggers y las 4.066 liquidaciones, y la web responde 200
-- [ ] Integridad, bloque 2: un solo precio/deducible activo por vinculación con `UNIQUE` (columna generada) y unificar el charset a `utf8mb4`
-- [ ] Integridad, bloque 3 (requiere decisión): bloquear cambios en liquidaciones cerradas; `id_liquidacion` en `tbl_anticipos`; `id_usuario` en vez de `USER()` en `usuario_registro`
-- [ ] Roles de usuario (administrador / consulta)
-- [ ] **P2** Dependencias del frontend (hallazgo E10): `bower_components` (18 MB) y `plugins` (2,4 MB) están versionados sin gestor de dependencias; pasar a `npm` con versiones fijadas
 - [x] CI con lint y pruebas — `.github/workflows/ci.yml`
-- [ ] Métricas DORA básicas (frecuencia de despliegue, tiempo de entrega): aún sin implementar
-- [ ] Probar la app Android contra el servidor de producción
+- [ ] Probar la app Android contra producción → ver 5.4
+
+---
+
+## Fase 4: Documentación (P1, en paralelo con la Fase 5)
+
+Objetivo: documentación completa, versionada junto al código y alineada con el código real.
+Todo en `docs/`, con un índice `docs/README.md`. Tamaño: **S** pequeño · **M** mediano · **L** grande. Responsable: **E** Edgar · **C** Claude.
+
+### 4.1 Diccionario de datos
+- [ ] **P1 · M · C** `docs/DICCIONARIO_DATOS.md`: por tabla (`tbl_socios`, `tbl_recoleccion`, `tbl_produccion`, `tbl_liquidacion`, `tbl_precios`, `tbl_deducibles`, `tbl_anticipos`, `tbl_usuarios`, `tbl_api_tokens`, `tbl_login_intentos`, `tbl_auditoria`): columna, tipo, nulos, valor por defecto, claves y restricciones (`PK`, `FK`, `UNIQUE`, `CHECK`), significado de negocio, valores válidos y migración que la creó
+- [ ] **P1 · S · C** Incluir vistas (`v_anticipos_completos`, `v_auditoria`), procedimientos y funciones, y los 24 triggers (qué dispara cada uno)
+- [ ] **P1 · S · E** Validar las definiciones de negocio que no se deduzcan del código (se marcan `[por confirmar]`)
+- [ ] **P2 · S · C** Migración 006 con `COMMENT` en las columnas, para que el esquema se documente solo
+- [ ] **P2 · S · C** Enlazar el diccionario desde el diagrama ER y mostrar columnas clave en el ER
+- [ ] **P2 · S · C** Prueba en el CI que falle si una tabla o columna del esquema no aparece en el diccionario
+
+### 4.2 Reglas de negocio de la liquidación
+- [ ] **P1 · M · C** `docs/LIQUIDACION.md`: glosario (quincena, vinculación, precio, deducibles, anticipo, cierre) y fórmula paso a paso, con un ejemplo numérico tomado de la quincena validada
+- [ ] **P1 · S · E** Revisar el documento con la cooperativa
+
+### 4.3 Contrato de la API móvil
+- [ ] **P1 · M · C** `docs/API_MOVIL.md` (o `openapi.yaml`): los 6 endpoints, cabeceras, cuerpo, respuestas, códigos de error y vigencia del token (24 h)
+- [ ] **P1 · S · C** Documentar el cambio de `apiValidarToken` (401 si el token es inválido) y la migración de `?token=` a `Authorization: Bearer`
+- [ ] **P2 · S · C** Prueba de contrato en el CI (las respuestas coinciden con el documento)
+
+### 4.4 Decisiones y arquitectura
+- [ ] **P1 · M · C** `docs/adr/`: ADRs 0001 a 0010 a partir de D1 a D5 y de las decisiones ya tomadas (datos demo, proxy compartido con PortalCV, imagen Debian, tokens en base de datos, CSRF por origen y token, estructura `public/src/config/storage`, respaldo semanal solo local, flujo de ramas)
+- [ ] **P2 · M · C** `docs/arquitectura/`: C4 de contexto y de contenedores, y arc42 ligero (secciones 1, 3, 4, 5, 7, 8 y 9)
+- [ ] **P2 · S · C** Riesgos y deuda técnica (arc42 sección 11) alimentados por el diagnóstico
+
+### 4.5 Operación y gobierno
+- [ ] **P1 · M · C** `docs/OPERACION.md` (runbook): monitoreo, qué hacer ante una caída, rotación de claves y tokens, restauración desde respaldo externo, comandos de diagnóstico
+- [ ] **P2 · S · C** `SECURITY.md` (cómo reportar una vulnerabilidad), `CONTRIBUTING.md`, `LICENSE` (Edgar decide la licencia o «propietaria»), `CHANGELOG.md`
+- [ ] **P2 · S · C** Definition of Ready y Definition of Done del proyecto (incluye «documentación al día»)
+
+### 4.6 Correcciones
+- [ ] **P1 · S · C** README: quitar «Predicciones», corregir la ruta de logs a `storage/logs/`, actualizar fecha y versión, enlazar `docs/README.md`
+- [ ] **P2 · S · C** Docblocks en los modelos PHP
+
+**Salida Fase 4:** cada tabla, endpoint, regla de liquidación y decisión está documentado; el índice enlaza todo; el README coincide con el código; el CI avisa si el esquema y el diccionario se separan.
+
+---
+
+## Fase 5: Endurecimiento antes de datos reales (P1)
+
+### 5.1 Seguridad de la aplicación
+- [ ] **P1 · M · C** XSS: helper `e()` para toda salida en los 16 archivos de `src/vistas/modulos/`; `.text()` en lugar de `.html()` donde se concatenan datos (12 usos); prueba en el CI que guarde `<script>` en un socio y verifique que se muestra escapado
+- [ ] **P1 · S · E+C** Pasar la app Android a `Authorization: Bearer` y retirar `?token=` de la API
+- [ ] **P1 · M · E+C** Roles (administrador / consulta): Edgar define permisos, Claude implementa y prueba
+- [ ] **P1 · M · C** Pantalla para consultar la auditoría (`v_auditoria`)
+- [ ] **P2 · S · C** Quitar el comentario `DEBUG` de `anticipos.php` y `limit_req` al login en nginx
+
+### 5.2 Datos
+- [ ] **P1 · M · C** Integridad, bloque 2: un solo precio/deducible activo por vinculación con `UNIQUE` (columna generada) y unificar el charset a `utf8mb4`
+- [ ] **P1 · M · E+C** Integridad, bloque 3 (requiere decisión de Edgar): bloquear cambios en liquidaciones cerradas; `id_liquidacion` en `tbl_anticipos`; `id_usuario` en vez de `USER()` en `usuario_registro`
+- [ ] **P1 · M · C** Runner de migraciones con tabla `schema_migrations`, respaldo previo y registro de lo aplicado
+- [ ] **P0 · M · E** Validar la liquidación con una quincena real de COLFE
+
+### 5.3 Operación
+- [ ] **P0 · M · E+C** Respaldo conjunto fuera del VPS (volcados de `_backups`, `.env`, certificados) y restauración probada desde esa copia
+- [ ] **P1 · S · E+C** Monitor externo de `colfe.sitiosapps.com` y `healthcheck` en los contenedores `app` y `web`
+- [ ] **P1 · S · E** Cargar los secretos del workflow *Desplegar* (`produccion`: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, `VPS_KNOWN_HOSTS`)
+- [ ] **P1 · S · E** Revisar GitHub Pages (D4): está activo y publica desde `main`; si no es intencional, desactivarlo
+- [ ] **P1 · S · E** Aviso de privacidad y política de tratamiento de datos personales con la cooperativa (Ley 1581)
+
+### 5.4 Verificación con la app y con datos
+- [ ] **P1 · S · E** Probar la app Android contra producción (`apiValidarToken` ahora devuelve 401 si el token es inválido; el token es real y vence a las 24 h; las claves son las nuevas)
+- [ ] **P1 · S · E** Decidir **D5** (27 ago al 30 sep 2026)
+- [ ] **P2 · S · E** Liquidar desde la app la 2da quincena de feb 2025 (pendiente a propósito en el demo) y revisar precios y deducibles con la cooperativa
+
+**Salida Fase 5:** criterios de salida cumplidos para cargar socios reales.
+
+---
+
+## Fase 6: Calidad y mantenimiento (P2, después de la demostración)
+
+- [ ] **P2 · L · C** Frontend a `npm` con versiones fijadas y actualizadas (hallazgo E10: Bootstrap 3.4.1, AdminLTE 2.4.18, DataTables 1.10.19, FullCalendar 3.10.1 y jQuery 3.6.0 están desactualizadas o sin soporte)
+- [ ] **P2 · M · C** CI: `composer audit`, Dependabot, CodeQL y escaneo de imágenes (Trivy); acciones de GitHub fijadas por hash
+- [ ] **P2 · S · C** Tags SemVer por release además de `sha-<commit>`; el despliegue deja de usar `latest` por defecto
+- [ ] **P2 · M · C** Content-Security-Policy compatible con AdminLTE
+- [ ] **P2 · M · C** Ampliar pruebas (controladores, modelos, JavaScript) y medir cobertura
+- [ ] **P2 · M · C** Métricas DORA básicas (frecuencia de despliegue, tiempo de entrega)
 
 ---
 
@@ -196,3 +265,12 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 - [x] Cálculo de liquidación validado contra una quincena — contra un recálculo independiente (demo). **Falta validarlo con una quincena real de COLFE**
 - [x] Backup semanal funcionando y restauración probada — cron semanal (domingo 02:15) programado en el VPS y restauración verificada el 8 oct 2026 (solo local, 8 copias; copia externa opcional)
 - [ ] App Android probada contra producción
+- [ ] Confirmar en producción que `/.git/HEAD` y `/config/config.php` devuelven 404 (**P0**, Edgar)
+- [ ] Documentación completa y alineada: diccionario de datos, contrato de la API, reglas de liquidación, ADRs, runbook y README al día (Fase 4)
+- [ ] Salida de las vistas escapada: prueba de XSS en el CI en verde (5.1)
+- [ ] Roles implementados y probados (5.1)
+- [ ] Monitoreo activo y respaldo fuera del VPS con restauración probada (5.3)
+- [ ] La app Android usa `Authorization` y funciona contra producción (5.1 y 5.4)
+- [ ] Liquidación validada con una quincena real de COLFE (5.2)
+
+Orden sugerido: Fase 5 cumplida → demostración → reinicio de producción → carga de socios reales → Fase 6.
