@@ -163,6 +163,9 @@ Se hace primero para escribir el guard y el bootstrap una sola vez, en su ubicac
 - [ ] Liquidar desde la app la 2da quincena de feb 2025 (queda pendiente a propósito en el demo; las pruebas ya verificaron que el procedimiento la calcula bien)
 - [x] CSRF en formularios y ajax — token por sesión + verificación de Origin; los 4 borrados (antes por GET) pasan a POST
 - [x] Log de auditoría en liquidaciones y anticipos — migración 004: 16 triggers sobre liquidaciones, anticipos, precios, deducibles, socios y edición de recolección; usuario y origen (web/api/sistema) y valores antes/después en JSON; vista `v_auditoria`. **Falta una pantalla para consultarla** (hoy es por SQL)
+- [x] Integridad del modelo, bloque 1 (migración 005): `NOT NULL` en FK y columnas críticas, `UNIQUE` en `tbl_recoleccion(id_socio, fecha)` y `tbl_socios(identificacion)`, `CHECK` de litros, precios, deducibles y anticipos, e índice `tbl_recoleccion(fecha, estado)`. Probada en la base de desarrollo (con copia previa), en una base nueva desde el seed y repetida (idempotente). **Falta aplicarla en el VPS** (ver `docs/DESPLIEGUE.md`)
+- [ ] Integridad, bloque 2: un solo precio/deducible activo por vinculación con `UNIQUE` (columna generada) y unificar el charset a `utf8mb4`
+- [ ] Integridad, bloque 3 (requiere decisión): bloquear cambios en liquidaciones cerradas; `id_liquidacion` en `tbl_anticipos`; `id_usuario` en vez de `USER()` en `usuario_registro`
 - [ ] Roles de usuario (administrador / consulta)
 - [ ] **P2** Dependencias del frontend (hallazgo E10): `bower_components` (18 MB) y `plugins` (2,4 MB) están versionados sin gestor de dependencias; pasar a `npm` con versiones fijadas
 - [x] CI con lint y pruebas — `.github/workflows/ci.yml`
