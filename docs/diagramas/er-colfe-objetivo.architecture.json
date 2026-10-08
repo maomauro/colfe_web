@@ -1,0 +1,280 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "COLFE: modelo objetivo (propuesto)",
+    "output": "er-colfe-objetivo.html",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1280,
+      820
+    ]
+  },
+  "components": [
+    {
+      "id": "recoleccion",
+      "type": "database",
+      "label": "tbl_recoleccion",
+      "sublabel": "UNIQUE (id_socio, fecha)",
+      "pos": [
+        160,
+        70
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "socios",
+      "type": "database",
+      "label": "tbl_socios",
+      "sublabel": "UNIQUE identificacion",
+      "pos": [
+        400,
+        70
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "anticipos",
+      "type": "database",
+      "label": "tbl_anticipos · CAMBIA",
+      "sublabel": "+ id_liquidacion, id_usuario",
+      "pos": [
+        640,
+        275
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "usuarios",
+      "type": "security",
+      "label": "tbl_usuarios",
+      "sublabel": "PK id · username único",
+      "pos": [
+        880,
+        70
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "produccion",
+      "type": "database",
+      "label": "tbl_produccion",
+      "sublabel": "PK id_produccion · FK id_socio",
+      "pos": [
+        160,
+        275
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "ahorros",
+      "type": "database",
+      "label": "tbl_ahorros · NUEVA",
+      "sublabel": "movimientos por socio",
+      "pos": [
+        640,
+        70
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "liquidacion",
+      "type": "database",
+      "label": "tbl_liquidacion · CAMBIA",
+      "sublabel": "+ tipo, tramos, saldo previo",
+      "pos": [
+        400,
+        480
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "deducibles",
+      "type": "database",
+      "label": "tbl_deducibles",
+      "sublabel": "PK id_deducible · por vinculacion",
+      "pos": [
+        160,
+        480
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "precios",
+      "type": "database",
+      "label": "tbl_precios · CAMBIA",
+      "sublabel": "+ fecha_inicio, fecha_fin",
+      "pos": [
+        400,
+        685
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "auditoria",
+      "type": "security",
+      "label": "tbl_auditoria",
+      "sublabel": "PK id_auditoria · id_usuario",
+      "pos": [
+        880,
+        275
+      ],
+      "size": [
+        200,
+        78
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Dominio de liquidación lechera",
+      "wraps": [
+        "recoleccion",
+        "socios",
+        "anticipos",
+        "produccion",
+        "liquidacion",
+        "deducibles",
+        "precios",
+        "ahorros"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "Acceso y trazabilidad",
+      "wraps": [
+        "usuarios",
+        "auditoria"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "socio-recoleccion",
+      "from": "socios",
+      "to": "recoleccion",
+      "label": "1:N",
+      "variant": "emphasis"
+    },
+    {
+      "id": "socio-anticipos",
+      "from": "socios",
+      "to": "anticipos",
+      "label": "1:N",
+      "variant": "emphasis"
+    },
+    {
+      "id": "socio-produccion",
+      "from": "socios",
+      "to": "produccion",
+      "label": "1:N",
+      "variant": "emphasis"
+    },
+    {
+      "id": "socio-liquidacion",
+      "from": "socios",
+      "to": "liquidacion",
+      "label": "1:N",
+      "variant": "emphasis",
+      "labelAt": [
+        500,
+        330
+      ]
+    },
+    {
+      "id": "produccion-liquidacion",
+      "from": "produccion",
+      "to": "liquidacion",
+      "label": "1:1",
+      "variant": "emphasis"
+    },
+    {
+      "id": "deducible-liquidacion",
+      "from": "deducibles",
+      "to": "liquidacion"
+    },
+    {
+      "id": "precio-liquidacion",
+      "from": "precios",
+      "to": "liquidacion"
+    },
+    {
+      "id": "anticipo-liquidacion",
+      "from": "anticipos",
+      "to": "liquidacion",
+      "label": "descuenta",
+      "variant": "security"
+    },
+    {
+      "id": "socio-ahorros",
+      "from": "socios",
+      "to": "ahorros",
+      "label": "1:N",
+      "variant": "security"
+    },
+    {
+      "id": "usuario-anticipos",
+      "from": "usuarios",
+      "to": "anticipos",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Cambia (acordado)",
+      "items": [
+        "Precios con inicio y fin, sin solapes",
+        "Liquidación fija o variable",
+        "Anticipo ligado a su liquidación"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Nueva y por definir",
+      "items": [
+        "tbl_ahorros: estructura propuesta",
+        "Saldo arrastrado: columna propuesta",
+        "Tope de anticipos: regla en la app"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Sin cambios (omitidas)",
+      "items": [
+        "tbl_api_tokens, tbl_login_intentos",
+        "Vista v_anticipos_completos",
+        "Sin FK: tbl_auditoria (ver diagrama actual)"
+      ]
+    }
+  ]
+}

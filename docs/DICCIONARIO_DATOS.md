@@ -335,10 +335,10 @@ Edgar confirmó el 8 oct 2026 las definiciones que el código no permitía afirm
 
 ## Reglas de negocio acordadas y aún no implementadas
 
-El esquema actual no las cumple todavía. Están en el plan (Fase 5.2) y se documentarán en `LIQUIDACION.md` (4.2):
+El esquema actual no las cumple todavía. El modelo resultante está en el diagrama [`diagramas/er-colfe-objetivo.html`](diagramas/er-colfe-objetivo.html) (propuesto); el modelo actual, en [`diagramas/er-colfe.html`](diagramas/er-colfe.html). Están en el plan (Fase 5.2) y se documentarán en `LIQUIDACION.md` (4.2):
 
 - **Precios con vigencia:** `tbl_precios` como historial con `fecha_inicio` y `fecha_fin` (vacía = abierto), sin solapes por vinculación.
 - **Liquidación fija o variable:** el administrador elige al liquidar. *Fija:* toda la quincena con el precio vigente en la fecha de cierre. *Variable:* cada día con el precio que regía ese día. Se guarda en `tbl_liquidacion`, con el desglose por tramos en una columna JSON; se puede reliquidar con el otro tipo mientras la liquidación no esté cerrada. Ejemplo numérico: [`ejemplos/ejemplo_liquidacion_fija_vs_variable.xlsx`](ejemplos/ejemplo_liquidacion_fija_vs_variable.xlsx).
-- **Saldo negativo de anticipos:** si los anticipos superan el pago de la quincena, el saldo se arrastra como descuento a la siguiente quincena. Hoy el neto puede salir negativo y no se arrastra.
-- **Ahorro como garantía:** un registro del ahorro de cada socio (con los saldos que ya tenía antes del sistema), para descontar de él los anticipos pendientes si el socio se retira.
+- **Saldo negativo de anticipos:** si los anticipos superan el pago de la quincena, el saldo se arrastra como descuento a la siguiente quincena. Hoy el neto puede salir negativo y no se arrastra. *Propuesta:* una columna de saldo previo en `tbl_liquidacion`; `tbl_anticipos` gana `id_liquidacion` (la liquidación que lo descontó) e `id_usuario` (llave foránea a `tbl_usuarios`, en lugar del texto `usuario_registro`). Decisión de Edgar: se conserva `tbl_anticipos`, sin un libro de movimientos único.
+- **Ahorro como garantía:** un registro del ahorro de cada socio (con los saldos que ya tenía antes del sistema), para descontar de él los anticipos pendientes si el socio se retira. *Propuesta:* una tabla nueva `tbl_ahorros` de movimientos (saldo inicial, aporte por liquidación, retiro y cruce de deuda); el saldo es la suma. La estructura exacta está por definir.
 - **Tope de los anticipos:** se aprueba un anticipo si cabe en el neto estimado de la quincena **o** en el ahorro del socio; basta con cubrir uno de los dos.
