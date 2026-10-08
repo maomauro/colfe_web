@@ -26,6 +26,7 @@ páginas el 3 oct 2026. Corre con los datos demo.
 - [x] **D2:** PortalCV corre en Docker con `portalcv-nginx-prod` en 80/443 y MariaDB 11. COLFE usa su propio MySQL 8.0 y se une a la red de ese nginx (`PROXY_NETWORK`, alias `colfe-web`).
 - [ ] **D5:** ¿cubrir del 27 ago al 30 sep 2026 con datos generados, o cargarlos desde la app durante la demostración?
 - [x] Programar el respaldo semanal (cron) en el VPS: **decidido** semanal, solo en el VPS (`/srv/sitiosapps/_backups/colfe`), 8 copias. El destino externo (`rclone`) queda opcional para cuando haya datos reales.
+- [ ] Respaldo conjunto fuera del VPS para `/srv/sitiosapps` (COLFE semanal y PortalCV mensual), a definir en otro proyecto. Copiar la carpeta no respalda las bases de datos (viven en volúmenes de Docker): debe incluir `_backups` con los volcados al día, además del código, los `.env` y los certificados. Hoy todas las copias están solo en el VPS; pasa a ser importante antes de cargar los socios reales.
 - [x] Reorganizar el VPS bajo `/srv/sitiosapps/` (`Curriculum-Vitae-Web/`, `colfe/`, `_backups/`) — hecho el 8 oct 2026; ver `DESPLIEGUE.md`, sección 0.
 - [x] VPS: subdominio en Cloudflare y certificado de origen (`colfe.sitiosapps.com`) — hecho el 3 oct 2026.
 - [ ] Secretos del workflow *Desplegar* (`produccion`: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, `VPS_KNOWN_HOSTS`).
