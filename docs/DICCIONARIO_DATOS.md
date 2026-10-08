@@ -6,7 +6,7 @@ Describe cada tabla, vista, procedimiento, función y trigger de la base `colfe_
 
 - **Nulos:** «No» significa que la columna es `NOT NULL`.
 - **Clave / restricción:** `PK` llave primaria, `FK` llave foránea, `UNIQUE` valor único. Los `CHECK` y los índices van debajo de cada tabla.
-- **`[por confirmar]`:** definición de negocio que no se deduce del código. Está reunida al final, en «Por confirmar con la cooperativa».
+- **Definiciones de negocio:** las que no se deducían del código las confirmó Edgar; ver «Definiciones confirmadas» al final.
 - Los valores entre comillas inversas son literales del esquema.
 
 ## Mapa de relaciones
@@ -125,7 +125,7 @@ Descuentos por tipo de vinculación: porcentaje de Fedegán y valores fijos de a
 |---|---|---|---|---|---|---|
 | `id_deducible` | `int` | No | — | PK | Identificador interno del conjunto de deducibles. | Entero autoincremental. |
 | `vinculacion` | `enum('asociado','proveedor')` | No | — | — | Tipo de socio al que aplican los deducibles. | `asociado` o `proveedor`. |
-| `fedegan` | `decimal(5,2)` | No | — | — | Porcentaje de los ingresos que se descuenta por Fedegán (contribución parafiscal ganadera). `[por confirmar]` | Decimal entre 0 y 100 (porcentaje, no fracción). |
+| `fedegan` | `decimal(5,2)` | No | — | — | Porcentaje de los ingresos que se descuenta por Fedegán (contribución parafiscal ganadera). Confirmado por Edgar el 8 oct 2026. | Decimal entre 0 y 100 (porcentaje, no fracción). |
 | `administracion` | `decimal(10,2)` | No | — | — | Valor fijo en pesos que se descuenta por administración a cada socio en cada liquidación (confirmado por Edgar el 8 oct 2026). | Decimal ≥ 0. |
 | `ahorro` | `decimal(10,2)` | No | — | — | Valor fijo en pesos que se descuenta como ahorro a cada socio en cada liquidación (confirmado por Edgar el 8 oct 2026). Hoy no existe un registro del ahorro acumulado de cada socio; ver el plan, Fase 5.2. | Decimal ≥ 0. |
 | `fecha` | `date` | Sí | — | — | Fecha en que se registró el conjunto de deducibles. Hoy no define vigencia por rango de fechas. | Fecha. |
@@ -325,11 +325,13 @@ Son 24. Los de validación dan un error `SQLSTATE 45000` con un mensaje en espa�
 | `tr_aud_socios_i`, `_u`, `_d` | `tbl_socios` | después de INSERT, UPDATE y DELETE | Ídem. |
 | `tr_aud_recoleccion_u` | `tbl_recoleccion` | después de UPDATE | Registra solo las ediciones (no cada alta diaria, que serían miles de eventos). |
 
-## Por confirmar con la cooperativa
+## Definiciones confirmadas
 
-1. **`tbl_deducibles.fedegan`:** ¿es el porcentaje de la contribución parafiscal de Fedegán sobre los ingresos brutos? (hoy 0,75 %)
+Edgar confirmó el 8 oct 2026 las definiciones que el código no permitía afirmar. No queda ninguna marca `[por confirmar]`.
 
-Confirmadas por Edgar el 8 oct 2026: el precio es base, en pesos por litro y con historial por fechas; `administracion` y `ahorro` son valores fijos por socio en cada liquidación.
+- **Precio:** base, en pesos por litro, con historial por fechas.
+- **`administracion` y `ahorro`:** valores fijos por socio en cada liquidación.
+- **`fedegan`:** porcentaje sobre los ingresos, correspondiente a una contribución parafiscal.
 
 ## Reglas de negocio acordadas y aún no implementadas
 
