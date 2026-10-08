@@ -1,0 +1,341 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "COLFE: modelo entidad-relación",
+    "output": "er-colfe.html",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1280,
+      820
+    ]
+  },
+  "components": [
+    {
+      "id": "recoleccion",
+      "type": "database",
+      "label": "tbl_recoleccion",
+      "sublabel": "PK id_recoleccion · FK id_socio",
+      "tag": "~64.5 mil filas",
+      "pos": [
+        160,
+        70
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "socios",
+      "type": "database",
+      "label": "tbl_socios",
+      "sublabel": "PK id_socio · identificacion",
+      "tag": "107 filas",
+      "pos": [
+        400,
+        70
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "anticipos",
+      "type": "database",
+      "label": "tbl_anticipos",
+      "sublabel": "PK id_anticipo · FK id_socio",
+      "tag": "23 filas",
+      "pos": [
+        640,
+        70
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "produccion",
+      "type": "database",
+      "label": "tbl_produccion",
+      "sublabel": "PK id_produccion · FK id_socio",
+      "tag": "4.066 filas",
+      "pos": [
+        160,
+        275
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "vanticipos",
+      "type": "database",
+      "label": "v_anticipos_completos",
+      "sublabel": "vista: anticipos + socios activos",
+      "pos": [
+        640,
+        275
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "liquidacion",
+      "type": "database",
+      "label": "tbl_liquidacion",
+      "sublabel": "PK id_liquidacion · 4 FK",
+      "tag": "4.066 filas",
+      "pos": [
+        400,
+        480
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "deducibles",
+      "type": "database",
+      "label": "tbl_deducibles",
+      "sublabel": "PK id_deducible · por vinculacion",
+      "tag": "2 filas",
+      "pos": [
+        640,
+        480
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "precios",
+      "type": "database",
+      "label": "tbl_precios",
+      "sublabel": "PK id_precio · por vinculacion",
+      "tag": "2 filas",
+      "pos": [
+        400,
+        685
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "api_tokens",
+      "type": "security",
+      "label": "tbl_api_tokens",
+      "sublabel": "PK id_token · FK id_usuario",
+      "pos": [
+        910,
+        70
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "usuarios",
+      "type": "security",
+      "label": "tbl_usuarios",
+      "sublabel": "PK id · username único",
+      "pos": [
+        910,
+        275
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "intentos",
+      "type": "security",
+      "label": "tbl_login_intentos",
+      "sublabel": "PK id_intento · username, ip",
+      "pos": [
+        910,
+        480
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "auditoria",
+      "type": "security",
+      "label": "tbl_auditoria",
+      "sublabel": "PK id_auditoria · id_usuario",
+      "pos": [
+        910,
+        685
+      ],
+      "size": [
+        200,
+        78
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Dominio de liquidación lechera",
+      "wraps": [
+        "recoleccion",
+        "socios",
+        "anticipos",
+        "produccion",
+        "vanticipos",
+        "liquidacion",
+        "deducibles",
+        "precios"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "Acceso y trazabilidad",
+      "wraps": [
+        "api_tokens",
+        "usuarios",
+        "intentos",
+        "auditoria"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "socio-recoleccion",
+      "from": "socios",
+      "to": "recoleccion",
+      "label": "1:N"
+    },
+    {
+      "id": "socio-anticipos",
+      "from": "socios",
+      "to": "anticipos",
+      "label": "1:N"
+    },
+    {
+      "id": "socio-produccion",
+      "from": "socios",
+      "to": "produccion",
+      "label": "1:N",
+      "fromSide": "left",
+      "toSide": "top"
+    },
+    {
+      "id": "socio-liquidacion",
+      "from": "socios",
+      "to": "liquidacion",
+      "label": "1:N",
+      "labelAt": [
+        500,
+        330
+      ]
+    },
+    {
+      "id": "produccion-liquidacion",
+      "from": "produccion",
+      "to": "liquidacion",
+      "label": "1:1"
+    },
+    {
+      "id": "deducible-liquidacion",
+      "from": "deducibles",
+      "to": "liquidacion",
+      "label": "1:N"
+    },
+    {
+      "id": "precio-liquidacion",
+      "from": "precios",
+      "to": "liquidacion",
+      "label": "1:N"
+    },
+    {
+      "id": "anticipos-vista",
+      "from": "anticipos",
+      "to": "vanticipos",
+      "label": "lee",
+      "variant": "dashed",
+      "labelDy": 24
+    },
+    {
+      "id": "usuario-tokens",
+      "from": "usuarios",
+      "to": "api_tokens",
+      "label": "1:N",
+      "variant": "security"
+    },
+    {
+      "id": "usuario-intentos",
+      "from": "usuarios",
+      "to": "intentos",
+      "label": "sin FK",
+      "variant": "dashed",
+      "labelDy": 24
+    },
+    {
+      "id": "usuario-auditoria",
+      "from": "usuarios",
+      "to": "auditoria",
+      "label": "sin FK",
+      "fromSide": "right",
+      "toSide": "right",
+      "via": [
+        [
+          1138,
+          314
+        ],
+        [
+          1138,
+          724
+        ]
+      ],
+      "labelAt": [
+        1138,
+        520
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Integridad referencial",
+      "items": [
+        "8 FK reales, todas con índice",
+        "0 huérfanos y 0 FK nulas en los datos",
+        "Liquidación coherente con producción (socio, litros, quincena)"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Brechas del modelo",
+      "items": [
+        "FK nullable en recoleccion, produccion y liquidacion",
+        "Sin FK: login_intentos y auditoria",
+        "Charset mixto utf8mb3, utf8mb4 y 0900_ai_ci"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Reglas fuera del esquema",
+      "items": [
+        "Un solo precio y deducible activo: solo triggers",
+        "Sin CHECK en montos, litros ni quincena",
+        "Sin ON DELETE definido salvo tokens"
+      ]
+    }
+  ]
+}

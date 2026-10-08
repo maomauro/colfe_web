@@ -95,6 +95,8 @@ Para empezar de cero: `docker compose down -v`.
    mysql -u root -p colfe_db < db/seed/004_demo_cerrar_quincenas.sql   # cierra quincenas para que el dashboard tenga datos
    # Auditoría de cambios (al final, para no registrar la regularización del demo)
    mysql -u root -p colfe_db < db/migraciones/004_auditoria.sql
+   # Integridad (NOT NULL, UNIQUE, CHECK); falla si hay datos que no la cumplen
+   mysql -u root -p colfe_db < db/migraciones/005_integridad.sql
 
    # Crear el usuario administrador (la migración 002 elimina admin/admin y user/12345)
    COLFE_CLAVE='una-clave-larga-con-numeros-123' php db/tools/crear_usuario.php admin
