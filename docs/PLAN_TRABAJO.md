@@ -265,7 +265,7 @@ Todo en `docs/`, con un índice `docs/README.md`. Tamaño: **S** pequeño · **M
 - [x] Cálculo de liquidación validado contra una quincena — contra un recálculo independiente (demo). **Falta validarlo con una quincena real de COLFE**
 - [x] Backup semanal funcionando y restauración probada — cron semanal (domingo 02:15) programado en el VPS y restauración verificada el 8 oct 2026 (solo local, 8 copias; copia externa opcional)
 - [ ] App Android probada contra producción
-- [ ] Confirmar en producción que `/.git/HEAD` y `/config/config.php` devuelven 404 (**P0**, Edgar)
+- [x] Confirmar en producción que `/.git/HEAD` y `/config/config.php` devuelven 404 (**P0**) — verificado el 8 oct 2026 con `curl` contra `https://colfe.sitiosapps.com`: también 404 en `/db/`, `/src/`, `/.env`, `/storage/logs/` y `/docs/`
 - [ ] Documentación completa y alineada: diccionario de datos, contrato de la API, reglas de liquidación, ADRs, runbook y README al día (Fase 4)
 - [ ] Salida de las vistas escapada: prueba de XSS en el CI en verde (5.1)
 - [ ] Roles implementados y probados (5.1)
