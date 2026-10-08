@@ -16,7 +16,7 @@
       "id": "recoleccion",
       "type": "database",
       "label": "tbl_recoleccion",
-      "sublabel": "PK id_recoleccion · FK id_socio",
+      "sublabel": "UNIQUE (id_socio, fecha)",
       "tag": "~64.5 mil filas",
       "pos": [
         160,
@@ -31,7 +31,7 @@
       "id": "socios",
       "type": "database",
       "label": "tbl_socios",
-      "sublabel": "PK id_socio · identificacion",
+      "sublabel": "UNIQUE identificacion",
       "tag": "107 filas",
       "pos": [
         400,
@@ -314,27 +314,27 @@
       "dot": "emerald",
       "title": "Integridad referencial",
       "items": [
-        "8 FK reales, todas con índice",
-        "0 huérfanos y 0 FK nulas en los datos",
-        "Liquidación coherente con producción (socio, litros, quincena)"
+        "8 FK con índice y sin nulos",
+        "0 huérfanos en los datos",
+        "005: NOT NULL, UNIQUE, CHECK"
       ]
     },
     {
       "dot": "amber",
-      "title": "Brechas del modelo",
+      "title": "Pendiente: bloque 2",
       "items": [
-        "FK nullable en recoleccion, produccion y liquidacion",
-        "Sin FK: login_intentos y auditoria",
-        "Charset mixto utf8mb3, utf8mb4 y 0900_ai_ci"
+        "Precio y deducible activo único: solo triggers",
+        "Charset mixto utf8mb3 y utf8mb4",
+        "Sin CHECK de quincena"
       ]
     },
     {
       "dot": "rose",
-      "title": "Reglas fuera del esquema",
+      "title": "Pendiente: bloque 3",
       "items": [
-        "Un solo precio y deducible activo: solo triggers",
-        "Sin CHECK en montos, litros ni quincena",
-        "Sin ON DELETE definido salvo tokens"
+        "Liquidaciones cerradas sin protección",
+        "Anticipo sin enlace a su liquidación",
+        "Sin FK: login_intentos y auditoria"
       ]
     }
   ]

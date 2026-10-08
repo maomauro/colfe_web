@@ -5174,8 +5174,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <path data-edge-from="usuarios" data-edge-to="auditoria" data-edge-label="sin FK" data-edge-key="10" data-edge-id="usuario-auditoria" data-composition-points="1110,314;1138,314;1138,724;1110,724" d="M 1110 314 L 1130 314 Q 1138 314 1138 322 L 1138 716 Q 1138 724 1130 724 L 1110 724" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
 
         <!-- Components -->
-        <g id="node-recoleccion" data-node-id="recoleccion" data-node-label="tbl_recoleccion" tabindex="0" role="button" aria-label="Focus tbl_recoleccion, PK id_recoleccion · FK id_socio, Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="PK id_recoleccion · FK id_socio" data-node-tag="~64.5 mil filas" data-node-context="Dominio de liquidación lechera">
-          <title>tbl_recoleccion · PK id_recoleccion · FK id_socio · Dominio de liquidación lechera · ~64.5 mil filas</title>
+        <g id="node-recoleccion" data-node-id="recoleccion" data-node-label="tbl_recoleccion" tabindex="0" role="button" aria-label="Focus tbl_recoleccion, UNIQUE (id_socio, fecha), Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="UNIQUE (id_socio, fecha)" data-node-tag="~64.5 mil filas" data-node-context="Dominio de liquidación lechera">
+          <title>tbl_recoleccion · UNIQUE (id_socio, fecha) · Dominio de liquidación lechera · ~64.5 mil filas</title>
           <rect x="160" y="70" width="200" height="78" rx="6" class="c-mask"/>
           <rect x="160" y="70" width="200" height="78" rx="6" class="c-database" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(166 76) scale(0.6875)">
@@ -5183,12 +5183,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="260" y="107" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">tbl_recoleccion</text>
-        <text data-detail="context" x="260" y="123" class="t-muted" font-size="9" text-anchor="middle">PK id_recoleccion · FK id_socio</text>
+        <text data-detail="context" x="260" y="123" class="t-muted" font-size="9" text-anchor="middle">UNIQUE (id_socio, fecha)</text>
         <text data-detail="fine" x="260" y="140" class="t-database" font-size="7" text-anchor="middle">~64.5 mil filas</text>
         </g>
 
-        <g id="node-socios" data-node-id="socios" data-node-label="tbl_socios" tabindex="0" role="button" aria-label="Focus tbl_socios, PK id_socio · identificacion, Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="PK id_socio · identificacion" data-node-tag="107 filas" data-node-context="Dominio de liquidación lechera">
-          <title>tbl_socios · PK id_socio · identificacion · Dominio de liquidación lechera · 107 filas</title>
+        <g id="node-socios" data-node-id="socios" data-node-label="tbl_socios" tabindex="0" role="button" aria-label="Focus tbl_socios, UNIQUE identificacion, Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="UNIQUE identificacion" data-node-tag="107 filas" data-node-context="Dominio de liquidación lechera">
+          <title>tbl_socios · UNIQUE identificacion · Dominio de liquidación lechera · 107 filas</title>
           <rect x="400" y="70" width="200" height="78" rx="6" class="c-mask"/>
           <rect x="400" y="70" width="200" height="78" rx="6" class="c-database" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(406 76) scale(0.6875)">
@@ -5196,7 +5196,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="500" y="107" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">tbl_socios</text>
-        <text data-detail="context" x="500" y="123" class="t-muted" font-size="9" text-anchor="middle">PK id_socio · identificacion</text>
+        <text data-detail="context" x="500" y="123" class="t-muted" font-size="9" text-anchor="middle">UNIQUE identificacion</text>
         <text data-detail="fine" x="500" y="140" class="t-database" font-size="7" text-anchor="middle">107 filas</text>
         </g>
 
@@ -5576,33 +5576,33 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <h3>Integridad referencial</h3>
         </div>
         <ul>
-          <li>&bull; 8 FK reales, todas con índice</li>
-          <li>&bull; 0 huérfanos y 0 FK nulas en los datos</li>
-          <li>&bull; Liquidación coherente con producción (socio, litros, quincena)</li>
+          <li>&bull; 8 FK con índice y sin nulos</li>
+          <li>&bull; 0 huérfanos en los datos</li>
+          <li>&bull; 005: NOT NULL, UNIQUE, CHECK</li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-header">
           <div class="card-dot amber"></div>
-          <h3>Brechas del modelo</h3>
+          <h3>Pendiente: bloque 2</h3>
         </div>
         <ul>
-          <li>&bull; FK nullable en recoleccion, produccion y liquidacion</li>
-          <li>&bull; Sin FK: login_intentos y auditoria</li>
-          <li>&bull; Charset mixto utf8mb3, utf8mb4 y 0900_ai_ci</li>
+          <li>&bull; Precio y deducible activo único: solo triggers</li>
+          <li>&bull; Charset mixto utf8mb3 y utf8mb4</li>
+          <li>&bull; Sin CHECK de quincena</li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-header">
           <div class="card-dot rose"></div>
-          <h3>Reglas fuera del esquema</h3>
+          <h3>Pendiente: bloque 3</h3>
         </div>
         <ul>
-          <li>&bull; Un solo precio y deducible activo: solo triggers</li>
-          <li>&bull; Sin CHECK en montos, litros ni quincena</li>
-          <li>&bull; Sin ON DELETE definido salvo tokens</li>
+          <li>&bull; Liquidaciones cerradas sin protección</li>
+          <li>&bull; Anticipo sin enlace a su liquidación</li>
+          <li>&bull; Sin FK: login_intentos y auditoria</li>
         </ul>
       </div>
     </div>
