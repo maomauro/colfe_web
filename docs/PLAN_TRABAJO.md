@@ -180,8 +180,8 @@ Todo en `docs/`, con un índice `docs/README.md`. Tamaño: **S** pequeño · **M
 - [ ] **P1 · S · E** Revisar el documento con la cooperativa
 
 ### 4.3 Contrato de la API móvil
-- [ ] **P1 · M · C** `docs/API_MOVIL.md` (o `openapi.yaml`): los 6 endpoints, cabeceras, cuerpo, respuestas, códigos de error y vigencia del token (24 h)
-- [ ] **P1 · S · C** Documentar el cambio de `apiValidarToken` (401 si el token es inválido) y la migración de `?token=` a `Authorization: Bearer`
+- [x] **P1 · M · C** `docs/API_MOVIL.md` (o `openapi.yaml`): los 6 endpoints, cabeceras, cuerpo, respuestas, códigos de error y vigencia del token (24 h)
+- [x] **P1 · S · C** Documentar el cambio de `apiValidarToken` (401 si el token es inválido) y la migración de `?token=` a `Authorization: Bearer`
 - [ ] **P2 · S · C** Prueba de contrato en el CI (las respuestas coinciden con el documento)
 
 ### 4.4 Decisiones y arquitectura
@@ -225,6 +225,7 @@ Todo en `docs/`, con un índice `docs/README.md`. Tamaño: **S** pequeño · **M
 - [ ] **P1 · S · E** Aviso de privacidad y política de tratamiento de datos personales con la cooperativa (Ley 1581)
 
 ### 5.4 Verificación con la app y con datos
+- [ ] **P0 · S · C** Corregir `apiCrearRecoleccionesLote.php`: hoy falla siempre (`Unknown column 'observaciones'`: el `INSERT` usa columnas que `tbl_recoleccion` no tiene), usa un estado `pendiente` inválido, devuelve el SQL interno al cliente y responde 200 aunque falle. Detectado el 8 oct 2026 al documentar la API (`docs/API_MOVIL.md`). Confirmar con Edgar si la app Android lo usa
 - [ ] **P1 · S · E** Probar la app Android contra producción (`apiValidarToken` ahora devuelve 401 si el token es inválido; el token es real y vence a las 24 h; las claves son las nuevas)
 - [ ] **P1 · S · E** Decidir **D5** (27 ago al 30 sep 2026)
 - [ ] **P2 · S · E** Liquidar desde la app la 2da quincena de feb 2025 (pendiente a propósito en el demo) y revisar precios y deducibles con la cooperativa
