@@ -168,15 +168,15 @@ Objetivo: documentación completa, versionada junto al código y alineada con el
 Todo en `docs/`, con un índice `docs/README.md`. Tamaño: **S** pequeño · **M** mediano · **L** grande. Responsable: **E** Edgar · **C** Claude.
 
 ### 4.1 Diccionario de datos
-- [x] **P1 · M · C** `docs/DICCIONARIO_DATOS.md`: por tabla (`tbl_socios`, `tbl_recoleccion`, `tbl_produccion`, `tbl_liquidacion`, `tbl_precios`, `tbl_deducibles`, `tbl_anticipos`, `tbl_usuarios`, `tbl_api_tokens`, `tbl_login_intentos`, `tbl_auditoria`): columna, tipo, nulos, valor por defecto, claves y restricciones (`PK`, `FK`, `UNIQUE`, `CHECK`), significado de negocio, valores válidos y migración que la creó
-- [x] **P1 · S · C** Incluir vistas (`v_anticipos_completos`, `v_auditoria`), procedimientos y funciones, y los 24 triggers (qué dispara cada uno)
+- [x] **P1 · M · C** `docs/DICCIONARIO_DATOS.md`: por tabla (`tbl_socios`, `tbl_recoleccion`, `tbl_produccion`, `tbl_liquidacion`, `tbl_precios`, `tbl_deducibles`, `tbl_liquidacion_deducible`, `tbl_usuarios`, `tbl_api_tokens`, `tbl_login_intentos`, `tbl_auditoria`): columna, tipo, nulos, valor por defecto, claves y restricciones (`PK`, `FK`, `UNIQUE`, `CHECK`), significado de negocio, valores válidos y migración que la creó
+- [x] **P1 · S · C** Incluir la vista `v_auditoria`, procedimientos y funciones, y los 20 triggers (qué dispara cada uno)
 - [x] **P1 · S · E** Validar las definiciones de negocio que no se deduzcan del código (se marcan `[por confirmar]`)
 - [ ] **P2 · S · C** Migración 006 con `COMMENT` en las columnas, para que el esquema se documente solo
 - [ ] **P2 · S · C** Enlazar el diccionario desde el diagrama ER y mostrar columnas clave en el ER
 - [ ] **P2 · S · C** Prueba en el CI que falle si una tabla o columna del esquema no aparece en el diccionario
 
 ### 4.2 Reglas de negocio de la liquidación
-- [ ] **P1 · M · C** `docs/LIQUIDACION.md`: glosario (quincena, vinculación, precio, deducibles, anticipo, cierre) y fórmula paso a paso, con un ejemplo numérico tomado de la quincena validada
+- [ ] **P1 · M · C** `docs/LIQUIDACION.md`: glosario (quincena, vinculación, precio, deducibles, cierre) y fórmula paso a paso, con un ejemplo numérico tomado de la quincena validada
 - [ ] **P1 · S · E** Revisar el documento con la cooperativa
 
 ### 4.3 Contrato de la API móvil
@@ -209,16 +209,15 @@ Todo en `docs/`, con un índice `docs/README.md`. Tamaño: **S** pequeño · **M
 - [ ] **P1 · S · E+C** Pasar la app Android a `Authorization: Bearer` y retirar `?token=` de la API
 - [ ] **P1 · M · E+C** Roles (administrador / consulta): Edgar define permisos, Claude implementa y prueba
 - [ ] **P1 · M · C** Pantalla para consultar la auditoría (`v_auditoria`)
-- [ ] **P2 · S · C** Quitar el comentario `DEBUG` de `anticipos.php` y `limit_req` al login en nginx
+- [ ] **P2 · S · C** Agregar `limit_req` al login en nginx (el comentario `DEBUG` de `anticipos.php` desapareció con el módulo)
 
 ### 5.2 Datos
-- [ ] **P1 · L · E+C** Precios con vigencia: `tbl_precios` como historial con `fecha_inicio` y `fecha_fin` (vacía = abierto), sin solapes por vinculación (trigger). Reemplaza la regla «un solo precio activo» del bloque 2 para los precios. Decisiones de Edgar (8 oct 2026) y ejemplo numérico en `docs/ejemplos/ejemplo_liquidacion_fija_vs_variable.xlsx`
-- [ ] **P1 · L · E+C** Liquidación **fija o variable**: el administrador elige al liquidar (ventana emergente). *Fija:* toda la quincena con el precio vigente en la fecha de cierre. *Variable:* cada día con el precio que regía ese día. Se guarda en `tbl_liquidacion` (columna `tipo_liquidacion`; desglose por tramos en una columna JSON, `precio_litro` como promedio ponderado). Modelo propuesto en `docs/diagramas/er-colfe-objetivo.html`. Se puede reliquidar con el otro tipo mientras esté en `pre-liquidacion`
-- [ ] **P1 · M · E+C** Anticipos que superan el pago de la quincena: el saldo negativo se **arrastra** como descuento a la siguiente quincena (hoy el neto puede salir negativo y no se arrastra). Propuesta: columna de saldo previo en `tbl_liquidacion`; `tbl_anticipos` gana `id_liquidacion` e `id_usuario` (trazabilidad; Edgar eligió conservar `tbl_anticipos`, sin libro de movimientos)
-- [ ] **P1 · L · E+C** Ahorro como garantía: tabla nueva `tbl_ahorros` con el ahorro de cada socio (movimientos; estructura por definir, con los saldos que ya tenía antes del sistema, que debe aportar la cooperativa) para descontar de él los anticipos pendientes si el socio se retira
-- [ ] **P1 · M · C** Tope de los anticipos: se aprueba si el anticipo cabe en el neto estimado de la quincena **o** en el ahorro del socio (basta cubrir uno); depende de la tarea del ahorro
-- [ ] **P1 · M · C** Integridad, bloque 2: un solo precio/deducible activo por vinculación con `UNIQUE` (columna generada) y unificar el charset a `utf8mb4`
-- [ ] **P1 · M · E+C** Integridad, bloque 3 (requiere decisión de Edgar): bloquear cambios en liquidaciones cerradas; `id_liquidacion` en `tbl_anticipos`; `id_usuario` en vez de `USER()` en `usuario_registro`
+- [ ] **P1 · L · E+C** Precios con vigencia: `tbl_precios` como historial con `fecha_inicio` y `fecha_fin` (vacía = abierto), sin solapes por vinculación (trigger). Reemplaza la regla «un solo precio activo» del bloque 2 para los precios. La liquidación usa el precio vigente en la fecha de cierre de la quincena. Modelo propuesto en `docs/diagramas/er-colfe-objetivo.html`
+- [x] **P1 · M · C** Retirar el módulo de anticipos (decisión de COLFE, 9 oct 2026) — migración 006: tabla, pantalla, API interna, vista, procedimiento y triggers; el neto es ingresos − deducibles
+- [x] **P1 · L · C** Deducibles uno por fila y retiro del ahorro (decisión de COLFE, 9 oct 2026) — migración 007: `tbl_deducibles` (nombre, porcentaje o valor fijo, por vinculación) y `tbl_liquidacion_deducible` (detalle por liquidación); recibo con un renglón por deducible
+- [x] **P1 · S · C** Liquidación solo fija (decisión de COLFE, 9 oct 2026): se descartan la liquidación variable, el arrastre de saldo de anticipos, el ahorro como garantía y el tope de anticipos
+- [ ] **P1 · M · C** Integridad, bloque 2: un solo precio activo por vinculación con `UNIQUE` (columna generada; se resuelve junto con los precios con vigencia) y unificar el charset a `utf8mb4`. El deducible activo único por nombre y vinculación ya lo garantiza un trigger (007)
+- [ ] **P1 · S · E+C** Integridad, bloque 3 (requiere decisión de Edgar): bloquear cambios en liquidaciones cerradas
 - [ ] **P1 · M · C** Runner de migraciones con tabla `schema_migrations`, respaldo previo y registro de lo aplicado
 - [ ] **P0 · M · E** Validar la liquidación con una quincena real de COLFE
 

@@ -41,34 +41,6 @@
       ]
     },
     {
-      "id": "anticipos",
-      "type": "database",
-      "label": "tbl_anticipos · CAMBIA",
-      "sublabel": "+ id_liquidacion, id_usuario",
-      "pos": [
-        640,
-        275
-      ],
-      "size": [
-        200,
-        78
-      ]
-    },
-    {
-      "id": "usuarios",
-      "type": "security",
-      "label": "tbl_usuarios",
-      "sublabel": "PK id · username único",
-      "pos": [
-        880,
-        70
-      ],
-      "size": [
-        200,
-        78
-      ]
-    },
-    {
       "id": "produccion",
       "type": "database",
       "label": "tbl_produccion",
@@ -83,24 +55,10 @@
       ]
     },
     {
-      "id": "ahorros",
-      "type": "database",
-      "label": "tbl_ahorros · NUEVA",
-      "sublabel": "movimientos por socio",
-      "pos": [
-        640,
-        70
-      ],
-      "size": [
-        200,
-        78
-      ]
-    },
-    {
       "id": "liquidacion",
       "type": "database",
-      "label": "tbl_liquidacion · CAMBIA",
-      "sublabel": "+ tipo, tramos, saldo previo",
+      "label": "tbl_liquidacion",
+      "sublabel": "PK id_liquidacion · 3 FK",
       "pos": [
         400,
         480
@@ -111,12 +69,12 @@
       ]
     },
     {
-      "id": "deducibles",
+      "id": "liqded",
       "type": "database",
-      "label": "tbl_deducibles",
-      "sublabel": "PK id_deducible · por vinculacion",
+      "label": "tbl_liquidacion_deducible",
+      "sublabel": "detalle por deducible",
       "pos": [
-        160,
+        640,
         480
       ],
       "size": [
@@ -139,13 +97,69 @@
       ]
     },
     {
+      "id": "deducibles",
+      "type": "database",
+      "label": "tbl_deducibles",
+      "sublabel": "nombre · tipo · valor",
+      "pos": [
+        640,
+        685
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "api_tokens",
+      "type": "security",
+      "label": "tbl_api_tokens",
+      "sublabel": "PK id_token · FK id_usuario",
+      "pos": [
+        910,
+        70
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "usuarios",
+      "type": "security",
+      "label": "tbl_usuarios",
+      "sublabel": "PK id · username único",
+      "pos": [
+        910,
+        275
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "intentos",
+      "type": "security",
+      "label": "tbl_login_intentos",
+      "sublabel": "PK id_intento · username, ip",
+      "pos": [
+        910,
+        480
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
       "id": "auditoria",
       "type": "security",
       "label": "tbl_auditoria",
       "sublabel": "PK id_auditoria · id_usuario",
       "pos": [
-        880,
-        275
+        910,
+        685
       ],
       "size": [
         200,
@@ -160,19 +174,20 @@
       "wraps": [
         "recoleccion",
         "socios",
-        "anticipos",
         "produccion",
         "liquidacion",
-        "deducibles",
+        "liqded",
         "precios",
-        "ahorros"
+        "deducibles"
       ]
     },
     {
       "kind": "security-group",
       "label": "Acceso y trazabilidad",
       "wraps": [
+        "api_tokens",
         "usuarios",
+        "intentos",
         "auditoria"
       ]
     }
@@ -182,13 +197,6 @@
       "id": "socio-recoleccion",
       "from": "socios",
       "to": "recoleccion",
-      "label": "1:N",
-      "variant": "emphasis"
-    },
-    {
-      "id": "socio-anticipos",
-      "from": "socios",
-      "to": "anticipos",
       "label": "1:N",
       "variant": "emphasis"
     },
@@ -218,34 +226,61 @@
       "variant": "emphasis"
     },
     {
-      "id": "deducible-liquidacion",
-      "from": "deducibles",
-      "to": "liquidacion"
-    },
-    {
       "id": "precio-liquidacion",
       "from": "precios",
-      "to": "liquidacion"
-    },
-    {
-      "id": "anticipo-liquidacion",
-      "from": "anticipos",
       "to": "liquidacion",
-      "label": "descuenta",
-      "variant": "security"
+      "label": "1:N"
     },
     {
-      "id": "socio-ahorros",
-      "from": "socios",
-      "to": "ahorros",
+      "id": "liquidacion-detalle",
+      "from": "liquidacion",
+      "to": "liqded",
+      "label": "1:N",
+      "variant": "emphasis"
+    },
+    {
+      "id": "deducible-detalle",
+      "from": "deducibles",
+      "to": "liqded",
+      "label": "1:N"
+    },
+    {
+      "id": "usuario-tokens",
+      "from": "usuarios",
+      "to": "api_tokens",
       "label": "1:N",
       "variant": "security"
     },
     {
-      "id": "usuario-anticipos",
+      "id": "usuario-intentos",
       "from": "usuarios",
-      "to": "anticipos",
-      "variant": "security"
+      "to": "intentos",
+      "label": "sin FK",
+      "variant": "dashed",
+      "labelDy": 24
+    },
+    {
+      "id": "usuario-auditoria",
+      "from": "usuarios",
+      "to": "auditoria",
+      "label": "sin FK",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "right",
+      "via": [
+        [
+          1138,
+          314
+        ],
+        [
+          1138,
+          724
+        ]
+      ],
+      "labelAt": [
+        1138,
+        520
+      ]
     }
   ],
   "cards": [
@@ -253,27 +288,27 @@
       "dot": "emerald",
       "title": "Cambia (acordado)",
       "items": [
-        "Precios con inicio y fin, sin solapes",
-        "Liquidación fija o variable",
-        "Anticipo ligado a su liquidación"
+        "Precios con inicio y fin",
+        "Sin solapes por vinculación",
+        "Liquidación fija: precio al cierre"
       ]
     },
     {
       "dot": "amber",
-      "title": "Nueva y por definir",
+      "title": "Por construir",
       "items": [
-        "tbl_ahorros: estructura propuesta",
-        "Saldo arrastrado: columna propuesta",
-        "Tope de anticipos: regla en la app"
+        "Columnas fecha_inicio y fecha_fin",
+        "Trigger de no solape",
+        "Liquidar con el precio vigente"
       ]
     },
     {
       "dot": "rose",
-      "title": "Sin cambios (omitidas)",
+      "title": "Igual que el actual",
       "items": [
-        "tbl_api_tokens, tbl_login_intentos",
-        "Vista v_anticipos_completos",
-        "Sin FK: tbl_auditoria (ver diagrama actual)"
+        "Resto de tablas y relaciones",
+        "Deducibles uno por fila (hecho)",
+        "Ver el diagrama actual"
       ]
     }
   ]

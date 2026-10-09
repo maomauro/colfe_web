@@ -1,6 +1,6 @@
 # Diccionario de datos de COLFE
 
-Describe cada tabla, vista, procedimiento, función y trigger de la base `colfe_db` (MySQL 8.0). Se generó el **8 oct 2026** a partir del esquema en funcionamiento (esquema base `db/schema/colfe_schema.sql` más las migraciones 001 a 005 de `db/migraciones/`), no de documentación anterior. Si cambia el esquema, este documento debe actualizarse en el mismo PR.
+Describe cada tabla, vista, procedimiento, función y trigger de la base `colfe_db` (MySQL 8.0). Se generó el **9 oct 2026** a partir del esquema en funcionamiento (esquema base `db/schema/colfe_schema.sql` más las migraciones 001 a 007 de `db/migraciones/`), no de documentación anterior. Si cambia el esquema, este documento debe actualizarse en el mismo PR.
 
 **Convenciones**
 
@@ -15,12 +15,12 @@ Ver el diagrama [`diagramas/er-colfe.html`](diagramas/er-colfe.html). El lado «
 
 | Relación | Cardinalidad | Al borrar el padre |
 |---|---|---|
-| `tbl_socios` → `tbl_anticipos.id_socio` | 1 : N | Se rechaza (`NO ACTION`) |
 | `tbl_usuarios` → `tbl_api_tokens.id_usuario` | 1 : N | En cascada |
-| `tbl_deducibles` → `tbl_liquidacion.id_deducible` | 1 : N | Se rechaza (`NO ACTION`) |
 | `tbl_precios` → `tbl_liquidacion.id_precio` | 1 : N | Se rechaza (`NO ACTION`) |
 | `tbl_produccion` → `tbl_liquidacion.id_produccion` | 1 : 1 | Se rechaza (`NO ACTION`) |
 | `tbl_socios` → `tbl_liquidacion.id_socio` | 1 : N | Se rechaza (`NO ACTION`) |
+| `tbl_deducibles` → `tbl_liquidacion_deducible.id_deducible` | 1 : N | Se rechaza (`NO ACTION`) |
+| `tbl_liquidacion` → `tbl_liquidacion_deducible.id_liquidacion` | 1 : N | En cascada |
 | `tbl_socios` → `tbl_produccion.id_socio` | 1 : N | Se rechaza (`NO ACTION`) |
 | `tbl_socios` → `tbl_recoleccion.id_socio` | 1 : N | Se rechaza (`NO ACTION`) |
 
@@ -117,37 +117,36 @@ Precio de la leche por tipo de vinculación. Solo el `activo` se usa al liquidar
 
 ### `tbl_deducibles`: Deducibles
 
-Descuentos por tipo de vinculación: porcentaje de Fedegán y valores fijos de administración y ahorro. Solo el `activo` se usa al liquidar.
+Un deducible por fila: nombre, tipo (porcentaje o valor fijo) y valor, para una vinculación. Hoy hay «Fedegán» (porcentaje, para los dos tipos de socio) y «Administración» (valor fijo, solo asociados). Todos los deducibles `activo` de la vinculación del socio se aplican al liquidar.
 
-**Origen:** Esquema base; restricciones de la 005. La migración 003 corrigió el deducible de `asociado`, que había quedado sin estado.
+**Origen:** Esquema base; convertida a un deducible por fila en la migración 007 (que además retiró el ahorro).
 
 | Columna | Tipo | Nulos | Por defecto | Clave / restricción | Significado | Valores válidos |
 |---|---|---|---|---|---|---|
-| `id_deducible` | `int` | No | — | PK | Identificador interno del conjunto de deducibles. | Entero autoincremental. |
-| `vinculacion` | `enum('asociado','proveedor')` | No | — | — | Tipo de socio al que aplican los deducibles. | `asociado` o `proveedor`. |
-| `fedegan` | `decimal(5,2)` | No | — | — | Porcentaje de los ingresos que se descuenta por Fedegán (contribución parafiscal ganadera). Confirmado por Edgar el 8 oct 2026. | Decimal entre 0 y 100 (porcentaje, no fracción). |
-| `administracion` | `decimal(10,2)` | No | — | — | Valor fijo en pesos que se descuenta por administración a cada socio en cada liquidación (confirmado por Edgar el 8 oct 2026). | Decimal ≥ 0. |
-| `ahorro` | `decimal(10,2)` | No | — | — | Valor fijo en pesos que se descuenta como ahorro a cada socio en cada liquidación (confirmado por Edgar el 8 oct 2026). Hoy no existe un registro del ahorro acumulado de cada socio; ver el plan, Fase 5.2. | Decimal ≥ 0. |
-| `fecha` | `date` | Sí | — | — | Fecha en que se registró el conjunto de deducibles. Hoy no define vigencia por rango de fechas. | Fecha. |
-| `estado` | `enum('activo','inactivo')` | No | — | — | Si es el conjunto vigente. Debe haber a lo sumo uno `activo` por vinculación. | `activo` o `inactivo`. |
+| `id_deducible` | `int` | No | — | PK | Identificador interno del deducible. | Entero autoincremental. |
+| `vinculacion` | `enum('asociado','proveedor')` | No | — | — | Tipo de socio al que se aplica el deducible. Un deducible que vale para los dos tipos se crea una vez por vinculación. | `asociado` o `proveedor`. |
+| `fecha` | `date` | Sí | — | — | Fecha en que se registró el deducible. | Fecha. |
+| `estado` | `enum('activo','inactivo')` | No | — | — | Si el deducible se aplica al liquidar. Puede haber varios activos por vinculación, pero solo uno por nombre. | `activo` o `inactivo`. |
+| `nombre` | `varchar(60)` | No | — | — | Nombre del deducible, tal como aparece en el recibo (por ejemplo, «Fedegán» o «Administración»). Se puede crear cualquier deducible nuevo sin cambiar el esquema. | Texto de 1 a 60 caracteres. |
+| `tipo_valor` | `enum('porcentaje','fijo')` | No | — | — | Cómo se calcula el descuento: un porcentaje de los ingresos de la quincena o un valor fijo en pesos por liquidación. | `porcentaje` o `fijo`. |
+| `valor` | `decimal(12,2)` | No | — | — | Porcentaje (0 a 100) o valor en pesos, según `tipo_valor`. | Decimal ≥ 0; si es porcentaje, ≤ 100. |
 
 **Restricciones e índices**
 
-- **CHECK** `ck_deducibles_valores`: `((fedegan between 0 and 100) and (administracion >= 0) and (ahorro >= 0))`.
+- **CHECK** `ck_deducibles_valor`: `((valor >= 0) and ((tipo_valor = \'fijo\') or (valor <= 100)))`.
 
 **Triggers:** `before_insert_deducibles`, `before_update_deducibles`, `tr_aud_deducibles_d`, `tr_aud_deducibles_i`, `tr_aud_deducibles_u`. Detalle en la sección «Triggers».
 
 ### `tbl_liquidacion`: Liquidación quincenal
 
-Resultado del cálculo por socio y quincena: ingresos, descuentos, anticipos y neto a pagar. Guarda copias (foto histórica) de los datos usados.
+Resultado del cálculo por socio y quincena: ingresos, total de deducibles y neto a pagar. Guarda copias (foto histórica) de los datos usados. El detalle de cada deducible está en `tbl_liquidacion_deducible`.
 
-**Origen:** Esquema base; restricciones de la 005.
+**Origen:** Esquema base; restricciones de la 005; la 006 le quitó `total_anticipos` y la 007, `id_deducible`, `fedegan`, `administracion` y `ahorro`.
 
 | Columna | Tipo | Nulos | Por defecto | Clave / restricción | Significado | Valores válidos |
 |---|---|---|---|---|---|---|
 | `id_liquidacion` | `int` | No | — | PK | Identificador interno de la liquidación de un socio en una quincena. | Entero autoincremental. |
 | `id_produccion` | `int` | No | — | FK → `tbl_produccion.id_produccion` | Producción de la quincena que se liquida. | FK a `tbl_produccion`; una liquidación por producción. |
-| `id_deducible` | `int` | No | — | FK → `tbl_deducibles.id_deducible` | Deducibles aplicados (los vigentes al liquidar). | FK a `tbl_deducibles`. |
 | `id_precio` | `int` | No | — | FK → `tbl_precios.id_precio` | Precio aplicado (el vigente al liquidar). | FK a `tbl_precios`. |
 | `id_socio` | `int` | No | — | FK → `tbl_socios.id_socio`, UNIQUE compuesto | Socio liquidado. | FK a `tbl_socios`. |
 | `vinculacion` | `enum('asociado','proveedor')` | Sí | — | — | Foto de la vinculación del socio al liquidar. Conserva el histórico si luego cambia. | `asociado` o `proveedor`. |
@@ -156,53 +155,44 @@ Resultado del cálculo por socio y quincena: ingresos, descuentos, anticipos y n
 | `total_litros` | `decimal(10,2)` | Sí | — | — | Litros liquidados (copia de la producción). | Decimal ≥ 0. |
 | `precio_litro` | `decimal(10,2)` | Sí | — | — | Precio por litro aplicado (copia del precio vigente). | Decimal. |
 | `total_ingresos` | `decimal(15,2)` | Sí | — | — | Ingresos brutos de la quincena = `total_litros` × `precio_litro`. | Decimal ≥ 0, redondeado a 2 decimales. |
-| `fedegan` | `decimal(10,2)` | Sí | — | — | Valor en pesos descontado por Fedegán = `total_ingresos` × (porcentaje fedegán / 100). | Decimal, redondeado a 2 decimales. |
-| `administracion` | `decimal(10,2)` | Sí | — | — | Valor fijo descontado por administración (copia del deducible). | Decimal. |
-| `ahorro` | `decimal(10,2)` | Sí | — | — | Valor fijo descontado por ahorro (copia del deducible). | Decimal. |
-| `total_deducibles` | `decimal(15,2)` | Sí | — | — | Suma de los tres descuentos = `fedegan` + `administracion` + `ahorro`. | Decimal ≥ 0. |
-| `total_anticipos` | `decimal(15,2)` | Sí | — | — | Suma de los anticipos `aprobado` del socio con fecha dentro de la quincena. | Decimal ≥ 0. |
-| `neto_a_pagar` | `decimal(15,2)` | Sí | — | — | Valor a pagar al socio = `total_ingresos` − `total_deducibles` − `total_anticipos`. | Decimal. Puede resultar negativo si los descuentos superan los ingresos (la base no lo impide). |
+| `total_deducibles` | `decimal(15,2)` | Sí | — | — | Suma de los montos de los deducibles aplicados (el detalle está en `tbl_liquidacion_deducible`). | Decimal ≥ 0. |
+| `neto_a_pagar` | `decimal(15,2)` | Sí | — | — | Valor a pagar al socio = `total_ingresos` − `total_deducibles`. | Decimal. Puede resultar negativo si los deducibles superan los ingresos (la base no lo impide). |
 | `estado` | `enum('pre-liquidacion','liquidacion')` | No | — | — | Etapa de la liquidación. El cálculo nace en `pre-liquidacion`; al confirmarla pasa a `liquidacion` (cierre). El panel de inicio solo grafica las `liquidacion`. | `pre-liquidacion` o `liquidacion`. |
 | `fecha_liquidacion` | `date` | No | — | UNIQUE compuesto | Fecha de cierre de la quincena (día 15 o último día del mes). | Fecha; única por socio y quincena. |
 
 **Restricciones e índices**
 
 - **UNIQUE** `idx_liquidacion_unica` (id_socio, fecha_liquidacion, quincena).
-- **FK** `fk_liquidacion_deducible`: `id_deducible` → `tbl_deducibles.id_deducible`, borrado `NO ACTION`.
 - **FK** `fk_liquidacion_precio`: `id_precio` → `tbl_precios.id_precio`, borrado `NO ACTION`.
 - **FK** `fk_liquidacion_produccion`: `id_produccion` → `tbl_produccion.id_produccion`, borrado `NO ACTION`.
 - **FK** `fk_liquidacion_socios`: `id_socio` → `tbl_socios.id_socio`, borrado `NO ACTION`.
-- **CHECK** `ck_liquidacion_montos`: `((total_litros >= 0) and (total_ingresos >= 0) and (total_deducibles >= 0) and (total_anticipos >= 0))`.
+- **CHECK** `ck_liquidacion_montos`: `((total_litros >= 0) and (total_ingresos >= 0) and (total_deducibles >= 0))`.
 
 **Triggers:** `tr_aud_liquidacion_d`, `tr_aud_liquidacion_i`, `tr_aud_liquidacion_u`. Detalle en la sección «Triggers».
 
-### `tbl_anticipos`: Anticipos
+### `tbl_liquidacion_deducible`: Deducibles aplicados en cada liquidación
 
-Adelantos de dinero a los socios, que se descuentan de la liquidación de la quincena en que caen si están aprobados.
+Un renglón por cada deducible que se descontó en una liquidación, con su nombre, tipo, valor y monto al momento de liquidar. Es lo que imprime el recibo.
 
-**Origen:** Esquema base (con el trigger `tr_anticipos_before_insert`); restricciones de la 005.
+**Origen:** Migración 007.
 
 | Columna | Tipo | Nulos | Por defecto | Clave / restricción | Significado | Valores válidos |
 |---|---|---|---|---|---|---|
-| `id_anticipo` | `int` | No | — | PK | Identificador interno del anticipo. | Entero autoincremental. |
-| `id_socio` | `int` | No | — | FK → `tbl_socios.id_socio` | Socio que recibe el anticipo. | FK a `tbl_socios`. |
-| `monto` | `decimal(10,2)` | No | — | — | Valor del anticipo en pesos. | Decimal > 0. |
-| `fecha_anticipo` | `date` | No | — | — | Fecha del anticipo. Define en qué quincena se descuenta. | Fecha. |
-| `estado` | `enum('pendiente','aprobado','rechazado')` | No | `pendiente` | — | Si el anticipo se descuenta. Solo los `aprobado` restan en la liquidación. | `pendiente` (por defecto), `aprobado` o `rechazado`. |
-| `observaciones` | `text` | Sí | — | — | Notas libres sobre el anticipo. | Texto. |
-| `fecha_registro` | `timestamp` | No | `CURRENT_TIMESTAMP` | — | Momento en que se registró el anticipo (lo fija un trigger). | Fecha y hora. |
-| `usuario_registro` | `varchar(50)` | Sí | — | — | Quién lo registró. La aplicación escribe `admin`; si llega vacío, el trigger guarda el usuario de MySQL (`USER()`). No es una FK a `tbl_usuarios` (pendiente: bloque 3 de integridad). | Texto, hasta 50. |
+| `id_liquidacion_deducible` | `int` | No | — | PK | Identificador interno del renglón. | Entero autoincremental. |
+| `id_liquidacion` | `int` | No | — | FK → `tbl_liquidacion.id_liquidacion`, UNIQUE compuesto | Liquidación a la que pertenece el renglón. | FK a `tbl_liquidacion`; se borra en cascada con ella. |
+| `id_deducible` | `int` | No | — | FK → `tbl_deducibles.id_deducible`, UNIQUE compuesto | Deducible que se aplicó. | FK a `tbl_deducibles`; un renglón por deducible y liquidación. |
+| `nombre` | `varchar(60)` | No | — | — | Copia del nombre del deducible al liquidar. | Texto de 1 a 60 caracteres. |
+| `tipo_valor` | `enum('porcentaje','fijo')` | No | — | — | Copia del tipo del deducible al liquidar. | `porcentaje` o `fijo`. |
+| `valor` | `decimal(12,2)` | No | — | — | Copia del porcentaje o del valor fijo al liquidar. | Decimal ≥ 0. |
+| `monto` | `decimal(15,2)` | No | — | — | Pesos descontados por este deducible: el porcentaje sobre los ingresos (redondeado a 2 decimales) o el valor fijo. | Decimal ≥ 0. |
 
 **Restricciones e índices**
 
-- **FK** `fk_anticipos_socios`: `id_socio` → `tbl_socios.id_socio`, borrado `NO ACTION`.
-- **CHECK** `ck_anticipos_monto`: `(monto > 0)`.
-- **Índice** `idx_estado` (estado).
-- **Índice** `idx_estado_fecha` (estado, fecha_anticipo).
-- **Índice** `idx_fecha_anticipo` (fecha_anticipo).
-- **Índice** `idx_socio_fecha` (id_socio, fecha_anticipo).
-
-**Triggers:** `tr_anticipos_before_insert`, `tr_aud_anticipos_d`, `tr_aud_anticipos_i`, `tr_aud_anticipos_u`. Detalle en la sección «Triggers».
+- **UNIQUE** `uk_liqded_liquidacion_deducible` (id_liquidacion, id_deducible).
+- **FK** `fk_liqded_deducible`: `id_deducible` → `tbl_deducibles.id_deducible`, borrado `NO ACTION`.
+- **FK** `fk_liqded_liquidacion`: `id_liquidacion` → `tbl_liquidacion.id_liquidacion`, borrado `CASCADE`.
+- **CHECK** `ck_liqded_monto`: `(monto >= 0)`.
+- **Índice** `idx_liqded_deducible` (id_deducible).
 
 ### `tbl_usuarios`: Usuarios de la aplicación
 
@@ -272,7 +262,7 @@ Historial de INSERT, UPDATE y DELETE de las tablas de negocio, con el usuario, e
 |---|---|---|---|---|---|---|
 | `id_auditoria` | `bigint` | No | — | PK | Identificador interno del evento. | Entero grande autoincremental. |
 | `fecha` | `timestamp` | No | `CURRENT_TIMESTAMP` | — | Momento del cambio. | Fecha y hora. |
-| `tabla` | `varchar(40)` | No | — | — | Tabla donde ocurrió el cambio. | `tbl_liquidacion`, `tbl_anticipos`, `tbl_precios`, `tbl_deducibles`, `tbl_socios` o `tbl_recoleccion`. |
+| `tabla` | `varchar(40)` | No | — | — | Tabla donde ocurrió el cambio. | `tbl_liquidacion`, `tbl_precios`, `tbl_deducibles`, `tbl_socios` o `tbl_recoleccion` (y `tbl_anticipos`, solo en el historial anterior a la migración 006). |
 | `accion` | `enum('INSERT','UPDATE','DELETE')` | No | — | — | Tipo de cambio. | `INSERT`, `UPDATE` o `DELETE` (en `tbl_recoleccion` solo `UPDATE`). |
 | `id_registro` | `varchar(40)` | No | — | — | Clave primaria de la fila afectada, como texto. | Texto, hasta 40. |
 | `id_usuario` | `int` | Sí | — | — | Usuario de la aplicación que hizo el cambio. Nulo si fue el sistema. Sin FK, para conservar el historial si se borra el usuario. | Entero o nulo. |
@@ -291,22 +281,24 @@ Historial de INSERT, UPDATE y DELETE de las tablas de negocio, con el usuario, e
 
 | Vista | Qué muestra | Origen | Quién la usa |
 |---|---|---|---|
-| `v_anticipos_completos` | Cada anticipo con los datos del socio (`nombre_socio`, `identificacion`, `telefono`, `vinculacion`), solo de socios `activo`, del más reciente al más antiguo por `fecha_registro`. | Esquema base | No la consume la aplicación hoy (el código consulta `tbl_anticipos` directamente). |
 | `v_auditoria` | `tbl_auditoria` con el `username` del usuario (`LEFT JOIN` a `tbl_usuarios`). Conserva los eventos de usuarios ya borrados, con `username` nulo. | Migración 004 | Consulta manual por SQL; falta una pantalla (pendiente en el plan). |
+
+La vista `v_anticipos_completos` se eliminó con el módulo de anticipos (migración 006).
 
 ## Procedimientos y funciones
 
 | Nombre | Parámetros | Qué hace | Uso |
 |---|---|---|---|
 | `spCrearEventoRecoleccion` | `p_nombre_evento VARCHAR(50)`, `p_fecha DATE` | Solo actúa si el evento es `recoleccion`. Si no hay registros para esa fecha, crea uno por cada socio `activo`, con `litros_leche = 0` y estado `sin confirmar`. Devuelve `resultado` (`TRUE` creado o ya existía, `FALSE` evento distinto). | Producción: lo llama la pantalla de calendario (`src/modelos/calendario.modelo.php`). |
-| `spProcesarLiquidacionQuincenal` | `p_evento VARCHAR(50)`, `p_fecha_liquidacion DATE` | Solo actúa si el evento es `liquidacion`. Si ya hay liquidación en esa fecha, no hace nada. Exige que la fecha sea día 15 o último del mes; que cada día de la quincena tenga al menos un registro `confirmado`; y que no queden registros `sin confirmar`. Si cumple, en una transacción: (1) inserta en `tbl_produccion` la suma de litros confirmados por socio `activo`; (2) inserta en `tbl_liquidacion`, en estado `pre-liquidacion`, el cálculo con el precio y el deducible `activo` de su vinculación y los anticipos `aprobado` de la quincena. Si algo falla, revierte. Los errores de validación salen como `SQLSTATE 45000` con un mensaje en español. | Producción: lo llama la pantalla de calendario. **Nota:** si una vinculación no tiene precio o deducible `activo`, sus socios se omiten sin aviso (por eso existe la migración 003). |
-| `sp_total_anticipos_socio` | `p_id_socio INT`, `p_fecha_inicio DATE`, `p_fecha_fin DATE` | Devuelve los totales de anticipos de un socio en un rango, separados en `total_aprobado`, `total_pendiente` y `total_rechazado`. | Consulta manual; la aplicación no la usa hoy. |
+| `spProcesarLiquidacionQuincenal` | `p_evento VARCHAR(50)`, `p_fecha_liquidacion DATE` | Solo actúa si el evento es `liquidacion`. Si ya hay liquidación en esa fecha, no hace nada. Exige que la fecha sea día 15 o último del mes; que cada día de la quincena tenga al menos un registro `confirmado`; y que no queden registros `sin confirmar`. Si cumple, en una transacción: (1) inserta en `tbl_produccion` la suma de litros confirmados por socio `activo`; (2) inserta en `tbl_liquidacion`, en estado `pre-liquidacion`, el cálculo con el precio `activo` de su vinculación y la suma de sus deducibles `activo`; (3) inserta en `tbl_liquidacion_deducible` un renglón por cada deducible aplicado. Si algo falla, revierte. Los errores de validación salen como `SQLSTATE 45000` con un mensaje en español. | Producción: lo llama la pantalla de calendario. **Nota:** si una vinculación no tiene precio `activo`, sus socios se omiten sin aviso (la aplicación lo comprueba antes de liquidar). Una vinculación sin deducibles activos se liquida sin descuentos. |
 | `spInsertIntoRecoleccion` | ninguno | Recorre los días del 2025-01-01 al 2026-08-26 (fechas fijas en el código), inserta recolección `confirmado` para todos los socios con litros aleatorios y llama a la liquidación los días 15 y último de cada mes. | **Solo demo.** No ejecutar en producción: sus fechas están fijas. |
 | `generar_litros_leche` (función) | `fecha DATE`, `id_socio INT` → `decimal(10,2)` | Devuelve litros simulados: base de 50 a 70 según el socio, más una variación aleatoria por temporada, con mínimo de 30. | **Solo demo.** Usa `RAND()`, así que no es repetible. |
 
+El procedimiento `sp_total_anticipos_socio` se eliminó con el módulo de anticipos (migración 006).
+
 ## Triggers
 
-Son 24. Los de validación dan un error `SQLSTATE 45000` con un mensaje en español; los de auditoría escriben en `tbl_auditoria` con el usuario y el origen que la aplicación deja en las variables de sesión `@colfe_usuario` y `@colfe_origen` (`src/modelos/conexion.php`).
+Son 20. Los de validación dan un error `SQLSTATE 45000` con un mensaje en español; los de auditoría escriben en `tbl_auditoria` con el usuario y el origen que la aplicación deja en las variables de sesión `@colfe_usuario` y `@colfe_origen` (`src/modelos/conexion.php`).
 
 | Trigger | Tabla | Momento | Qué hace |
 |---|---|---|---|
@@ -314,31 +306,34 @@ Son 24. Los de validación dan un error `SQLSTATE 45000` con un mensaje en espa�
 | `before_update_recoleccion` | `tbl_recoleccion` | antes de UPDATE | Igual, al cambiar socio o fecha. |
 | `before_insert_precios` | `tbl_precios` | antes de INSERT | Rechaza un precio `activo` si ya hay otro `activo` para la misma vinculación. |
 | `before_update_precios` | `tbl_precios` | antes de UPDATE | Igual, al activar o cambiar la vinculación. |
-| `before_insert_deducibles` | `tbl_deducibles` | antes de INSERT | Rechaza un conjunto `activo` si ya hay otro `activo` para la misma vinculación. |
-| `before_update_deducibles` | `tbl_deducibles` | antes de UPDATE | Igual, al activar o cambiar la vinculación. |
+| `before_insert_deducibles` | `tbl_deducibles` | antes de INSERT | Rechaza un deducible `activo` si ya hay otro `activo` con el mismo nombre para la misma vinculación. |
+| `before_update_deducibles` | `tbl_deducibles` | antes de UPDATE | Igual, al activar o cambiar el nombre o la vinculación. |
 | `before_insert_usuario` | `tbl_usuarios` | antes de INSERT | Rechaza un `username` repetido («El nombre de usuario ya está registrado»). La restricción `UNIQUE` lo respalda. |
-| `tr_anticipos_before_insert` | `tbl_anticipos` | antes de INSERT | Fija `fecha_registro = NOW()` y, si `usuario_registro` viene vacío, lo llena con el usuario de MySQL (`USER()`). |
 | `tr_aud_liquidacion_i`, `_u`, `_d` | `tbl_liquidacion` | después de INSERT, UPDATE y DELETE | Registran el cambio en `tbl_auditoria`. El UPDATE solo registra si algún valor cambió. |
-| `tr_aud_anticipos_i`, `_u`, `_d` | `tbl_anticipos` | después de INSERT, UPDATE y DELETE | Ídem. |
 | `tr_aud_precios_i`, `_u`, `_d` | `tbl_precios` | después de INSERT, UPDATE y DELETE | Ídem. |
 | `tr_aud_deducibles_i`, `_u`, `_d` | `tbl_deducibles` | después de INSERT, UPDATE y DELETE | Ídem. |
 | `tr_aud_socios_i`, `_u`, `_d` | `tbl_socios` | después de INSERT, UPDATE y DELETE | Ídem. |
 | `tr_aud_recoleccion_u` | `tbl_recoleccion` | después de UPDATE | Registra solo las ediciones (no cada alta diaria, que serían miles de eventos). |
 
+Los triggers de `tbl_anticipos` (cuatro) se eliminaron con el módulo de anticipos (migración 006).
+
 ## Definiciones confirmadas
 
-Edgar confirmó el 8 oct 2026 las definiciones que el código no permitía afirmar. No queda ninguna marca `[por confirmar]`.
+Edgar confirmó definiciones que el código no permitía afirmar. No queda ninguna marca `[por confirmar]`.
 
 - **Precio:** base, en pesos por litro, con historial por fechas.
-- **`administracion` y `ahorro`:** valores fijos por socio en cada liquidación.
-- **`fedegan`:** porcentaje sobre los ingresos, correspondiente a una contribución parafiscal.
+- **Fedegán:** porcentaje sobre los ingresos, correspondiente a una contribución parafiscal.
+- **Administración:** valor fijo por socio en cada liquidación.
 
-## Reglas de negocio acordadas y aún no implementadas
+## Decisiones de COLFE del 9 oct 2026
 
-El esquema actual no las cumple todavía. El modelo resultante está en el diagrama [`diagramas/er-colfe-objetivo.html`](diagramas/er-colfe-objetivo.html) (propuesto); el modelo actual, en [`diagramas/er-colfe.html`](diagramas/er-colfe.html). Están en el plan (Fase 5.2) y se documentarán en `LIQUIDACION.md` (4.2):
+Cambiaron el modelo y ya están construidas (migraciones 006 y 007):
 
-- **Precios con vigencia:** `tbl_precios` como historial con `fecha_inicio` y `fecha_fin` (vacía = abierto), sin solapes por vinculación.
-- **Liquidación fija o variable:** el administrador elige al liquidar. *Fija:* toda la quincena con el precio vigente en la fecha de cierre. *Variable:* cada día con el precio que regía ese día. Se guarda en `tbl_liquidacion`, con el desglose por tramos en una columna JSON; se puede reliquidar con el otro tipo mientras la liquidación no esté cerrada. Ejemplo numérico: [`ejemplos/ejemplo_liquidacion_fija_vs_variable.xlsx`](ejemplos/ejemplo_liquidacion_fija_vs_variable.xlsx).
-- **Saldo negativo de anticipos:** si los anticipos superan el pago de la quincena, el saldo se arrastra como descuento a la siguiente quincena. Hoy el neto puede salir negativo y no se arrastra. *Propuesta:* una columna de saldo previo en `tbl_liquidacion`; `tbl_anticipos` gana `id_liquidacion` (la liquidación que lo descontó) e `id_usuario` (llave foránea a `tbl_usuarios`, en lugar del texto `usuario_registro`). Decisión de Edgar: se conserva `tbl_anticipos`, sin un libro de movimientos único.
-- **Ahorro como garantía:** un registro del ahorro de cada socio (con los saldos que ya tenía antes del sistema), para descontar de él los anticipos pendientes si el socio se retira. *Propuesta:* una tabla nueva `tbl_ahorros` de movimientos (saldo inicial, aporte por liquidación, retiro y cruce de deuda); el saldo es la suma. La estructura exacta está por definir.
-- **Tope de los anticipos:** se aprueba un anticipo si cabe en el neto estimado de la quincena **o** en el ahorro del socio; basta con cubrir uno de los dos.
+- **Anticipos retirados:** se eliminó el módulo completo (tabla, pantalla, procedimiento, vista y triggers) y el descuento en la liquidación. El neto es ingresos − deducibles.
+- **Ahorro retirado:** ya no hay descuento de ahorro ni registro de ahorros.
+- **Liquidación solo fija:** toda la quincena con el precio vigente en la fecha de cierre; no hay liquidación variable.
+- **Deducibles uno por fila:** se puede crear cualquier deducible nuevo (nombre, porcentaje o valor fijo, por vinculación) sin cambiar el esquema, y el recibo lista cada uno.
+
+## Reglas acordadas aún no construidas
+
+- **Precios con vigencia:** `tbl_precios` como historial con `fecha_inicio` y `fecha_fin` (vacía = abierto), sin solapes por vinculación. La liquidación usará el precio que rige en la fecha de cierre de la quincena. Modelo propuesto en [`diagramas/er-colfe-objetivo.html`](diagramas/er-colfe-objetivo.html); el modelo actual, en [`diagramas/er-colfe.html`](diagramas/er-colfe.html).
