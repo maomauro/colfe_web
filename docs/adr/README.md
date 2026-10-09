@@ -14,12 +14,13 @@ Cada archivo registra **una decisión**: por qué se tomó, qué implica y qué 
 | [0008](0008-flujo-de-ramas-feature-develop-main.md) | Flujo de ramas feature → develop → main | Aceptada (8 oct 2026) |
 | [0009](0009-php-81-y-desarrollo-con-docker.md) | La aplicación soporta PHP 8.1+; las imágenes usan 8.4 y el desarrollo se hace con Docker | Aceptada (decisión D3, 3 oct 2026) |
 | [0010](0010-repositorio-publico.md) | El repositorio es público | Aceptada (decisión D4, 3 oct 2026) |
-| [0011](0011-precios-con-vigencia-y-liquidacion-fija-o-variable.md) | Precios con vigencia y liquidación fija o variable | Aceptada, pendiente de construir (8 oct 2026) |
-| [0012](0012-anticipos-arrastre-de-saldo-y-ahorro-como-garantia.md) | Anticipos: arrastre de saldo negativo, ahorro como garantía y tope | Aceptada, pendiente de construir (8 oct 2026) |
+| [0011](0011-precios-con-vigencia.md) | Precios con vigencia, sin solapes | Aceptada, pendiente de construir (8 oct 2026) |
+| [0012](0012-retirar-anticipos-y-ahorro-liquidacion-solo-fija.md) | Retirar anticipos y ahorro; liquidación solo fija | Aceptada y construida (9 oct 2026, migraciones 006 y 007) |
+| [0013](0013-deducibles-uno-por-fila.md) | Deducibles uno por fila | Aceptada y construida (9 oct 2026, migración 007) |
 
 ## Cómo agregar una decisión
 
-1. Copiar el último archivo, numerarlo (`0013-…`) y llenar contexto, decisión, consecuencias y alternativas.
+1. Copiar el último archivo, numerarlo (`0014-…`) y llenar contexto, decisión, consecuencias y alternativas.
 2. Agregar su fila a esta tabla.
 3. Si una decisión reemplaza a otra, cambiar el estado de la anterior a «Reemplazada por ADR NNNN»; no se borra.
 
