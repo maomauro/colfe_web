@@ -121,7 +121,7 @@ final class AuditoriaTest extends BaseDeDatosTestCase
     public function testLosPreciosYDeduciblesSeAuditan(): void
     {
         $_SESSION['id_usuario'] = self::$usuario;
-        $idPrecio = (int)self::valor("SELECT id_precio FROM tbl_precios WHERE estado='activo' AND vinculacion='proveedor'");
+        $idPrecio = (int)self::valor("SELECT id_precio FROM tbl_precios WHERE fecha_fin IS NULL AND vinculacion='proveedor'");
         $original = (float)self::valor("SELECT precio FROM tbl_precios WHERE id_precio = ?", [$idPrecio]);
         try {
             self::ejecutar("UPDATE tbl_precios SET precio = ? WHERE id_precio = ?", [$original + 10, $idPrecio]);

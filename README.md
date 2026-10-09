@@ -101,6 +101,8 @@ Para empezar de cero: `docker compose down -v`.
    mysql -u root -p colfe_db < db/migraciones/006_retirar_anticipos.sql
    # Deducibles uno por fila y retiro del ahorro (borra los datos de ahorro; haga un respaldo antes)
    mysql -u root -p colfe_db < db/migraciones/007_deducibles_por_fila.sql
+   # Precios con vigencia (fecha de inicio y de fin, sin solapes); falla si hay precios inactivos
+   mysql -u root -p colfe_db < db/migraciones/008_precios_con_vigencia.sql
 
    # Crear el usuario administrador (la migración 002 elimina admin/admin y user/12345)
    COLFE_CLAVE='una-clave-larga-con-numeros-123' php db/tools/crear_usuario.php admin

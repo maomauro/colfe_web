@@ -46,13 +46,18 @@ abstract class BaseDeDatosTestCase extends TestCase
 
     /**
      * Calcula, sin usar el procedimiento almacenado, lo que debe resultar de liquidar la quincena:
-     * una fila por socio activo con recolección confirmada, con el precio y los deducibles activos de su vinculación.
+     * una fila por socio activo con recolección confirmada, con el precio vigente en la fecha y los deducibles activos de su vinculación.
      * @return array<int,array<string,float|string|int>> indexado por id_socio
      */
     protected static function esperadoQuincena(string $fechaLiquidacion): array
     {
         [$ini, $fin] = self::rangoQuincena($fechaLiquidacion);
-        $precios = array_column(self::filas("SELECT vinculacion, precio FROM tbl_precios WHERE estado='activo'"), 'precio', 'vinculacion');
+        // El precio que cuenta es el vigente en la fecha de cierre de la quincena
+        $precios = array_column(self::filas(
+            "SELECT vinculacion, precio FROM tbl_precios
+              WHERE fecha_inicio <= :f AND (fecha_fin IS NULL OR fecha_fin >= :f2)",
+            [':f' => $fechaLiquidacion, ':f2' => $fechaLiquidacion]
+        ), 'precio', 'vinculacion');
         $deds = [];   // vinculación => [[tipo_valor, valor], ...]
         foreach (self::filas("SELECT vinculacion, tipo_valor, valor FROM tbl_deducibles WHERE estado='activo'") as $d) {
             $deds[$d['vinculacion']][] = [$d['tipo_valor'], (float)$d['valor']];

@@ -47,6 +47,23 @@ final class ConsistenciaLiquidacionTest extends BaseDeDatosTestCase
         $this->assertSame(0, (int)$n);
     }
 
+    public function testElPrecioDeCadaLiquidacionRegiaEnSuFechaDeCierre(): void
+    {
+        $n = self::valor("SELECT COUNT(*) FROM tbl_liquidacion l JOIN tbl_precios p ON p.id_precio = l.id_precio
+                           WHERE NOT (p.fecha_inicio <= l.fecha_liquidacion
+                                      AND (p.fecha_fin IS NULL OR p.fecha_fin >= l.fecha_liquidacion))");
+        $this->assertSame(0, (int)$n);
+    }
+
+    public function testLosRangosDePreciosDeUnaVinculacionNoSeSolapan(): void
+    {
+        $n = self::valor("SELECT COUNT(*) FROM tbl_precios a JOIN tbl_precios b
+                             ON a.vinculacion = b.vinculacion AND a.id_precio < b.id_precio
+                            AND a.fecha_inicio <= COALESCE(b.fecha_fin, '9999-12-31')
+                            AND COALESCE(a.fecha_fin, '9999-12-31') >= b.fecha_inicio");
+        $this->assertSame(0, (int)$n);
+    }
+
     public function testElPrecioGuardadoEsElDeSuTarifa(): void
     {
         $n = self::valor("SELECT COUNT(*) FROM tbl_liquidacion l JOIN tbl_precios p ON p.id_precio = l.id_precio
@@ -92,10 +109,10 @@ final class ConsistenciaLiquidacionTest extends BaseDeDatosTestCase
                            JOIN tbl_socios s ON s.id_socio = p.id_socio AND s.estado = 'activo'
                            LEFT JOIN tbl_liquidacion l ON l.id_produccion = p.id_produccion
                           WHERE l.id_liquidacion IS NULL");
-        $this->assertSame(0, (int)$n, "producciones de socios activos sin liquidación (¿precio inactivo?)");
+        $this->assertSame(0, (int)$n, "producciones de socios activos sin liquidación (¿faltó un precio vigente en esa fecha?)");
     }
 
-    public function testCadaVinculacionActivaTienePrecioActivo(): void
+    public function testCadaVinculacionActivaTienePrecioVigenteHoy(): void
     {
         $this->assertSame([], ModeloCalendario::mdlVinculacionesSinTarifa());
     }

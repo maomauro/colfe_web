@@ -1,50 +1,81 @@
 <?php
+
 require_once __DIR__ . '/../modelos/precios.modelo.php';
 
 class ControladorPrecios
 {
+
+	/*=============================================
+	DATOS DE UN FORMULARIO DE PRECIO
+	Devuelve [precio, fecha_inicio, fecha_fin|null] o null si algo no es válido.
+	La fecha de fin es opcional: vacía significa un precio abierto.
+	=============================================*/
+	static private function datosPrecio($precio, $inicio, $fin)
+	{
+		if (!preg_match('/^\d+(\.\d{1,2})?$/', (string)$precio) || (float)$precio <= 0) {
+			return null;
+		}
+		$fechaValida = function ($f) {
+			$d = DateTime::createFromFormat('Y-m-d', (string)$f);
+			return $d && $d->format('Y-m-d') === $f;
+		};
+		if (!$fechaValida($inicio)) {
+			return null;
+		}
+		$fin = trim((string)$fin);
+		if ($fin === '') {
+			return array($precio, $inicio, null);
+		}
+		if (!$fechaValida($fin) || $fin < $inicio) {
+			return null;
+		}
+		return array($precio, $inicio, $fin);
+	}
+
+	static private function alerta($tipo, $titulo, $texto = "")
+	{
+		echo '<script>
+			swal({
+				type: "' . $tipo . '",
+				title: "' . $titulo . '",' . ($texto !== "" ? '
+				text: "' . $texto . '",' : '') . '
+				showConfirmButton: true,
+				confirmButtonText: "Cerrar"
+			}).then(function(result){
+				if(result.value){
+					window.location = "precios";
+				}
+			});
+		</script>';
+	}
+
 	/*=============================================
 	REGISTRO DE PRECIOS
 	=============================================*/
 	static public function ctrCrearPrecio()
 	{
 		if (isset($_POST["nuevoPrecio"])) {
-			if (preg_match('/^\d+(\.\d{1,2})?$/', $_POST["nuevoPrecio"])) {
-				$tabla = "tbl_precios";
-                $datos = array(
-                    "vinculacion" => $_POST["nuevoVinculacionPrecio"],
-                    "precio" => $_POST["nuevoPrecio"],
-                    "fecha" => date('Y-m-d'), // Ejemplo: 2025-05-21
-                    "estado" => "activo"
-                );
-				$respuesta = ModeloPrecios::mdlCrearPrecio($tabla, $datos);
-                if ($respuesta == "ok") {
-                    echo '<script>
-                    swal({
-                        type: "success",
-                        title: "¡El precio ha sido guardado correctamente!",
-                        showConfirmButton: true,
-                        confirmButtonText: "Cerrar"
-                    }).then(function(result){
-                        if(result.value){
-                            window.location = "precios";
-                        }
-                    });
-                    </script>';
-                }
+			$d = self::datosPrecio(
+				$_POST["nuevoPrecio"],
+				isset($_POST["nuevoInicio"]) ? $_POST["nuevoInicio"] : '',
+				isset($_POST["nuevoFin"]) ? $_POST["nuevoFin"] : ''
+			);
+			if ($d === null || !in_array($_POST["nuevoVinculacionPrecio"], array("asociado", "proveedor"), true)) {
+				self::alerta("error", "¡Revisa los datos: el precio debe ser mayor que 0 y la fecha de fin no puede ser anterior a la de inicio!");
+				return;
+			}
+			$respuesta = ModeloPrecios::mdlCrearPrecio(array(
+				"vinculacion" => $_POST["nuevoVinculacionPrecio"],
+				"precio" => $d[0],
+				"fecha_inicio" => $d[1],
+				"fecha_fin" => $d[2]
+			));
+			if ($respuesta == "ok") {
+				self::alerta("success", "¡El precio ha sido guardado correctamente!", "Si había un precio abierto para esta vinculación, se cerró el día anterior al inicio del nuevo.");
+			} elseif ($respuesta == "solape") {
+				self::alerta("error", "¡El rango de fechas se solapa con otro precio de esta vinculación!");
 			} else {
-				echo '<script>
-					swal({
-						type: "error",
-						title: "¡El valor precio no puede ir vacío!",
-						showConfirmButton: true,
-						confirmButtonText: "Cerrar"
-					}).then(function(result){
-						if(result.value){
-							window.location = "precios";
-						}
-					});
-				</script>';
+				self::alerta("error", "No se pudo guardar el precio");
 			}
 		}
 	}
@@ -55,7 +86,7 @@ class ControladorPrecios
 	static public function ctrMostrarPrecio($item, $valor)
 	{
 		$tabla = "tbl_precios";
-        $respuesta = ModeloPrecios::mdlMostrarPrecios($tabla, $item, $valor);
+		$respuesta = ModeloPrecios::mdlMostrarPrecios($tabla, $item, $valor);
 		return $respuesta;
 	}
 
@@ -65,57 +96,27 @@ class ControladorPrecios
 	static public function ctrEditarPrecio()
 	{
 		if (isset($_POST["idPrecio"])) {
-			if (preg_match('/^\d+(\.\d{1,2})?$/', $_POST["editarPrecio"]))
-			{
-				$tabla = "tbl_precios";
-                $datos = array(
-                    "id_precio" => $_POST["idPrecio"],
-                    "precio" => $_POST["editarPrecio"]
-                );
-
-				$respuesta = ModeloPrecios::mdlEditarPrecio($tabla, $datos);
-
-				if ($respuesta == "ok") {
-					echo '<script>
-					swal({
-						  type: "success",
-						  title: "El precio ha sido editado correctamente",
-						  showConfirmButton: true,
-						  confirmButtonText: "Cerrar"
-						  }).then(function(result){
-                                if (result.value) {
-                                window.location = "precios";
-                                }
-                            })
-					</script>';
-				} elseif ($respuesta == "duplicado") {
-					echo '<script>
-						swal({
-							type: "error",
-							title: "¡El presio ya existe para esta vinculación!",
-							showConfirmButton: true,
-							confirmButtonText: "Cerrar"
-						}).then(function(result){
-							if(result.value){
-								window.location = "deducibles";
-							}
-						});
-					</script>';
-				}
+			$d = self::datosPrecio(
+				isset($_POST["editarPrecio"]) ? $_POST["editarPrecio"] : '',
+				isset($_POST["editarInicio"]) ? $_POST["editarInicio"] : '',
+				isset($_POST["editarFin"]) ? $_POST["editarFin"] : ''
+			);
+			if ($d === null) {
+				self::alerta("error", "¡Revisa los datos: el precio debe ser mayor que 0 y la fecha de fin no puede ser anterior a la de inicio!");
+				return;
+			}
+			$respuesta = ModeloPrecios::mdlEditarPrecio("tbl_precios", array(
+				"id_precio" => $_POST["idPrecio"],
+				"precio" => $d[0],
+				"fecha_inicio" => $d[1],
+				"fecha_fin" => $d[2]
+			));
+			if ($respuesta == "ok") {
+				self::alerta("success", "El precio ha sido editado correctamente");
+			} elseif ($respuesta == "solape") {
+				self::alerta("error", "¡El rango de fechas se solapa con otro precio de esta vinculación!");
 			} else {
-				echo '<script>
-					swal({
-						  type: "error",
-						  title: "¡El valor precio no puede ir vacío!",
-						  showConfirmButton: true,
-						  confirmButtonText: "Cerrar"
-						  }).then(function(result){
-							if (result.value) {
-							    window.location = "precios";
-							}
-						})
-
-			  	</script>';
+				self::alerta("error", "No se pudo editar el precio");
 			}
 		}
 	}
@@ -125,37 +126,16 @@ class ControladorPrecios
 	=============================================*/
 	static public function ctrBorrarPrecio()
 	{
-		if (isset($_POST["idPrecio"])) {
-			$tabla = "tbl_precios";
-			$datos = $_POST["idPrecio"];
-
-			$respuesta = ModeloPrecios::mdlBorrarPrecio($tabla, $datos);
-
+		// Variable propia: el formulario de edición también envía idPrecio y no debe borrar
+		if (isset($_POST["borrarPrecio"])) {
+			$respuesta = ModeloPrecios::mdlBorrarPrecio("tbl_precios", $_POST["borrarPrecio"]);
 			if ($respuesta == "ok") {
-				echo '<script>
-				    swal({
-					  type: "success",
-					  title: "El precio ha sido borrado correctamente",
-					  showConfirmButton: true,
-					  confirmButtonText: "Cerrar"
-					  }).then(function(result){
-								if (result.value) {
-								    window.location = "precios";
-								}
-							})
-				    </script>';
+				self::alerta("success", "El precio ha sido borrado correctamente");
+			} elseif ($respuesta == "usado") {
+				self::alerta("error", "No se puede borrar: el precio ya se usó en liquidaciones", "Para dejar de aplicarlo, ciérralo con una fecha de fin.");
+			} else {
+				self::alerta("error", "No se pudo borrar el precio");
 			}
 		}
 	}
-
-    /*=============================================
-	VALIDAR NO REPETIR PRECIO
-	=============================================*/
-	static public function ctrValidarPrecio($item, $valor)
-	{
-		$tabla = "tbl_precios";
-        $respuesta = ModeloPrecios::mdlValidarPrecio($tabla, $item, $valor);
-		return $respuesta;
-	}
-
 }

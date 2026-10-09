@@ -1,85 +1,38 @@
 <?php
-
 require_once __DIR__ . '/../../src/bootstrap.php';
 require_once __DIR__ . '/../../src/auth/guard.php';
 guardSesion();
+
 require_once __DIR__ . '/../../src/controladores/precios.controlador.php';
 require_once __DIR__ . '/../../src/modelos/precios.modelo.php';
 
 class AjaxPrecios{
 
 	/*=============================================
-	EDITAR PRECIO
-	=============================================*/	
+	EDITAR PRECIO (trae los datos al formulario)
+	=============================================*/
 	public $idPrecio;
-    public function ajaxEditarPrecio(){
-        $item = "id_precio";
-        $valor = $this->idPrecio;
 
-        $respuesta = ControladorPrecios::ctrMostrarPrecio($item, $valor);
+	public function ajaxEditarPrecio(){
 
-        echo json_encode($respuesta);
-    }
+		$item = "id_precio";
+		$valor = $this->idPrecio;
 
-	/*=============================================
-	ACTIVAR DEDUCIBLE
-	=============================================*/	
-	public $activarPrecio;
-	public $activarId;
-
-	public function ajaxActivarPrecio(){
-
-		$tabla = "tbl_precios";
-
-		$item1 = "estado";
-		$valor1 = $this->activarPrecio;
-
-		$item2 = "id_precio";
-		$valor2 = $this->activarId;
-
-		$respuesta = ModeloPrecios::mdlActualizarPrecio($tabla, $item1, $valor1, $item2, $valor2);
-		echo json_encode($respuesta);
-	}
-
-	/*=============================================
-	VALIDAR NO REPETIR PRECIO
-	=============================================*/	
-	public $validarVinculacionPrecio;
-
-	public function ajaxValidarPrecio(){
-		$item = "vinculacion";
-		$valor = $this->validarVinculacionPrecio;
-		$respuesta = ControladorPrecios::ctrValidarPrecio($item, $valor);
+		$respuesta = ControladorPrecios::ctrMostrarPrecio($item, $valor);
 
 		echo json_encode($respuesta);
 
 	}
+
 }
 
 /*=============================================
 EDITAR PRECIO
 =============================================*/
 if(isset($_POST["idPrecio"])){
-    $editar = new AjaxPrecios();
-    $editar -> idPrecio = $_POST["idPrecio"];
-    $editar -> ajaxEditarPrecio();
-}
 
-/*=============================================
-ACTIVAR PRECIO
-=============================================*/	
-if(isset($_POST["activarPrecio"])){
-    $activarPrecio = new AjaxPrecios();
-    $activarPrecio -> activarPrecio = $_POST["activarPrecio"];
-    $activarPrecio -> activarId = $_POST["activarId"];
-    $activarPrecio -> ajaxActivarPrecio();
-}
+	$editar = new AjaxPrecios();
+	$editar -> idPrecio = $_POST["idPrecio"];
+	$editar -> ajaxEditarPrecio();
 
-/*=============================================
-VALIDAR NO REPETIR PRECIO
-=============================================*/
-if(isset( $_POST["validarVinculacionPrecio"])){
-	$valPrecio = new AjaxPrecios();
-    $valPrecio -> validarVinculacionPrecio = $_POST["validarVinculacionPrecio"];
-    $valPrecio -> ajaxValidarPrecio();
 }
