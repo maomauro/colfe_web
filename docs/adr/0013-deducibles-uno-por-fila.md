@@ -21,8 +21,9 @@
 - Los datos existentes se convirtieron: cada fila vieja pasó a «Fedegán» y la administración se separó en «Administración» (solo asociados). Las liquidaciones existentes tienen su detalle.
 - Una vinculación sin deducibles activos se liquida sin descuentos; ya no se exige un deducible para liquidar.
 - Se corrigió un defecto previo: el formulario de edición también disparaba el borrado porque ambos usaban el mismo campo.
+- **Relación con los socios:** no hay llave foránea entre socio y deducible. Los deducibles se aplican por vinculación (todos los `activo` de la vinculación del socio). La tabla `tbl_liquidacion_deducible` es la relación muchos a muchos entre liquidación y deducible y guarda el histórico de lo aplicado; Edgar decidió mantenerla (9 oct 2026) frente a las alternativas de una columna JSON o de guardar solo el total.
 - Detalle del modelo en el [diccionario de datos](../DICCIONARIO_DATOS.md).
 
 ## Alternativas consideradas
 
-Conservar las columnas fijas y añadir una por cada deducible nuevo: obliga a cambiar el esquema, las pantallas y el recibo cada vez.
+Conservar las columnas fijas y añadir una por cada deducible nuevo: obliga a cambiar el esquema, las pantallas y el recibo cada vez. Guardar el desglose como JSON dentro de `tbl_liquidacion` o solo el total: se descartaron porque el JSON se consulta peor y no tiene integridad referencial, y solo el total pierde el histórico y el renglón por deducible del recibo.
