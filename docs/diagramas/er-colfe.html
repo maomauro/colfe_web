@@ -5233,8 +5233,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <text data-detail="context" x="740" y="533" class="t-muted" font-size="9" text-anchor="middle">detalle por deducible</text>
         </g>
 
-        <g id="node-precios" data-node-id="precios" data-node-label="tbl_precios" tabindex="0" role="button" aria-label="Focus tbl_precios, PK id_precio · por vinculacion, Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="PK id_precio · por vinculacion" data-node-context="Dominio de liquidación lechera">
-          <title>tbl_precios · PK id_precio · por vinculacion · Dominio de liquidación lechera</title>
+        <g id="node-precios" data-node-id="precios" data-node-label="tbl_precios" tabindex="0" role="button" aria-label="Focus tbl_precios, historial: fecha_inicio, fecha_fin, Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="historial: fecha_inicio, fecha_fin" data-node-context="Dominio de liquidación lechera">
+          <title>tbl_precios · historial: fecha_inicio, fecha_fin · Dominio de liquidación lechera</title>
           <rect x="400" y="685" width="200" height="78" rx="6" class="c-mask"/>
           <rect x="400" y="685" width="200" height="78" rx="6" class="c-database" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(406 691) scale(0.6875)">
@@ -5242,7 +5242,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="500" y="722" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">tbl_precios</text>
-        <text data-detail="context" x="500" y="738" class="t-muted" font-size="9" text-anchor="middle">PK id_precio · por vinculacion</text>
+        <text data-detail="context" x="500" y="738" class="t-muted" font-size="9" text-anchor="middle">historial: fecha_inicio, fecha_fin</text>
         </g>
 
         <g id="node-deducibles" data-node-id="deducibles" data-node-label="tbl_deducibles" tabindex="0" role="button" aria-label="Focus tbl_deducibles, nombre · tipo · valor, Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="nombre · tipo · valor" data-node-context="Dominio de liquidación lechera">
@@ -5564,7 +5564,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <h3>Brechas del modelo</h3>
         </div>
         <ul>
-          <li>&bull; Precio activo único: solo triggers</li>
+          <li>&bull; Precios sin solape: solo un trigger</li>
           <li>&bull; Charset mixto utf8mb3 y utf8mb4</li>
           <li>&bull; Sin CHECK de quincena</li>
         </ul>
@@ -5576,8 +5576,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <h3>Pendiente</h3>
         </div>
         <ul>
-          <li>&bull; Precios con vigencia (inicio y fin)</li>
           <li>&bull; Liquidaciones cerradas sin protección</li>
+          <li>&bull; Charset de las tablas viejas</li>
           <li>&bull; Sin FK: login_intentos y auditoria</li>
         </ul>
       </div>

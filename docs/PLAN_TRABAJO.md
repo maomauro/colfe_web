@@ -212,11 +212,11 @@ Todo en `docs/`, con un índice `docs/README.md`. Tamaño: **S** pequeño · **M
 - [ ] **P2 · S · C** Agregar `limit_req` al login en nginx (el comentario `DEBUG` de `anticipos.php` desapareció con el módulo)
 
 ### 5.2 Datos
-- [ ] **P1 · L · E+C** Precios con vigencia: `tbl_precios` como historial con `fecha_inicio` y `fecha_fin` (vacía = abierto), sin solapes por vinculación (trigger). Reemplaza la regla «un solo precio activo» del bloque 2 para los precios. La liquidación usa el precio vigente en la fecha de cierre de la quincena. Modelo propuesto en `docs/diagramas/er-colfe-objetivo.html`
+- [x] **P1 · L · E+C** Precios con vigencia (decisión de COLFE, 9 oct 2026) — migración 008: `tbl_precios` como historial con `fecha_inicio` y `fecha_fin` (vacía = abierto), sin solapes por vinculación (trigger), sin campo `estado`; `spCrearPrecio` cierra el abierto anterior; la liquidación usa el precio vigente en la fecha de cierre; pantalla de precios con desde, hasta y situación
 - [x] **P1 · M · C** Retirar el módulo de anticipos (decisión de COLFE, 9 oct 2026) — migración 006: tabla, pantalla, API interna, vista, procedimiento y triggers; el neto es ingresos − deducibles
 - [x] **P1 · L · C** Deducibles uno por fila y retiro del ahorro (decisión de COLFE, 9 oct 2026) — migración 007: `tbl_deducibles` (nombre, porcentaje o valor fijo, por vinculación) y `tbl_liquidacion_deducible` (detalle por liquidación); recibo con un renglón por deducible
 - [x] **P1 · S · C** Liquidación solo fija (decisión de COLFE, 9 oct 2026): se descartan la liquidación variable, el arrastre de saldo de anticipos, el ahorro como garantía y el tope de anticipos
-- [ ] **P1 · M · C** Integridad, bloque 2: un solo precio activo por vinculación con `UNIQUE` (columna generada; se resuelve junto con los precios con vigencia) y unificar el charset a `utf8mb4`. El deducible activo único por nombre y vinculación ya lo garantiza un trigger (007)
+- [ ] **P1 · S · C** Integridad, bloque 2: unificar el charset de las tablas viejas a `utf8mb4`. El deducible activo único por nombre y vinculación (007) y los precios sin solape (008) ya los garantizan triggers
 - [ ] **P1 · S · E+C** Integridad, bloque 3 (requiere decisión de Edgar): bloquear cambios en liquidaciones cerradas
 - [ ] **P1 · M · C** Runner de migraciones con tabla `schema_migrations`, respaldo previo y registro de lo aplicado
 - [ ] **P0 · M · E** Validar la liquidación con una quincena real de COLFE

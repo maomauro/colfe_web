@@ -99,21 +99,22 @@ Resumen de litros confirmados por socio y quincena. Lo escribe el procedimiento 
 
 ### `tbl_precios`: Precios por litro
 
-Precio de la leche por tipo de vinculación. Solo el `activo` se usa al liquidar.
+Historial de precios de la leche por tipo de vinculación. Cada precio rige entre su fecha de inicio y su fecha de fin (vacía = abierto), y los rangos de una misma vinculación no se solapan. La liquidación usa el precio que rige en la fecha de cierre de la quincena. `spCrearPrecio` crea uno nuevo y cierra el abierto anterior.
 
-**Origen:** Esquema base; restricciones de la 005.
+**Origen:** Esquema base; restricciones de la 005; convertida a historial con vigencia en la migración 008 (que quitó `estado` y `fecha`).
 
 | Columna | Tipo | Nulos | Por defecto | Clave / restricción | Significado | Valores válidos |
 |---|---|---|---|---|---|---|
 | `id_precio` | `int` | No | — | PK | Identificador interno del precio. | Entero autoincremental. |
 | `vinculacion` | `enum('asociado','proveedor')` | No | — | — | Tipo de socio al que aplica el precio. | `asociado` o `proveedor`. |
 | `precio` | `decimal(10,2)` | No | — | — | Precio base pagado por litro de leche, en pesos colombianos (confirmado por Edgar el 8 oct 2026; no incluye bonificaciones). | Decimal > 0. |
-| `fecha` | `date` | Sí | — | — | Hoy guarda la fecha en que se registró el precio. **Diseño acordado:** pasará a ser `fecha_inicio`, con una `fecha_fin` (vacía = abierto) y sin solapes por vinculación; ver el plan, Fase 5.2. | Fecha. |
-| `estado` | `enum('activo','inactivo')` | No | — | — | Si es el precio vigente. Debe haber a lo sumo uno `activo` por vinculación. | `activo` o `inactivo`. |
+| `fecha_inicio` | `date` | No | — | — | Primer día en que rige el precio. | Fecha. |
+| `fecha_fin` | `date` | Sí | — | — | Último día en que rige el precio. Vacía significa que el precio está abierto (sigue vigente). | Fecha ≥ `fecha_inicio`, o nula. |
 
 **Restricciones e índices**
 
 - **CHECK** `ck_precios_precio`: `(precio > 0)`.
+- **CHECK** `ck_precios_vigencia`: `((fecha_fin is null) or (fecha_fin >= fecha_inicio))`.
 
 **Triggers:** `before_insert_precios`, `before_update_precios`, `tr_aud_precios_d`, `tr_aud_precios_i`, `tr_aud_precios_u`. Detalle en la sección «Triggers».
 
@@ -292,7 +293,8 @@ La vista `v_anticipos_completos` se eliminó con el módulo de anticipos (migrac
 | Nombre | Parámetros | Qué hace | Uso |
 |---|---|---|---|
 | `spCrearEventoRecoleccion` | `p_nombre_evento VARCHAR(50)`, `p_fecha DATE` | Solo actúa si el evento es `recoleccion`. Si no hay registros para esa fecha, crea uno por cada socio `activo`, con `litros_leche = 0` y estado `sin confirmar`. Devuelve `resultado` (`TRUE` creado o ya existía, `FALSE` evento distinto). | Producción: lo llama la pantalla de calendario (`src/modelos/calendario.modelo.php`). |
-| `spProcesarLiquidacionQuincenal` | `p_evento VARCHAR(50)`, `p_fecha_liquidacion DATE` | Solo actúa si el evento es `liquidacion`. Si ya hay liquidación en esa fecha, no hace nada. Exige que la fecha sea día 15 o último del mes; que cada día de la quincena tenga al menos un registro `confirmado`; y que no queden registros `sin confirmar`. Si cumple, en una transacción: (1) inserta en `tbl_produccion` la suma de litros confirmados por socio `activo`; (2) inserta en `tbl_liquidacion`, en estado `pre-liquidacion`, el cálculo con el precio `activo` de su vinculación y la suma de sus deducibles `activo`; (3) inserta en `tbl_liquidacion_deducible` un renglón por cada deducible aplicado. Si algo falla, revierte. Los errores de validación salen como `SQLSTATE 45000` con un mensaje en español. | Producción: lo llama la pantalla de calendario. **Nota:** si una vinculación no tiene precio `activo`, sus socios se omiten sin aviso (la aplicación lo comprueba antes de liquidar). Una vinculación sin deducibles activos se liquida sin descuentos. |
+| `spProcesarLiquidacionQuincenal` | `p_evento VARCHAR(50)`, `p_fecha_liquidacion DATE` | Solo actúa si el evento es `liquidacion`. Si ya hay liquidación en esa fecha, no hace nada. Exige que la fecha sea día 15 o último del mes; que cada día de la quincena tenga al menos un registro `confirmado`; y que no queden registros `sin confirmar`. Si cumple, en una transacción: (1) inserta en `tbl_produccion` la suma de litros confirmados por socio `activo`; (2) inserta en `tbl_liquidacion`, en estado `pre-liquidacion`, el cálculo con el precio **vigente en la fecha de cierre** de su vinculación y la suma de sus deducibles `activo`; (3) inserta en `tbl_liquidacion_deducible` un renglón por cada deducible aplicado. Si algo falla, revierte. Los errores de validación salen como `SQLSTATE 45000` con un mensaje en español. | Producción: lo llama la pantalla de calendario. **Nota:** si una vinculación no tiene un precio vigente en esa fecha, sus socios se omiten sin aviso (la aplicación lo comprueba antes de liquidar y se niega). Una vinculación sin deducibles activos se liquida sin descuentos. |
+| `spCrearPrecio` | `p_vinculacion VARCHAR(20)`, `p_precio DECIMAL(10,2)`, `p_inicio DATE`, `p_fin DATE` | En una transacción: cierra el precio abierto de la vinculación que empezó antes (le pone fin el día anterior a `p_inicio`) e inserta el precio nuevo. Si el rango nuevo se solapa con otro, revierte todo con un error `SQLSTATE 45000`. Devuelve el `id_precio` creado. | Producción: lo llama la pantalla de precios (`src/modelos/precios.modelo.php`). |
 | `spInsertIntoRecoleccion` | ninguno | Recorre los días del 2025-01-01 al 2026-08-26 (fechas fijas en el código), inserta recolección `confirmado` para todos los socios con litros aleatorios y llama a la liquidación los días 15 y último de cada mes. | **Solo demo.** No ejecutar en producción: sus fechas están fijas. |
 | `generar_litros_leche` (función) | `fecha DATE`, `id_socio INT` → `decimal(10,2)` | Devuelve litros simulados: base de 50 a 70 según el socio, más una variación aleatoria por temporada, con mínimo de 30. | **Solo demo.** Usa `RAND()`, así que no es repetible. |
 
@@ -306,8 +308,8 @@ Son 20. Los de validación dan un error `SQLSTATE 45000` con un mensaje en espa�
 |---|---|---|---|
 | `before_insert_recoleccion` | `tbl_recoleccion` | antes de INSERT | Rechaza un segundo registro del mismo socio y fecha («Ya existe un registro para este socio en esta fecha»). La restricción `uk_recoleccion_socio_fecha` lo respalda. |
 | `before_update_recoleccion` | `tbl_recoleccion` | antes de UPDATE | Igual, al cambiar socio o fecha. |
-| `before_insert_precios` | `tbl_precios` | antes de INSERT | Rechaza un precio `activo` si ya hay otro `activo` para la misma vinculación. |
-| `before_update_precios` | `tbl_precios` | antes de UPDATE | Igual, al activar o cambiar la vinculación. |
+| `before_insert_precios` | `tbl_precios` | antes de INSERT | Rechaza un precio cuya fecha de fin sea anterior a la de inicio, o cuyo rango se solape con el de otro precio de la misma vinculación. |
+| `before_update_precios` | `tbl_precios` | antes de UPDATE | Igual, al cambiar las fechas o la vinculación. |
 | `before_insert_deducibles` | `tbl_deducibles` | antes de INSERT | Rechaza un deducible `activo` si ya hay otro `activo` con el mismo nombre para la misma vinculación. |
 | `before_update_deducibles` | `tbl_deducibles` | antes de UPDATE | Igual, al activar o cambiar el nombre o la vinculación. |
 | `before_insert_usuario` | `tbl_usuarios` | antes de INSERT | Rechaza un `username` repetido («El nombre de usuario ya está registrado»). La restricción `UNIQUE` lo respalda. |
@@ -329,13 +331,10 @@ Edgar confirmó definiciones que el código no permitía afirmar. No queda ningu
 
 ## Decisiones de COLFE del 9 oct 2026
 
-Cambiaron el modelo y ya están construidas (migraciones 006 y 007):
+Cambiaron el modelo y ya están construidas (migraciones 006, 007 y 008):
 
 - **Anticipos retirados:** se eliminó el módulo completo (tabla, pantalla, procedimiento, vista y triggers) y el descuento en la liquidación. El neto es ingresos − deducibles.
 - **Ahorro retirado:** ya no hay descuento de ahorro ni registro de ahorros.
 - **Liquidación solo fija:** toda la quincena con el precio vigente en la fecha de cierre; no hay liquidación variable.
 - **Deducibles uno por fila:** se puede crear cualquier deducible nuevo (nombre, porcentaje o valor fijo, por vinculación) sin cambiar el esquema, y el recibo lista cada uno.
-
-## Reglas acordadas aún no construidas
-
-- **Precios con vigencia:** `tbl_precios` como historial con `fecha_inicio` y `fecha_fin` (vacía = abierto), sin solapes por vinculación. La liquidación usará el precio que rige en la fecha de cierre de la quincena. Modelo propuesto en [`diagramas/er-colfe-objetivo.html`](diagramas/er-colfe-objetivo.html); el modelo actual, en [`diagramas/er-colfe.html`](diagramas/er-colfe.html).
+- **Precios con vigencia:** `tbl_precios` es un historial con fecha de inicio y de fin (vacía = abierto), sin solapes por vinculación; al crear un precio nuevo se cierra el abierto anterior. Se quitó el campo `estado`: manda la vigencia por fechas.

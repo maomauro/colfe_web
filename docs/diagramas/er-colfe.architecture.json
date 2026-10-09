@@ -86,7 +86,7 @@
       "id": "precios",
       "type": "database",
       "label": "tbl_precios",
-      "sublabel": "PK id_precio · por vinculacion",
+      "sublabel": "historial: fecha_inicio, fecha_fin",
       "pos": [
         400,
         685
@@ -297,7 +297,7 @@
       "dot": "amber",
       "title": "Brechas del modelo",
       "items": [
-        "Precio activo único: solo triggers",
+        "Precios sin solape: solo un trigger",
         "Charset mixto utf8mb3 y utf8mb4",
         "Sin CHECK de quincena"
       ]
@@ -306,8 +306,8 @@
       "dot": "rose",
       "title": "Pendiente",
       "items": [
-        "Precios con vigencia (inicio y fin)",
         "Liquidaciones cerradas sin protección",
+        "Charset de las tablas viejas",
         "Sin FK: login_intentos y auditoria"
       ]
     }
