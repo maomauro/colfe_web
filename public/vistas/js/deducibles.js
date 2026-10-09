@@ -70,6 +70,8 @@ $(document).on("click", ".btnActivarDeducible", function () {
     },
   });
 
+  // El botón de borrar de la misma fila debe saber el estado nuevo (solo se borra un deducible inactivo)
+  $('.btnEliminarDeducible[idDeducible="' + idDeducible + '"]').attr("estadoDeducible", estadoDeducible);
   if (estadoDeducible == "inactivo") {
     $(this).removeClass("btn-success");
     $(this).addClass("btn-danger");
