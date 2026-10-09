@@ -64,27 +64,19 @@ abstract class BaseDeDatosTestCase extends TestCase
               GROUP BY r.id_socio, s.vinculacion",
             [':i' => $ini, ':f' => $fin]
         );
-        $anticipos = array_column(self::filas(
-            "SELECT id_socio, SUM(monto) AS total FROM tbl_anticipos
-              WHERE estado = 'aprobado' AND fecha_anticipo BETWEEN :i AND :f GROUP BY id_socio",
-            [':i' => $ini, ':f' => $fin]
-        ), 'total', 'id_socio');
-
         $esperado = [];
         foreach ($litros as $l) {
             $v = $l['vinculacion'];
             $ingresos = (float)$l['litros'] * (float)$precios[$v];
             $fedegan = $ingresos * ((float)$deds[$v]['fedegan'] / 100);
             $deducibles = $fedegan + (float)$deds[$v]['administracion'] + (float)$deds[$v]['ahorro'];
-            $ant = (float)($anticipos[$l['id_socio']] ?? 0);
             $esperado[(int)$l['id_socio']] = [
                 'litros' => round((float)$l['litros'], 2),
                 'precio' => (float)$precios[$v],
                 'ingresos' => round($ingresos, 2),
                 'fedegan' => round($fedegan, 2),
                 'deducibles' => round($deducibles, 2),
-                'anticipos' => round($ant, 2),
-                'neto' => round($ingresos - $deducibles - $ant, 2),
+                'neto' => round($ingresos - $deducibles, 2),
             ];
         }
         return $esperado;

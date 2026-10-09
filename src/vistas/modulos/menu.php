@@ -53,12 +53,6 @@
                     <span>Precios</span>
                 </a>
             </li>
-            <li>
-                <a href="anticipos">
-                    <i class="fa fa-credit-card"></i>
-                    <span>Anticipos</span>
-                </a>
-            </li>
 
         </ul>
 

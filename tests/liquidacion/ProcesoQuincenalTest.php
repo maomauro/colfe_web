@@ -1,8 +1,7 @@
 <?php
 /**
  * Ejecuta spProcesarLiquidacionQuincenal sobre una quincena pendiente del demo (2da de febrero de 2025)
- * y compara cada fila con un cálculo independiente hecho en PHP. Incluye los anticipos: solo se
- * descuentan los aprobados dentro de la quincena.
+ * y compara cada fila con un cálculo independiente hecho en PHP.
  */
 final class ProcesoQuincenalTest extends BaseDeDatosTestCase
 {
@@ -15,19 +14,6 @@ final class ProcesoQuincenalTest extends BaseDeDatosTestCase
         self::limpiar();
         self::$socioProveedor = (int)self::valor("SELECT MIN(id_socio) FROM tbl_socios WHERE estado='activo' AND vinculacion='proveedor'");
         self::$socioAsociado  = (int)self::valor("SELECT MIN(id_socio) FROM tbl_socios WHERE estado='activo' AND vinculacion='asociado'");
-
-        // Anticipos de prueba (marcados en observaciones para borrarlos después)
-        $ins = "INSERT INTO tbl_anticipos (id_socio, monto, fecha_anticipo, estado, observaciones) VALUES (?,?,?,?, 'PRUEBA-LIQ')";
-        foreach ([
-            [self::$socioProveedor, 50000, '2025-02-20', 'aprobado'],   // cuenta
-            [self::$socioProveedor, 30000, '2025-02-21', 'pendiente'],  // no cuenta
-            [self::$socioProveedor, 20000, '2025-02-22', 'rechazado'],  // no cuenta
-            [self::$socioProveedor, 10000, '2025-03-01', 'aprobado'],   // fuera (quincena siguiente)
-            [self::$socioProveedor,  7000, '2025-02-15', 'aprobado'],   // fuera (quincena anterior)
-            [self::$socioAsociado,  25000, '2025-02-28', 'aprobado'],   // cuenta (último día)
-        ] as $a) {
-            self::pdo()->prepare($ins)->execute($a);
-        }
     }
 
     public static function tearDownAfterClass(): void
@@ -39,12 +25,9 @@ final class ProcesoQuincenalTest extends BaseDeDatosTestCase
     {
         self::ejecutar("DELETE FROM tbl_liquidacion WHERE fecha_liquidacion = ?", [self::FECHA]);
         self::ejecutar("DELETE FROM tbl_produccion  WHERE fecha = ?", [self::FECHA]);
-        self::ejecutar("DELETE FROM tbl_anticipos WHERE observaciones = 'PRUEBA-LIQ'");
         // La auditoría (migración 004) también registró lo que hizo la prueba: se limpia
         self::ejecutar("DELETE FROM tbl_auditoria WHERE tabla = 'tbl_liquidacion'
                           AND JSON_UNQUOTE(JSON_EXTRACT(COALESCE(datos_despues, datos_antes), '$.fecha_liquidacion')) = ?", [self::FECHA]);
-        self::ejecutar("DELETE FROM tbl_auditoria WHERE tabla = 'tbl_anticipos'
-                          AND JSON_UNQUOTE(JSON_EXTRACT(COALESCE(datos_despues, datos_antes), '$.observaciones')) = 'PRUEBA-LIQ'");
     }
 
     private static function llamar(string $fecha): void
@@ -105,21 +88,10 @@ final class ProcesoQuincenalTest extends BaseDeDatosTestCase
             $this->assertEqualsWithDelta($e['ingresos'], (float)$r['total_ingresos'], 0.02, "ingresos socio $idSocio");
             $this->assertEqualsWithDelta($e['fedegan'], (float)$r['fedegan'], 0.02, "fedegan socio $idSocio");
             $this->assertEqualsWithDelta($e['deducibles'], (float)$r['total_deducibles'], 0.02, "deducibles socio $idSocio");
-            $this->assertEqualsWithDelta($e['anticipos'], (float)$r['total_anticipos'], 0.011, "anticipos socio $idSocio");
             $this->assertEqualsWithDelta($e['neto'], (float)$r['neto_a_pagar'], 0.03, "neto socio $idSocio");
             $this->assertSame('2da', $r['quincena']);
             $this->assertSame('pre-liquidacion', $r['estado']);
         }
-    }
-
-    public function testSoloDescuentaLosAnticiposAprobadosDeLaQuincena(): void
-    {
-        self::llamar(self::FECHA);   // idempotente: si ya existe no hace nada
-        $prov = self::filas("SELECT total_anticipos FROM tbl_liquidacion WHERE fecha_liquidacion=? AND id_socio=?", [self::FECHA, self::$socioProveedor]);
-        $asoc = self::filas("SELECT total_anticipos FROM tbl_liquidacion WHERE fecha_liquidacion=? AND id_socio=?", [self::FECHA, self::$socioAsociado]);
-        $this->assertEqualsWithDelta(50000.00, (float)$prov[0]['total_anticipos'], 0.001,
-            'proveedor: solo el aprobado del 20-feb (no el pendiente, el rechazado ni los de otras quincenas)');
-        $this->assertEqualsWithDelta(25000.00, (float)$asoc[0]['total_anticipos'], 0.001, 'asociado: el aprobado del 28-feb');
     }
 
     public function testNoDuplicaAlLiquidarDosVeces(): void
