@@ -66,7 +66,7 @@
               }
               echo '
                   <td>
-                    <div class="btn-group">  
+                    <div class="acciones-fila">  
                       <button class="btn btn-warning btnEditarDeducible" idDeducible="' . $value["id_deducible"] . '" data-toggle="modal" data-target="#modalEditarDeducible"><i class="fa fa-pencil"></i></button>
                       <button class="btn btn-danger btnEliminarDeducible" idDeducible="' . $value["id_deducible"] . '" estadoDeducible="' . $value["estado"] . '"><i class="fa fa-times"></i></button>
                     </div>  
