@@ -75,8 +75,9 @@ El script respalda la base antes de actualizar y verifica que la web responda 20
 
 ## 5. Rollback
 Volver a un tag anterior: `TAG=sha-<commit-anterior> ./deploy/desplegar.sh`. Las migraciones de
-`db/migraciones/` son idempotentes y casi todas aditivas; **las 006 y 007 son destructivas** (eliminan los datos de anticipos y de ahorro, y recalculan las liquidaciones existentes): hacer antes `./deploy/backup.sh`; si una versión nueva añade una, hay que aplicarla a
-mano (ver sección 5) y la anterior sigue funcionando con la tabla extra.
+`db/migraciones/` son idempotentes y casi todas aditivas; **las 006 y 007 son destructivas** (eliminan los datos de anticipos y de ahorro, y recalculan las liquidaciones existentes): hacer antes `./deploy/backup.sh`. Si una versión nueva añade una migración, hay que aplicarla a
+mano (ver sección 6); las aditivas dejan funcionar a la versión anterior, pero tras la 006 o la 007 el código anterior ya no sirve:
+para volver atrás hay que restaurar el respaldo previo (sección 8).
 
 ## 6. Migraciones sobre una base existente
 La inicialización automática solo corre con el volumen vacío. Para una base ya creada:
