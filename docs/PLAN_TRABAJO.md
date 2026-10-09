@@ -168,24 +168,24 @@ Objetivo: documentación completa, versionada junto al código y alineada con el
 Todo en `docs/`, con un índice `docs/README.md`. Tamaño: **S** pequeño · **M** mediano · **L** grande. Responsable: **E** Edgar · **C** Claude.
 
 ### 4.1 Diccionario de datos
-- [ ] **P1 · M · C** `docs/DICCIONARIO_DATOS.md`: por tabla (`tbl_socios`, `tbl_recoleccion`, `tbl_produccion`, `tbl_liquidacion`, `tbl_precios`, `tbl_deducibles`, `tbl_anticipos`, `tbl_usuarios`, `tbl_api_tokens`, `tbl_login_intentos`, `tbl_auditoria`): columna, tipo, nulos, valor por defecto, claves y restricciones (`PK`, `FK`, `UNIQUE`, `CHECK`), significado de negocio, valores válidos y migración que la creó
-- [ ] **P1 · S · C** Incluir vistas (`v_anticipos_completos`, `v_auditoria`), procedimientos y funciones, y los 24 triggers (qué dispara cada uno)
-- [ ] **P1 · S · E** Validar las definiciones de negocio que no se deduzcan del código (se marcan `[por confirmar]`)
+- [x] **P1 · M · C** `docs/DICCIONARIO_DATOS.md`: por tabla (`tbl_socios`, `tbl_recoleccion`, `tbl_produccion`, `tbl_liquidacion`, `tbl_precios`, `tbl_deducibles`, `tbl_liquidacion_deducible`, `tbl_usuarios`, `tbl_api_tokens`, `tbl_login_intentos`, `tbl_auditoria`): columna, tipo, nulos, valor por defecto, claves y restricciones (`PK`, `FK`, `UNIQUE`, `CHECK`), significado de negocio, valores válidos y migración que la creó
+- [x] **P1 · S · C** Incluir la vista `v_auditoria`, procedimientos y funciones, y los 20 triggers (qué dispara cada uno)
+- [x] **P1 · S · E** Validar las definiciones de negocio que no se deduzcan del código (se marcan `[por confirmar]`)
 - [ ] **P2 · S · C** Migración 006 con `COMMENT` en las columnas, para que el esquema se documente solo
 - [ ] **P2 · S · C** Enlazar el diccionario desde el diagrama ER y mostrar columnas clave en el ER
 - [ ] **P2 · S · C** Prueba en el CI que falle si una tabla o columna del esquema no aparece en el diccionario
 
 ### 4.2 Reglas de negocio de la liquidación
-- [ ] **P1 · M · C** `docs/LIQUIDACION.md`: glosario (quincena, vinculación, precio, deducibles, anticipo, cierre) y fórmula paso a paso, con un ejemplo numérico tomado de la quincena validada
+- [x] **P1 · M · C** `docs/LIQUIDACION.md`: glosario (quincena, vinculación, precio, deducibles, cierre) y fórmula paso a paso, con un ejemplo numérico tomado de la quincena validada
 - [ ] **P1 · S · E** Revisar el documento con la cooperativa
 
 ### 4.3 Contrato de la API móvil
-- [ ] **P1 · M · C** `docs/API_MOVIL.md` (o `openapi.yaml`): los 6 endpoints, cabeceras, cuerpo, respuestas, códigos de error y vigencia del token (24 h)
-- [ ] **P1 · S · C** Documentar el cambio de `apiValidarToken` (401 si el token es inválido) y la migración de `?token=` a `Authorization: Bearer`
+- [x] **P1 · M · C** `docs/API_MOVIL.md` (o `openapi.yaml`): los 6 endpoints, cabeceras, cuerpo, respuestas, códigos de error y vigencia del token (24 h)
+- [x] **P1 · S · C** Documentar el cambio de `apiValidarToken` (401 si el token es inválido) y la migración de `?token=` a `Authorization: Bearer`
 - [ ] **P2 · S · C** Prueba de contrato en el CI (las respuestas coinciden con el documento)
 
 ### 4.4 Decisiones y arquitectura
-- [ ] **P1 · M · C** `docs/adr/`: ADRs 0001 a 0010 a partir de D1 a D5 y de las decisiones ya tomadas (datos demo, proxy compartido con PortalCV, imagen Debian, tokens en base de datos, CSRF por origen y token, estructura `public/src/config/storage`, respaldo semanal solo local, flujo de ramas)
+- [x] **P1 · M · C** `docs/adr/`: ADRs 0001 a 0010 (más 0011 y 0012, con las decisiones del 8 oct sobre precios, liquidación y anticipos) a partir de D1 a D5 y de las decisiones ya tomadas (datos demo, proxy compartido con PortalCV, imagen Debian, tokens en base de datos, CSRF por origen y token, estructura `public/src/config/storage`, respaldo semanal solo local, flujo de ramas)
 - [ ] **P2 · M · C** `docs/arquitectura/`: C4 de contexto y de contenedores, y arc42 ligero (secciones 1, 3, 4, 5, 7, 8 y 9)
 - [ ] **P2 · S · C** Riesgos y deuda técnica (arc42 sección 11) alimentados por el diagnóstico
 
@@ -209,11 +209,15 @@ Todo en `docs/`, con un índice `docs/README.md`. Tamaño: **S** pequeño · **M
 - [ ] **P1 · S · E+C** Pasar la app Android a `Authorization: Bearer` y retirar `?token=` de la API
 - [ ] **P1 · M · E+C** Roles (administrador / consulta): Edgar define permisos, Claude implementa y prueba
 - [ ] **P1 · M · C** Pantalla para consultar la auditoría (`v_auditoria`)
-- [ ] **P2 · S · C** Quitar el comentario `DEBUG` de `anticipos.php` y `limit_req` al login en nginx
+- [ ] **P2 · S · C** Agregar `limit_req` al login en nginx (el comentario `DEBUG` de `anticipos.php` desapareció con el módulo)
 
 ### 5.2 Datos
-- [ ] **P1 · M · C** Integridad, bloque 2: un solo precio/deducible activo por vinculación con `UNIQUE` (columna generada) y unificar el charset a `utf8mb4`
-- [ ] **P1 · M · E+C** Integridad, bloque 3 (requiere decisión de Edgar): bloquear cambios en liquidaciones cerradas; `id_liquidacion` en `tbl_anticipos`; `id_usuario` en vez de `USER()` en `usuario_registro`
+- [x] **P1 · L · E+C** Precios con vigencia (decisión de COLFE, 9 oct 2026) — migración 008: `tbl_precios` como historial con `fecha_inicio` y `fecha_fin` (vacía = abierto), sin solapes por vinculación (trigger), sin campo `estado`; `spCrearPrecio` cierra el abierto anterior; la liquidación usa el precio vigente en la fecha de cierre; pantalla de precios con desde, hasta y situación
+- [x] **P1 · M · C** Retirar el módulo de anticipos (decisión de COLFE, 9 oct 2026) — migración 006: tabla, pantalla, API interna, vista, procedimiento y triggers; el neto es ingresos − deducibles
+- [x] **P1 · L · C** Deducibles uno por fila y retiro del ahorro (decisión de COLFE, 9 oct 2026) — migración 007: `tbl_deducibles` (nombre, porcentaje o valor fijo, por vinculación) y `tbl_liquidacion_deducible` (detalle por liquidación); recibo con un renglón por deducible
+- [x] **P1 · S · C** Liquidación solo fija (decisión de COLFE, 9 oct 2026): se descartan la liquidación variable, el arrastre de saldo de anticipos, el ahorro como garantía y el tope de anticipos
+- [ ] **P1 · S · C** Integridad, bloque 2: unificar el charset de las tablas viejas a `utf8mb4`. El deducible activo único por nombre y vinculación (007) y los precios sin solape (008) ya los garantizan triggers
+- [ ] **P1 · S · E+C** Integridad, bloque 3 (requiere decisión de Edgar): bloquear cambios en liquidaciones cerradas
 - [ ] **P1 · M · C** Runner de migraciones con tabla `schema_migrations`, respaldo previo y registro de lo aplicado
 - [ ] **P0 · M · E** Validar la liquidación con una quincena real de COLFE
 
@@ -225,6 +229,7 @@ Todo en `docs/`, con un índice `docs/README.md`. Tamaño: **S** pequeño · **M
 - [ ] **P1 · S · E** Aviso de privacidad y política de tratamiento de datos personales con la cooperativa (Ley 1581)
 
 ### 5.4 Verificación con la app y con datos
+- [ ] **P1 · S · C** Corregir `apiCrearRecoleccionesLote.php` (se retoma cuando la app Android esté terminada; Edgar, 8 oct 2026): hoy falla siempre (`Unknown column 'observaciones'`: el `INSERT` usa columnas que `tbl_recoleccion` no tiene), usa un estado `pendiente` inválido, devuelve el SQL interno al cliente y responde 200 aunque falle. Detectado el 8 oct 2026 al documentar la API (`docs/API_MOVIL.md`).
 - [ ] **P1 · S · E** Probar la app Android contra producción (`apiValidarToken` ahora devuelve 401 si el token es inválido; el token es real y vence a las 24 h; las claves son las nuevas)
 - [ ] **P1 · S · E** Decidir **D5** (27 ago al 30 sep 2026)
 - [ ] **P2 · S · E** Liquidar desde la app la 2da quincena de feb 2025 (pendiente a propósito en el demo) y revisar precios y deducibles con la cooperativa
