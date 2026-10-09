@@ -22,9 +22,6 @@ class Modeloliquidacion
                         l.total_litros, 
                         l.precio_litro, 
                         l.total_ingresos, 
-                        l.fedegan, 
-                        l.administracion, 
-                        l.ahorro, 
                         l.total_deducibles, 
                         l.neto_a_pagar, 
                         l.estado,
@@ -50,9 +47,6 @@ class Modeloliquidacion
                         l.total_litros, 
                         l.precio_litro, 
                         l.total_ingresos, 
-                        l.fedegan, 
-                        l.administracion, 
-                        l.ahorro, 
                         l.total_deducibles, 
                         l.neto_a_pagar, 
                         l.estado,
@@ -189,9 +183,6 @@ class Modeloliquidacion
                     l.total_litros, 
                     l.precio_litro, 
                     l.total_ingresos, 
-                    l.fedegan, 
-                    l.administracion, 
-                    l.ahorro, 
                     l.total_deducibles, 
                     l.neto_a_pagar, 
                     l.estado,
@@ -259,5 +250,27 @@ class Modeloliquidacion
         return $stmt->fetch(PDO::FETCH_ASSOC);
         $stmt->close();
         $stmt = null;
+    }
+
+    /*=============================================
+    DEDUCIBLES APLICADOS A LAS LIQUIDACIONES DE UNA FECHA (para el recibo)
+    Devuelve [id_liquidacion => [filas de tbl_liquidacion_deducible]]
+    =============================================*/
+    static public function mdlDeduciblesPorFecha($fecha)
+    {
+        $stmt = Conexion::conectar()->prepare(
+            "SELECT ld.id_liquidacion, ld.nombre, ld.tipo_valor, ld.valor, ld.monto
+               FROM tbl_liquidacion_deducible ld
+               JOIN tbl_liquidacion l ON l.id_liquidacion = ld.id_liquidacion
+              WHERE l.fecha_liquidacion = :fecha
+              ORDER BY ld.id_liquidacion, ld.id_liquidacion_deducible"
+        );
+        $stmt->bindParam(":fecha", $fecha, PDO::PARAM_STR);
+        $stmt->execute();
+        $porLiquidacion = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $fila) {
+            $porLiquidacion[(int)$fila["id_liquidacion"]][] = $fila;
+        }
+        return $porLiquidacion;
     }
 }

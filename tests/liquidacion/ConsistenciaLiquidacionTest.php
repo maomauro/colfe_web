@@ -17,10 +17,12 @@ final class ConsistenciaLiquidacionTest extends BaseDeDatosTestCase
         $this->assertSame(0, (int)$n);
     }
 
-    public function testDeduciblesSumanFedeganAdministracionYAhorro(): void
+    public function testTotalDeduciblesEsLaSumaDelDetalle(): void
     {
-        $n = self::valor("SELECT COUNT(*) FROM tbl_liquidacion
-                           WHERE ABS(total_deducibles - (fedegan + administracion + ahorro)) > 0.011");
+        $n = self::valor("SELECT COUNT(*) FROM tbl_liquidacion l
+                           WHERE ABS(l.total_deducibles - (SELECT COALESCE(SUM(ld.monto), 0)
+                                                             FROM tbl_liquidacion_deducible ld
+                                                            WHERE ld.id_liquidacion = l.id_liquidacion)) > 0.001");
         $this->assertSame(0, (int)$n);
     }
 
@@ -31,10 +33,17 @@ final class ConsistenciaLiquidacionTest extends BaseDeDatosTestCase
         $this->assertSame(0, (int)$n);
     }
 
-    public function testFedeganEsElPorcentajeDelDeducibleSobreLosIngresos(): void
+    public function testCadaDeduciblePorcentualEsSuPorcentajeDeLosIngresos(): void
     {
-        $n = self::valor("SELECT COUNT(*) FROM tbl_liquidacion l JOIN tbl_deducibles d ON d.id_deducible = l.id_deducible
-                           WHERE ABS(l.fedegan - ROUND(l.total_litros * l.precio_litro * d.fedegan / 100, 2)) > 0.011");
+        $n = self::valor("SELECT COUNT(*) FROM tbl_liquidacion_deducible ld JOIN tbl_liquidacion l ON l.id_liquidacion = ld.id_liquidacion
+                           WHERE ld.tipo_valor = 'porcentaje'
+                             AND ABS(ld.monto - ROUND(l.total_ingresos * ld.valor / 100, 2)) > 0.011");
+        $this->assertSame(0, (int)$n);
+    }
+
+    public function testCadaDeducibleFijoEsSuValor(): void
+    {
+        $n = self::valor("SELECT COUNT(*) FROM tbl_liquidacion_deducible WHERE tipo_valor = 'fijo' AND ABS(monto - valor) > 0.001");
         $this->assertSame(0, (int)$n);
     }
 
@@ -83,10 +92,10 @@ final class ConsistenciaLiquidacionTest extends BaseDeDatosTestCase
                            JOIN tbl_socios s ON s.id_socio = p.id_socio AND s.estado = 'activo'
                            LEFT JOIN tbl_liquidacion l ON l.id_produccion = p.id_produccion
                           WHERE l.id_liquidacion IS NULL");
-        $this->assertSame(0, (int)$n, "producciones de socios activos sin liquidación (¿precio o deducible inactivo?)");
+        $this->assertSame(0, (int)$n, "producciones de socios activos sin liquidación (¿precio inactivo?)");
     }
 
-    public function testCadaVinculacionActivaTienePrecioYDeducibleActivos(): void
+    public function testCadaVinculacionActivaTienePrecioActivo(): void
     {
         $this->assertSame([], ModeloCalendario::mdlVinculacionesSinTarifa());
     }

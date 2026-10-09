@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../src/modelos/liquidacion.modelo.php';
 require_once __DIR__ . '/../../src/libs/fpdf/fpdf.php';
 
 // Función para crear un comprobante individual con nuevo diseño
-function crearComprobante($pdf, $liq, $x, $y) {
+function crearComprobante($pdf, $liq, $deducibles, $x, $y) {
     // Encabezado - Diseño limpio y centrado
     $pdf->SetXY($x, $y);
     $pdf->SetFont('Arial', 'B', 10);
@@ -64,30 +64,20 @@ function crearComprobante($pdf, $liq, $x, $y) {
     $pdf->Cell(20, 3.5, '', 1, 1, 'C');
     $y += 3.5;
     
-    // FEDEGAN
-    $pdf->SetXY($x, $y);
-    $pdf->Cell(30, 3.5, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'FEDEGAN'), 1, 0, 'L');
-    $pdf->Cell(15, 3.5, '', 1, 0, 'C');
-    $pdf->Cell(20, 3.5, '', 1, 0, 'C');
-    $pdf->Cell(20, 3.5, number_format($liq["fedegan"], 2, ',', '.'), 1, 1, 'R');
-    $y += 3.5;
-    
-    // ADMIN
-    $pdf->SetXY($x, $y);
-    $pdf->Cell(30, 3.5, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'ADMIN'), 1, 0, 'L');
-    $pdf->Cell(15, 3.5, '', 1, 0, 'C');
-    $pdf->Cell(20, 3.5, '', 1, 0, 'C');
-    $pdf->Cell(20, 3.5, number_format($liq["administracion"], 2, ',', '.'), 1, 1, 'R');
-    $y += 3.5;
-    
-    // AHORRO
-    $pdf->SetXY($x, $y);
-    $pdf->Cell(30, 3.5, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'AHORRO'), 1, 0, 'L');
-    $pdf->Cell(15, 3.5, '', 1, 0, 'C');
-    $pdf->Cell(20, 3.5, '', 1, 0, 'C');
-    $pdf->Cell(20, 3.5, number_format($liq["ahorro"], 2, ',', '.'), 1, 1, 'R');
-    $y += 3.5;
-    
+    // Un renglón por cada deducible aplicado en la liquidación
+    foreach ($deducibles as $d) {
+        $etiqueta = mb_strtoupper($d["nombre"], 'UTF-8');
+        if ($d["tipo_valor"] === 'porcentaje') {
+            $etiqueta .= ' ' . rtrim(rtrim(number_format((float)$d["valor"], 2, ',', ''), '0'), ',') . '%';
+        }
+        $pdf->SetXY($x, $y);
+        $pdf->Cell(30, 3.5, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', mb_substr($etiqueta, 0, 24, 'UTF-8')), 1, 0, 'L');
+        $pdf->Cell(15, 3.5, '', 1, 0, 'C');
+        $pdf->Cell(20, 3.5, '', 1, 0, 'C');
+        $pdf->Cell(20, 3.5, number_format($d["monto"], 2, ',', '.'), 1, 1, 'R');
+        $y += 3.5;
+    }
+
     // Totales
     $pdf->SetXY($x, $y);
     $pdf->SetFont('Arial', 'B', 6);
@@ -122,6 +112,7 @@ $fecha = isset($_GET['fecha']) ? $_GET['fecha'] : '';
 
 // Obtiene las liquidaciones de esa fecha
 $liquidaciones = ModeloLiquidacion::mdlMostrarLiquidacion("fecha_liquidacion", $fecha);
+$deduciblesPorLiquidacion = ModeloLiquidacion::mdlDeduciblesPorFecha($fecha);
 
 $pdf = new FPDF();
 $pdf->SetAutoPageBreak(false); // Desactivar auto page break para control manual
@@ -172,7 +163,7 @@ foreach ($liquidaciones as $liq) {
     $yInicial = $y;
     
     // Crear el comprobante en la posición calculada
-    $yFinal = crearComprobante($pdf, $liq, $x, $y);
+    $yFinal = crearComprobante($pdf, $liq, $deduciblesPorLiquidacion[(int)$liq["id_liquidacion"]] ?? [], $x, $y);
     
     // Dibujar líneas separadoras
     if ($posicionEnHoja < $comprobantesPorHoja - 1) {

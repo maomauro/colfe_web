@@ -31,9 +31,9 @@
             <tr>
               <th style="width:10px">#</th>
               <th>Vinculación</th>
-              <th>Fedegan</th>
-              <th>Administración</th>
-              <th>Ahorro</th>
+              <th>Nombre</th>
+              <th>Tipo</th>
+              <th>Valor</th>
               <th>Fecha</th>
               <th>Estado</th>
               <th>Acciones</th>
@@ -54,9 +54,9 @@
                 <tr>
                   <td>' . ($key+1) . '</td>
                   <td>' . $value["vinculacion"] . '</td>
-                  <td>' . $value["fedegan"] . '</td>
-                  <td>' . $value["administracion"] . '</td>
-                  <td>' . $value["ahorro"] . '</td>
+                  <td>' . htmlspecialchars($value["nombre"], ENT_QUOTES, 'UTF-8') . '</td>
+                  <td>' . ($value["tipo_valor"] == "porcentaje" ? "Porcentaje" : "Valor fijo") . '</td>
+                  <td>' . ($value["tipo_valor"] == "porcentaje" ? rtrim(rtrim(number_format($value["valor"], 2, ",", "."), "0"), ",") . " %" : "$ " . number_format($value["valor"], 2, ",", ".")) . '</td>
                   <td>' . $value["fecha"] . '</td>
               ';
               if ($value["estado"] == "inactivo") {
@@ -112,28 +112,31 @@ MODAL AGREGAR DEDUCIBLE
                 </select>
               </div>
             </div>
-            <!--FEDEGAN -->
+            <!--NOMBRE DEL DEDUCIBLE -->
+            <div class="form-group">
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-tag"></i></span>
+                <input type="text" maxlength="60" class="form-control input-lg" id="nuevoNombre" name="nuevoNombre" placeholder="Nombre del deducible (ej. Fedegán)" required>
+              </div>
+            </div>
+            <!--TIPO DE VALOR -->
             <div class="form-group">
               <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-percent"></i></span>
-                <input type="number" step="0.01" min="0" class="form-control input-lg" id="nuevoFedegan" name="nuevoFedegan" placeholder="Ingresa Valor Fedegan" required>               
+                <select class="form-control input-lg" id="nuevoTipo" name="nuevoTipo" required>
+                  <option value="" disabled selected>Tipo de valor</option>
+                  <option value="porcentaje">Porcentaje de los ingresos</option>
+                  <option value="fijo">Valor fijo en pesos</option>
+                </select>
               </div>
             </div>
-            <!--ADMINISTRACION -->
+            <!--VALOR -->
             <div class="form-group">
               <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-usd" aria-hidden="true"></i></span>
-                <input type="number" step="0.01" min="0" class="form-control input-lg" id="nuevoAdministracion" name="nuevoAdministracion" placeholder="Ingresa Valor Administración" required>
+                <input type="number" step="0.01" min="0" class="form-control input-lg" id="nuevoValor" name="nuevoValor" placeholder="Valor (un porcentaje va de 0 a 100)" required>
               </div>
             </div>
-            <!--AHORRO -->
-            <div class="form-group">
-              <div class="input-group">
-                <span class="input-group-addon"><i class="fa fa-money" aria-hidden="true"></i></span>
-                <input type="number" step="0.01" min="0" class="form-control input-lg" id="nuevoAhorro" name="nuevoAhorro" placeholder="Ingresa Valor Ahorro" required>
-              </div>
-            </div>
-            
           </div>
         </div>
 
@@ -169,30 +172,30 @@ MODAL EDITAR DEDUCIBLE
         <div class="modal-body">
           <div class="box-body">
 
-            <!-- ENTRADA PARA FEDEGAN -->
+            <!-- ENTRADA PARA EL NOMBRE -->
             <div class="form-group">
               <div class="input-group">
-                <span class="input-group-addon"><i class="fa fa-percent"></i></span> 
-                <input type="number" step="0.01" min="0" class="form-control input-lg" id="editarFedegan" name="editarFedegan" value="" required>
+                <span class="input-group-addon"><i class="fa fa-tag"></i></span>
+                <input type="text" maxlength="60" class="form-control input-lg" id="editarNombre" name="editarNombre" value="" required>
               </div>
             </div>
-
-            <!-- ENTRADA PARA ADMINISTRACION -->
+            <!-- ENTRADA PARA EL TIPO -->
             <div class="form-group">
               <div class="input-group">
-                <span class="input-group-addon"><i class="fa fa-usd" aria-hidden="true"></i></span> 
-                <input type="number" step="0.01" min="0" class="form-control input-lg" id="editarAdministracion" name="editarAdministracion" value="" required>
+                <span class="input-group-addon"><i class="fa fa-percent"></i></span>
+                <select class="form-control input-lg" id="editarTipo" name="editarTipo" required>
+                  <option value="porcentaje">Porcentaje de los ingresos</option>
+                  <option value="fijo">Valor fijo en pesos</option>
+                </select>
               </div>
             </div>
-
-            <!-- ENTRADA PARA AHORRO -->
+            <!-- ENTRADA PARA EL VALOR -->
             <div class="form-group">
               <div class="input-group">
-                <span class="input-group-addon"><i class="fa fa-money" aria-hidden="true"></i></span> 
-                <input type="number" step="0.01" min="0" class="form-control input-lg" id="editarAhorro" name="editarAhorro" value="" required>
+                <span class="input-group-addon"><i class="fa fa-usd" aria-hidden="true"></i></span>
+                <input type="number" step="0.01" min="0" class="form-control input-lg" id="editarValor" name="editarValor" value="" required>
               </div>
             </div>
-
           </div>
         </div>
 

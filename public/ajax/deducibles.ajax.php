@@ -45,11 +45,10 @@ class AjaxDeducibles{
 	VALIDAR NO REPETIR DEDUCIBLE
 	=============================================*/	
 	public $validarVinculacion;
+	public $validarNombre;
 
 	public function ajaxValidarDeducible(){
-		$item = "vinculacion";
-		$valor = $this->validarVinculacion;
-		$respuesta = ControladorDeducibles::ctrValidarDeducible($item, $valor);
+		$respuesta = ControladorDeducibles::ctrValidarDeducible($this->validarVinculacion, $this->validarNombre);
 
 		echo json_encode($respuesta);
 
@@ -81,5 +80,6 @@ VALIDAR NO REPETIR DEDUCIBLE
 if(isset( $_POST["validarVinculacion"])){
 	$valDeducible = new AjaxDeducibles();
 	$valDeducible -> validarVinculacion = $_POST["validarVinculacion"];
+	$valDeducible -> validarNombre = isset($_POST["validarNombre"]) ? $_POST["validarNombre"] : "";
 	$valDeducible -> ajaxValidarDeducible();
 }

@@ -38,6 +38,7 @@ services:
       - ./db/migraciones/004_auditoria.sql:/docker-entrypoint-initdb.d/40-004.sql:ro
       - ./db/migraciones/005_integridad.sql:/docker-entrypoint-initdb.d/41-005.sql:ro
       - ./db/migraciones/006_retirar_anticipos.sql:/docker-entrypoint-initdb.d/42-006.sql:ro
+      - ./db/migraciones/007_deducibles_por_fila.sql:/docker-entrypoint-initdb.d/43-007.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
       interval: 10s

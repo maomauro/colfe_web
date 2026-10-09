@@ -198,9 +198,6 @@ function actualizarTablaLiquidacion(datos) {
                     '<td>' + parseFloat(item.total_litros || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
                     '<td>$' + parseFloat(item.precio_litro || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
                     '<td>$' + parseFloat(item.total_ingresos || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
-                    '<td>$' + parseFloat(item.fedegan || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
-                    '<td>$' + parseFloat(item.administracion || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
-                    '<td>$' + parseFloat(item.ahorro || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
                     '<td>$' + parseFloat(item.total_deducibles || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
                     '<td>$' + parseFloat(item.neto_a_pagar || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
                     '<td>' + botonEstado + '</td>' +

@@ -46,16 +46,16 @@ abstract class BaseDeDatosTestCase extends TestCase
 
     /**
      * Calcula, sin usar el procedimiento almacenado, lo que debe resultar de liquidar la quincena:
-     * una fila por socio activo con recolección confirmada, con el precio y el deducible activos.
+     * una fila por socio activo con recolección confirmada, con el precio y los deducibles activos de su vinculación.
      * @return array<int,array<string,float|string|int>> indexado por id_socio
      */
     protected static function esperadoQuincena(string $fechaLiquidacion): array
     {
         [$ini, $fin] = self::rangoQuincena($fechaLiquidacion);
         $precios = array_column(self::filas("SELECT vinculacion, precio FROM tbl_precios WHERE estado='activo'"), 'precio', 'vinculacion');
-        $deds = [];
-        foreach (self::filas("SELECT vinculacion, fedegan, administracion, ahorro FROM tbl_deducibles WHERE estado='activo'") as $d) {
-            $deds[$d['vinculacion']] = $d;
+        $deds = [];   // vinculación => [[tipo_valor, valor], ...]
+        foreach (self::filas("SELECT vinculacion, tipo_valor, valor FROM tbl_deducibles WHERE estado='activo'") as $d) {
+            $deds[$d['vinculacion']][] = [$d['tipo_valor'], (float)$d['valor']];
         }
         $litros = self::filas(
             "SELECT r.id_socio, s.vinculacion, SUM(r.litros_leche) AS litros
@@ -68,13 +68,15 @@ abstract class BaseDeDatosTestCase extends TestCase
         foreach ($litros as $l) {
             $v = $l['vinculacion'];
             $ingresos = (float)$l['litros'] * (float)$precios[$v];
-            $fedegan = $ingresos * ((float)$deds[$v]['fedegan'] / 100);
-            $deducibles = $fedegan + (float)$deds[$v]['administracion'] + (float)$deds[$v]['ahorro'];
+            $ingresos = round($ingresos, 2);
+            $deducibles = 0.0;
+            foreach ($deds[$v] ?? [] as [$tipo, $valor]) {
+                $deducibles += ($tipo === 'porcentaje') ? round($ingresos * $valor / 100, 2) : $valor;
+            }
             $esperado[(int)$l['id_socio']] = [
                 'litros' => round((float)$l['litros'], 2),
                 'precio' => (float)$precios[$v],
                 'ingresos' => round($ingresos, 2),
-                'fedegan' => round($fedegan, 2),
                 'deducibles' => round($deducibles, 2),
                 'neto' => round($ingresos - $deducibles, 2),
             ];
