@@ -33,6 +33,9 @@ def main(entrada, salida):
         out.append(l)
         i += 1
     cab = "-- Esquema sin datos, generado con db/tools/extraer_esquema.py desde %s\n" % entrada.split("/")[-1]
+    cab += ("-- ATENCION: es el esquema BASE, anterior a las migraciones. El modelo vigente es este esquema mas\n"
+            "-- db/migraciones/001 a 007 en orden (006 retira anticipos; 007 pasa los deducibles a una fila cada uno y retira el ahorro).\n"
+            "-- Para ver el modelo actual: docs/DICCIONARIO_DATOS.md y docs/diagramas/er-colfe.html.\n")
     with open(salida, "w", encoding="utf-8", newline="\n") as f:
         f.write(cab + "\n".join(out))
     print("filas de datos omitidas:", quitadas)
