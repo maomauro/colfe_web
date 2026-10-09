@@ -5161,21 +5161,20 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <rect data-graph-role="structural-frame" data-composition-frame-kind="security-group" data-composition-frame-id="1" data-composition-frame-label="Acceso y trazabilidad" x="880" y="40" width="260" height="743" rx="8" class="c-security-group" stroke-width="1"/>
 
         <!-- Connection paths (before components for correct z-order) -->
-        <path data-edge-from="socios" data-edge-to="recoleccion" data-edge-label="1:N" data-edge-key="0" data-edge-id="socio-recoleccion" data-composition-points="400,102;360,102" d="M 400 102 L 360 102" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="socios" data-edge-to="anticipos" data-edge-label="1:N" data-edge-key="1" data-edge-id="socio-anticipos" data-composition-points="600,109;640,109" d="M 600 109 L 640 109" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="socios" data-edge-to="produccion" data-edge-label="1:N" data-edge-key="2" data-edge-id="socio-produccion" data-composition-points="400,116;376,116;376,251;260,251;260,275" d="M 400 116 L 384 116 Q 376 116 376 124 L 376 243 Q 376 251 368 251 L 268 251 Q 260 251 260 259 L 260 275" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="socios" data-edge-to="liquidacion" data-edge-label="1:N" data-edge-key="3" data-edge-id="socio-liquidacion" data-composition-points="500,148;500,480" d="M 500 148 L 500 480" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="produccion" data-edge-to="liquidacion" data-edge-label="1:1" data-edge-key="4" data-edge-id="produccion-liquidacion" data-composition-points="360,314;380,314;380,519;400,519" d="M 360 314 L 372 314 Q 380 314 380 322 L 380 511 Q 380 519 388 519 L 400 519" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="deducibles" data-edge-to="liquidacion" data-edge-label="1:N" data-edge-key="5" data-edge-id="deducible-liquidacion" data-composition-points="640,519;600,519" d="M 640 519 L 600 519" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="precios" data-edge-to="liquidacion" data-edge-label="1:N" data-edge-key="6" data-edge-id="precio-liquidacion" data-composition-points="500,685;500,558" d="M 500 685 L 500 558" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="anticipos" data-edge-to="vanticipos" data-edge-label="lee" data-edge-key="7" data-edge-id="anticipos-vista" data-composition-points="740,148;740,275" d="M 740 148 L 740 275" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
-        <path data-edge-from="usuarios" data-edge-to="api_tokens" data-edge-label="1:N" data-edge-key="8" data-edge-id="usuario-tokens" data-composition-points="1010,275;1010,148" d="M 1010 275 L 1010 148" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
-        <path data-edge-from="usuarios" data-edge-to="intentos" data-edge-label="sin FK" data-edge-key="9" data-edge-id="usuario-intentos" data-composition-points="1010,353;1010,480" d="M 1010 353 L 1010 480" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
-        <path data-edge-from="usuarios" data-edge-to="auditoria" data-edge-label="sin FK" data-edge-key="10" data-edge-id="usuario-auditoria" data-composition-points="1110,314;1138,314;1138,724;1110,724" d="M 1110 314 L 1130 314 Q 1138 314 1138 322 L 1138 716 Q 1138 724 1130 724 L 1110 724" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="socios" data-edge-to="recoleccion" data-edge-label="1:N" data-edge-key="0" data-edge-id="socio-recoleccion" data-composition-points="400,102;360,102" d="M 400 102 L 360 102" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="socios" data-edge-to="produccion" data-edge-label="1:N" data-edge-key="1" data-edge-id="socio-produccion" data-composition-points="400,116;380,116;380,307;360,307" d="M 400 116 L 388 116 Q 380 116 380 124 L 380 299 Q 380 307 372 307 L 360 307" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="socios" data-edge-to="liquidacion" data-edge-label="1:N" data-edge-key="2" data-edge-id="socio-liquidacion" data-composition-points="500,148;500,480" d="M 500 148 L 500 480" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="produccion" data-edge-to="liquidacion" data-edge-label="1:1" data-edge-key="3" data-edge-id="produccion-liquidacion" data-composition-points="360,321;380,321;380,519;400,519" d="M 360 321 L 372 321 Q 380 321 380 329 L 380 511 Q 380 519 388 519 L 400 519" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="precios" data-edge-to="liquidacion" data-edge-label="1:N" data-edge-key="4" data-edge-id="precio-liquidacion" data-composition-points="500,685;500,558" d="M 500 685 L 500 558" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="liquidacion" data-edge-to="liqded" data-edge-label="1:N" data-edge-key="5" data-edge-id="liquidacion-detalle" data-composition-points="600,519;640,519" d="M 600 519 L 640 519" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="deducibles" data-edge-to="liqded" data-edge-label="1:N" data-edge-key="6" data-edge-id="deducible-detalle" data-composition-points="740,685;740,558" d="M 740 685 L 740 558" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="usuarios" data-edge-to="api_tokens" data-edge-label="1:N" data-edge-key="7" data-edge-id="usuario-tokens" data-composition-points="1010,275;1010,148" d="M 1010 275 L 1010 148" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
+        <path data-edge-from="usuarios" data-edge-to="intentos" data-edge-label="sin FK" data-edge-key="8" data-edge-id="usuario-intentos" data-composition-points="1010,353;1010,480" d="M 1010 353 L 1010 480" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="usuarios" data-edge-to="auditoria" data-edge-label="sin FK" data-edge-key="9" data-edge-id="usuario-auditoria" data-composition-points="1110,314;1138,314;1138,724;1110,724" d="M 1110 314 L 1130 314 Q 1138 314 1138 322 L 1138 716 Q 1138 724 1130 724 L 1110 724" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
 
         <!-- Components -->
-        <g id="node-recoleccion" data-node-id="recoleccion" data-node-label="tbl_recoleccion" tabindex="0" role="button" aria-label="Focus tbl_recoleccion, UNIQUE (id_socio, fecha), Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="UNIQUE (id_socio, fecha)" data-node-tag="~64.5 mil filas" data-node-context="Dominio de liquidación lechera">
-          <title>tbl_recoleccion · UNIQUE (id_socio, fecha) · Dominio de liquidación lechera · ~64.5 mil filas</title>
+        <g id="node-recoleccion" data-node-id="recoleccion" data-node-label="tbl_recoleccion" tabindex="0" role="button" aria-label="Focus tbl_recoleccion, UNIQUE (id_socio, fecha), Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="UNIQUE (id_socio, fecha)" data-node-context="Dominio de liquidación lechera">
+          <title>tbl_recoleccion · UNIQUE (id_socio, fecha) · Dominio de liquidación lechera</title>
           <rect x="160" y="70" width="200" height="78" rx="6" class="c-mask"/>
           <rect x="160" y="70" width="200" height="78" rx="6" class="c-database" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(166 76) scale(0.6875)">
@@ -5184,11 +5183,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           </g>
           <text data-node-label="" data-detail-anchor="" x="260" y="107" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">tbl_recoleccion</text>
         <text data-detail="context" x="260" y="123" class="t-muted" font-size="9" text-anchor="middle">UNIQUE (id_socio, fecha)</text>
-        <text data-detail="fine" x="260" y="140" class="t-database" font-size="7" text-anchor="middle">~64.5 mil filas</text>
         </g>
 
-        <g id="node-socios" data-node-id="socios" data-node-label="tbl_socios" tabindex="0" role="button" aria-label="Focus tbl_socios, UNIQUE identificacion, Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="UNIQUE identificacion" data-node-tag="107 filas" data-node-context="Dominio de liquidación lechera">
-          <title>tbl_socios · UNIQUE identificacion · Dominio de liquidación lechera · 107 filas</title>
+        <g id="node-socios" data-node-id="socios" data-node-label="tbl_socios" tabindex="0" role="button" aria-label="Focus tbl_socios, UNIQUE identificacion, Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="UNIQUE identificacion" data-node-context="Dominio de liquidación lechera">
+          <title>tbl_socios · UNIQUE identificacion · Dominio de liquidación lechera</title>
           <rect x="400" y="70" width="200" height="78" rx="6" class="c-mask"/>
           <rect x="400" y="70" width="200" height="78" rx="6" class="c-database" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(406 76) scale(0.6875)">
@@ -5197,24 +5195,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           </g>
           <text data-node-label="" data-detail-anchor="" x="500" y="107" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">tbl_socios</text>
         <text data-detail="context" x="500" y="123" class="t-muted" font-size="9" text-anchor="middle">UNIQUE identificacion</text>
-        <text data-detail="fine" x="500" y="140" class="t-database" font-size="7" text-anchor="middle">107 filas</text>
         </g>
 
-        <g id="node-anticipos" data-node-id="anticipos" data-node-label="tbl_anticipos" tabindex="0" role="button" aria-label="Focus tbl_anticipos, PK id_anticipo · FK id_socio, Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="PK id_anticipo · FK id_socio" data-node-tag="23 filas" data-node-context="Dominio de liquidación lechera">
-          <title>tbl_anticipos · PK id_anticipo · FK id_socio · Dominio de liquidación lechera · 23 filas</title>
-          <rect x="640" y="70" width="200" height="78" rx="6" class="c-mask"/>
-          <rect x="640" y="70" width="200" height="78" rx="6" class="c-database" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(646 76) scale(0.6875)">
-            <ellipse cx="8" cy="4" rx="5" ry="2"/>
-            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
-          </g>
-          <text data-node-label="" data-detail-anchor="" x="740" y="107" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">tbl_anticipos</text>
-        <text data-detail="context" x="740" y="123" class="t-muted" font-size="9" text-anchor="middle">PK id_anticipo · FK id_socio</text>
-        <text data-detail="fine" x="740" y="140" class="t-database" font-size="7" text-anchor="middle">23 filas</text>
-        </g>
-
-        <g id="node-produccion" data-node-id="produccion" data-node-label="tbl_produccion" tabindex="0" role="button" aria-label="Focus tbl_produccion, PK id_produccion · FK id_socio, Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="PK id_produccion · FK id_socio" data-node-tag="4.066 filas" data-node-context="Dominio de liquidación lechera">
-          <title>tbl_produccion · PK id_produccion · FK id_socio · Dominio de liquidación lechera · 4.066 filas</title>
+        <g id="node-produccion" data-node-id="produccion" data-node-label="tbl_produccion" tabindex="0" role="button" aria-label="Focus tbl_produccion, PK id_produccion · FK id_socio, Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="PK id_produccion · FK id_socio" data-node-context="Dominio de liquidación lechera">
+          <title>tbl_produccion · PK id_produccion · FK id_socio · Dominio de liquidación lechera</title>
           <rect x="160" y="275" width="200" height="78" rx="6" class="c-mask"/>
           <rect x="160" y="275" width="200" height="78" rx="6" class="c-database" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(166 281) scale(0.6875)">
@@ -5223,23 +5207,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           </g>
           <text data-node-label="" data-detail-anchor="" x="260" y="312" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">tbl_produccion</text>
         <text data-detail="context" x="260" y="328" class="t-muted" font-size="9" text-anchor="middle">PK id_produccion · FK id_socio</text>
-        <text data-detail="fine" x="260" y="345" class="t-database" font-size="7" text-anchor="middle">4.066 filas</text>
         </g>
 
-        <g id="node-vanticipos" data-node-id="vanticipos" data-node-label="v_anticipos_completos" tabindex="0" role="button" aria-label="Focus v_anticipos_completos, vista: anticipos + socios activos, Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="vista: anticipos + socios activos" data-node-context="Dominio de liquidación lechera">
-          <title>v_anticipos_completos · vista: anticipos + socios activos · Dominio de liquidación lechera</title>
-          <rect x="640" y="275" width="200" height="78" rx="6" class="c-mask"/>
-          <rect x="640" y="275" width="200" height="78" rx="6" class="c-database" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(646 281) scale(0.6875)">
-            <ellipse cx="8" cy="4" rx="5" ry="2"/>
-            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
-          </g>
-          <text data-node-label="" data-detail-anchor="" x="740" y="312" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">v_anticipos_completos</text>
-        <text data-detail="context" x="740" y="328" class="t-muted" font-size="9" text-anchor="middle">vista: anticipos + socios activos</text>
-        </g>
-
-        <g id="node-liquidacion" data-node-id="liquidacion" data-node-label="tbl_liquidacion" tabindex="0" role="button" aria-label="Focus tbl_liquidacion, PK id_liquidacion · 4 FK, Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="PK id_liquidacion · 4 FK" data-node-tag="4.066 filas" data-node-context="Dominio de liquidación lechera">
-          <title>tbl_liquidacion · PK id_liquidacion · 4 FK · Dominio de liquidación lechera · 4.066 filas</title>
+        <g id="node-liquidacion" data-node-id="liquidacion" data-node-label="tbl_liquidacion" tabindex="0" role="button" aria-label="Focus tbl_liquidacion, PK id_liquidacion · 3 FK, Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="PK id_liquidacion · 3 FK" data-node-context="Dominio de liquidación lechera">
+          <title>tbl_liquidacion · PK id_liquidacion · 3 FK · Dominio de liquidación lechera</title>
           <rect x="400" y="480" width="200" height="78" rx="6" class="c-mask"/>
           <rect x="400" y="480" width="200" height="78" rx="6" class="c-database" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(406 486) scale(0.6875)">
@@ -5247,25 +5218,23 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="500" y="517" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">tbl_liquidacion</text>
-        <text data-detail="context" x="500" y="533" class="t-muted" font-size="9" text-anchor="middle">PK id_liquidacion · 4 FK</text>
-        <text data-detail="fine" x="500" y="550" class="t-database" font-size="7" text-anchor="middle">4.066 filas</text>
+        <text data-detail="context" x="500" y="533" class="t-muted" font-size="9" text-anchor="middle">PK id_liquidacion · 3 FK</text>
         </g>
 
-        <g id="node-deducibles" data-node-id="deducibles" data-node-label="tbl_deducibles" tabindex="0" role="button" aria-label="Focus tbl_deducibles, PK id_deducible · por vinculacion, Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="PK id_deducible · por vinculacion" data-node-tag="2 filas" data-node-context="Dominio de liquidación lechera">
-          <title>tbl_deducibles · PK id_deducible · por vinculacion · Dominio de liquidación lechera · 2 filas</title>
+        <g id="node-liqded" data-node-id="liqded" data-node-label="tbl_liquidacion_deducible" tabindex="0" role="button" aria-label="Focus tbl_liquidacion_deducible, detalle por deducible, Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="detalle por deducible" data-node-context="Dominio de liquidación lechera">
+          <title>tbl_liquidacion_deducible · detalle por deducible · Dominio de liquidación lechera</title>
           <rect x="640" y="480" width="200" height="78" rx="6" class="c-mask"/>
           <rect x="640" y="480" width="200" height="78" rx="6" class="c-database" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(646 486) scale(0.6875)">
             <ellipse cx="8" cy="4" rx="5" ry="2"/>
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="740" y="517" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">tbl_deducibles</text>
-        <text data-detail="context" x="740" y="533" class="t-muted" font-size="9" text-anchor="middle">PK id_deducible · por vinculacion</text>
-        <text data-detail="fine" x="740" y="550" class="t-database" font-size="7" text-anchor="middle">2 filas</text>
+          <text data-node-label="" data-detail-anchor="" x="740" y="517" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">tbl_liquidacion_deducible</text>
+        <text data-detail="context" x="740" y="533" class="t-muted" font-size="9" text-anchor="middle">detalle por deducible</text>
         </g>
 
-        <g id="node-precios" data-node-id="precios" data-node-label="tbl_precios" tabindex="0" role="button" aria-label="Focus tbl_precios, PK id_precio · por vinculacion, Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="PK id_precio · por vinculacion" data-node-tag="2 filas" data-node-context="Dominio de liquidación lechera">
-          <title>tbl_precios · PK id_precio · por vinculacion · Dominio de liquidación lechera · 2 filas</title>
+        <g id="node-precios" data-node-id="precios" data-node-label="tbl_precios" tabindex="0" role="button" aria-label="Focus tbl_precios, historial: fecha_inicio, fecha_fin, Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="historial: fecha_inicio, fecha_fin" data-node-context="Dominio de liquidación lechera">
+          <title>tbl_precios · historial: fecha_inicio, fecha_fin · Dominio de liquidación lechera</title>
           <rect x="400" y="685" width="200" height="78" rx="6" class="c-mask"/>
           <rect x="400" y="685" width="200" height="78" rx="6" class="c-database" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(406 691) scale(0.6875)">
@@ -5273,8 +5242,19 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="500" y="722" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">tbl_precios</text>
-        <text data-detail="context" x="500" y="738" class="t-muted" font-size="9" text-anchor="middle">PK id_precio · por vinculacion</text>
-        <text data-detail="fine" x="500" y="755" class="t-database" font-size="7" text-anchor="middle">2 filas</text>
+        <text data-detail="context" x="500" y="738" class="t-muted" font-size="9" text-anchor="middle">historial: fecha_inicio, fecha_fin</text>
+        </g>
+
+        <g id="node-deducibles" data-node-id="deducibles" data-node-label="tbl_deducibles" tabindex="0" role="button" aria-label="Focus tbl_deducibles, nombre · tipo · valor, Dominio de liquidación lechera" aria-pressed="false" data-node-kind="database" data-node-sublabel="nombre · tipo · valor" data-node-context="Dominio de liquidación lechera">
+          <title>tbl_deducibles · nombre · tipo · valor · Dominio de liquidación lechera</title>
+          <rect x="640" y="685" width="200" height="78" rx="6" class="c-mask"/>
+          <rect x="640" y="685" width="200" height="78" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(646 691) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="740" y="722" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">tbl_deducibles</text>
+        <text data-detail="context" x="740" y="738" class="t-muted" font-size="9" text-anchor="middle">nombre · tipo · valor</text>
         </g>
 
         <g id="node-api_tokens" data-node-id="api_tokens" data-node-label="tbl_api_tokens" tabindex="0" role="button" aria-label="Focus tbl_api_tokens, PK id_token · FK id_usuario, Acceso y trazabilidad" aria-pressed="false" data-node-kind="security" data-node-sublabel="PK id_token · FK id_usuario" data-node-context="Acceso y trazabilidad">
@@ -5328,47 +5308,43 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <!-- Connection labels -->
         <g data-detail="context" data-edge-from="socios" data-edge-to="recoleccion" data-edge-label="1:N" data-edge-key="0" data-edge-id="socio-recoleccion">
           <rect x="365" y="82" width="30" height="14" rx="3" class="c-mask"/>
-          <text x="380" y="92" class="t-muted" font-size="8" text-anchor="middle">1:N</text>
+          <text x="380" y="92" class="t-backend" font-size="8" text-anchor="middle">1:N</text>
         </g>
-        <g data-detail="context" data-edge-from="socios" data-edge-to="anticipos" data-edge-label="1:N" data-edge-key="1" data-edge-id="socio-anticipos">
-          <rect x="605" y="89" width="30" height="14" rx="3" class="c-mask"/>
-          <text x="620" y="99" class="t-muted" font-size="8" text-anchor="middle">1:N</text>
+        <g data-detail="context" data-edge-from="socios" data-edge-to="produccion" data-edge-label="1:N" data-edge-key="1" data-edge-id="socio-produccion">
+          <rect x="365" y="191.5" width="30" height="14" rx="3" class="c-mask"/>
+          <text x="380" y="201.5" class="t-backend" font-size="8" text-anchor="middle">1:N</text>
         </g>
-        <g data-detail="context" data-edge-from="socios" data-edge-to="produccion" data-edge-label="1:N" data-edge-key="2" data-edge-id="socio-produccion">
-          <rect x="361" y="163.5" width="30" height="14" rx="3" class="c-mask"/>
-          <text x="376" y="173.5" class="t-muted" font-size="8" text-anchor="middle">1:N</text>
-        </g>
-        <g data-detail="context" data-edge-from="socios" data-edge-to="liquidacion" data-edge-label="1:N" data-edge-key="3" data-edge-id="socio-liquidacion">
+        <g data-detail="context" data-edge-from="socios" data-edge-to="liquidacion" data-edge-label="1:N" data-edge-key="2" data-edge-id="socio-liquidacion">
           <rect x="485" y="320" width="30" height="14" rx="3" class="c-mask"/>
-          <text x="500" y="330" class="t-muted" font-size="8" text-anchor="middle">1:N</text>
+          <text x="500" y="330" class="t-backend" font-size="8" text-anchor="middle">1:N</text>
         </g>
-        <g data-detail="context" data-edge-from="produccion" data-edge-to="liquidacion" data-edge-label="1:1" data-edge-key="4" data-edge-id="produccion-liquidacion">
-          <rect x="365" y="396.5" width="30" height="14" rx="3" class="c-mask"/>
-          <text x="380" y="406.5" class="t-muted" font-size="8" text-anchor="middle">1:1</text>
+        <g data-detail="context" data-edge-from="produccion" data-edge-to="liquidacion" data-edge-label="1:1" data-edge-key="3" data-edge-id="produccion-liquidacion">
+          <rect x="365" y="400" width="30" height="14" rx="3" class="c-mask"/>
+          <text x="380" y="410" class="t-backend" font-size="8" text-anchor="middle">1:1</text>
         </g>
-        <g data-detail="context" data-edge-from="deducibles" data-edge-to="liquidacion" data-edge-label="1:N" data-edge-key="5" data-edge-id="deducible-liquidacion">
-          <rect x="605" y="499" width="30" height="14" rx="3" class="c-mask"/>
-          <text x="620" y="509" class="t-muted" font-size="8" text-anchor="middle">1:N</text>
-        </g>
-        <g data-detail="context" data-edge-from="precios" data-edge-to="liquidacion" data-edge-label="1:N" data-edge-key="6" data-edge-id="precio-liquidacion">
+        <g data-detail="context" data-edge-from="precios" data-edge-to="liquidacion" data-edge-label="1:N" data-edge-key="4" data-edge-id="precio-liquidacion">
           <rect x="485" y="665" width="30" height="14" rx="3" class="c-mask"/>
           <text x="500" y="675" class="t-muted" font-size="8" text-anchor="middle">1:N</text>
         </g>
-        <g data-detail="context" data-edge-from="anticipos" data-edge-to="vanticipos" data-edge-label="lee" data-edge-key="7" data-edge-id="anticipos-vista">
-          <rect x="725" y="152" width="30" height="14" rx="3" class="c-mask"/>
-          <text x="740" y="162" class="t-messagebus" font-size="8" text-anchor="middle">lee</text>
+        <g data-detail="context" data-edge-from="liquidacion" data-edge-to="liqded" data-edge-label="1:N" data-edge-key="5" data-edge-id="liquidacion-detalle">
+          <rect x="605" y="499" width="30" height="14" rx="3" class="c-mask"/>
+          <text x="620" y="509" class="t-backend" font-size="8" text-anchor="middle">1:N</text>
         </g>
-        <g data-detail="context" data-edge-from="usuarios" data-edge-to="api_tokens" data-edge-label="1:N" data-edge-key="8" data-edge-id="usuario-tokens">
+        <g data-detail="context" data-edge-from="deducibles" data-edge-to="liqded" data-edge-label="1:N" data-edge-key="6" data-edge-id="deducible-detalle">
+          <rect x="725" y="665" width="30" height="14" rx="3" class="c-mask"/>
+          <text x="740" y="675" class="t-muted" font-size="8" text-anchor="middle">1:N</text>
+        </g>
+        <g data-detail="context" data-edge-from="usuarios" data-edge-to="api_tokens" data-edge-label="1:N" data-edge-key="7" data-edge-id="usuario-tokens">
           <rect x="995" y="255" width="30" height="14" rx="3" class="c-mask"/>
           <text x="1010" y="265" class="t-security" font-size="8" text-anchor="middle">1:N</text>
         </g>
-        <g data-detail="context" data-edge-from="usuarios" data-edge-to="intentos" data-edge-label="sin FK" data-edge-key="9" data-edge-id="usuario-intentos">
+        <g data-detail="context" data-edge-from="usuarios" data-edge-to="intentos" data-edge-label="sin FK" data-edge-key="8" data-edge-id="usuario-intentos">
           <rect x="990.6" y="357" width="38.8" height="14" rx="3" class="c-mask"/>
           <text x="1010" y="367" class="t-messagebus" font-size="8" text-anchor="middle">sin FK</text>
         </g>
-        <g data-detail="context" data-edge-from="usuarios" data-edge-to="auditoria" data-edge-label="sin FK" data-edge-key="10" data-edge-id="usuario-auditoria">
+        <g data-detail="context" data-edge-from="usuarios" data-edge-to="auditoria" data-edge-label="sin FK" data-edge-key="9" data-edge-id="usuario-auditoria">
           <rect x="1118.6" y="510" width="38.8" height="14" rx="3" class="c-mask"/>
-          <text x="1138" y="520" class="t-muted" font-size="8" text-anchor="middle">sin FK</text>
+          <text x="1138" y="520" class="t-messagebus" font-size="8" text-anchor="middle">sin FK</text>
         </g>
 
         <!-- Boundary labels (foreground masks keep routes out of titles) -->
@@ -5578,17 +5554,17 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <ul>
           <li>&bull; 8 FK con índice y sin nulos</li>
           <li>&bull; 0 huérfanos en los datos</li>
-          <li>&bull; 005: NOT NULL, UNIQUE, CHECK</li>
+          <li>&bull; NOT NULL, UNIQUE y CHECK (005)</li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-header">
           <div class="card-dot amber"></div>
-          <h3>Pendiente: bloque 2</h3>
+          <h3>Brechas del modelo</h3>
         </div>
         <ul>
-          <li>&bull; Precio y deducible activo único: solo triggers</li>
+          <li>&bull; Precios sin solape: solo un trigger</li>
           <li>&bull; Charset mixto utf8mb3 y utf8mb4</li>
           <li>&bull; Sin CHECK de quincena</li>
         </ul>
@@ -5597,11 +5573,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       <div class="card">
         <div class="card-header">
           <div class="card-dot rose"></div>
-          <h3>Pendiente: bloque 3</h3>
+          <h3>Pendiente</h3>
         </div>
         <ul>
           <li>&bull; Liquidaciones cerradas sin protección</li>
-          <li>&bull; Anticipo sin enlace a su liquidación</li>
+          <li>&bull; Charset de las tablas viejas</li>
           <li>&bull; Sin FK: login_intentos y auditoria</li>
         </ul>
       </div>
