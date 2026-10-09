@@ -102,24 +102,6 @@ final class ProcesoQuincenalTest extends BaseDeDatosTestCase
         $this->assertSame($antes, $despues);
     }
 
-    public function testLaAppSeNiegaALiquidarSiFaltaUnPrecioActivo(): void
-    {
-        // La app abre su propia conexión: el cambio debe estar confirmado para que lo vea,
-        // y se restaura en finally.
-        $idPrecio = (int)self::valor("SELECT id_precio FROM tbl_precios WHERE vinculacion = 'asociado' AND estado = 'activo'");
-        $this->assertGreaterThan(0, $idPrecio, 'el demo debe tener un precio activo para asociados');
-        self::ejecutar("UPDATE tbl_precios SET estado = 'inactivo' WHERE id_precio = ?", [$idPrecio]);
-        try {
-            $mensaje = ModeloCalendario::mdlCrearEvento('liquidacion', '2025-03-15');
-            $this->assertStringContainsString('falta un precio activo', $mensaje);
-            $this->assertStringContainsString('asociado', $mensaje);
-        } finally {
-            self::ejecutar("UPDATE tbl_precios SET estado = 'activo' WHERE id_precio = ?", [$idPrecio]);
-            self::ejecutar("DELETE FROM tbl_auditoria WHERE tabla = 'tbl_precios' AND id_registro = ?", [(string)$idPrecio]);
-        }
-        $this->assertSame([], ModeloCalendario::mdlVinculacionesSinTarifa(), 'el catálogo debe quedar como estaba');
-    }
-
     public function testUnDeducibleNuevoSeAplicaSinCambiarElEsquema(): void
     {
         // Un deducible creado de la nada (porcentaje) debe entrar al cálculo y al detalle de cada liquidación

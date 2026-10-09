@@ -4,150 +4,92 @@ require_once "conexion.php";
 
 class ModeloPrecios
 {
+
     /*=============================================
     MOSTRAR PRECIOS
+    Con la situación de cada uno respecto a hoy: Vigente, Futuro o Cerrado
     =============================================*/
     static public function mdlMostrarPrecios($tabla, $item, $valor)
     {
         if ($item != null) {
-
             $stmt = Conexion::conectar()->prepare("SELECT * FROM $tabla WHERE $item = :$item");
-
             $stmt->bindParam(":" . $item, $valor, PDO::PARAM_STR);
-
             $stmt->execute();
-
             return $stmt->fetch();
         } else {
-
-            $stmt = Conexion::conectar()->prepare("SELECT * FROM $tabla");
-
+            $stmt = Conexion::conectar()->prepare(
+                "SELECT p.*,
+                        CASE WHEN p.fecha_inicio > CURDATE() THEN 'Futuro'
+                             WHEN p.fecha_fin IS NOT NULL AND p.fecha_fin < CURDATE() THEN 'Cerrado'
+                             ELSE 'Vigente' END AS situacion
+                   FROM $tabla p
+                  ORDER BY p.vinculacion, p.fecha_inicio DESC"
+            );
             $stmt->execute();
-
             return $stmt->fetchAll();
         }
-
-
-        $stmt->close();
-
-        $stmt = null;
     }
 
     /*=============================================
-	CREAR DE PRECIO
+	CREAR PRECIO
+	El procedimiento cierra el precio abierto anterior de la vinculación (un día antes del inicio
+	del nuevo) y guarda el nuevo en una sola transacción.
+	Devuelve "ok", "solape" (SQLSTATE 45000 del trigger) o "error".
 	=============================================*/
-    static public function mdlCrearPrecio($tabla, $datos)
+    static public function mdlCrearPrecio($datos)
     {
-        $stmt = Conexion::conectar()->prepare("INSERT INTO $tabla (vinculacion, precio, fecha, estado) 
-        VALUES (:vinculacion, :precio, :fecha, :estado)");
-
-        $stmt->bindParam(":vinculacion", $datos["vinculacion"], PDO::PARAM_STR);
-        $stmt->bindParam(":precio", $datos["precio"], PDO::PARAM_STR);
-        $stmt->bindParam(":fecha", $datos["fecha"], PDO::PARAM_STR);
-        $stmt->bindParam(":estado", $datos["estado"], PDO::PARAM_STR);
-
-        if ($stmt->execute()) {
+        try {
+            $stmt = Conexion::conectar()->prepare("CALL spCrearPrecio(:vinculacion, :precio, :inicio, :fin)");
+            $stmt->bindParam(":vinculacion", $datos["vinculacion"], PDO::PARAM_STR);
+            $stmt->bindParam(":precio", $datos["precio"], PDO::PARAM_STR);
+            $stmt->bindParam(":inicio", $datos["fecha_inicio"], PDO::PARAM_STR);
+            $stmt->bindValue(":fin", $datos["fecha_fin"], $datos["fecha_fin"] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $stmt->execute();
+            $stmt->closeCursor();
             return "ok";
-        } else {
+        } catch (PDOException $e) {
+            if ($e->getCode() == '45000') {
+                return "solape";
+            }
+            error_log("Error al crear el precio: " . $e->getMessage());
             return "error";
         }
-
-        $stmt->close();
-
-        $stmt = null;
     }
 
     /*=============================================
-	EDITAR PRECIO
+	EDITAR PRECIO (valor y fechas)
 	=============================================*/
     static public function mdlEditarPrecio($tabla, $datos)
     {
         try {
-            $stmt = Conexion::conectar()->prepare("UPDATE  $tabla SET precio = :precio WHERE id_precio = :id_precio");
+            $stmt = Conexion::conectar()->prepare("UPDATE $tabla SET precio = :precio, fecha_inicio = :inicio, fecha_fin = :fin WHERE id_precio = :id_precio");
             $stmt->bindParam(":precio", $datos["precio"], PDO::PARAM_STR);
-            $stmt->bindParam(":id_precio", $datos["id_precio"], PDO::PARAM_STR);
-
-            if ($stmt->execute()) {
-                return "ok";
-            } else {
-                return "error";
-            }
+            $stmt->bindParam(":inicio", $datos["fecha_inicio"], PDO::PARAM_STR);
+            $stmt->bindValue(":fin", $datos["fecha_fin"], $datos["fecha_fin"] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $stmt->bindParam(":id_precio", $datos["id_precio"], PDO::PARAM_INT);
+            return $stmt->execute() ? "ok" : "error";
         } catch (PDOException $e) {
-            // El trigger lanza SQLSTATE '45000' si hay más de un activo por vinculación
+            // El trigger lanza SQLSTATE '45000' si el rango se cruza con otro precio de la vinculación
             if ($e->getCode() == '45000') {
-                return "duplicado";
+                return "solape";
             }
+            error_log("Error al editar el precio: " . $e->getMessage());
             return "error";
         }
-
-        $stmt = null;
-    }
-
-    /*=============================================
-	ACTUALIZAR PRECIO
-	=============================================*/
-    static public function mdlActualizarPrecio($tabla, $item1, $valor1, $item2, $valor2)
-    {
-        try {
-            $stmt = Conexion::conectar()->prepare("UPDATE $tabla SET $item1 = :$item1 WHERE $item2 = :$item2");
-
-            $stmt->bindParam(":" . $item1, $valor1, PDO::PARAM_STR);
-            $stmt->bindParam(":" . $item2, $valor2, PDO::PARAM_STR);
-
-            if ($stmt->execute()) {
-                return "ok";
-            } else {
-                return "error";
-            }
-        } catch (PDOException $e) {
-            // El trigger lanza SQLSTATE '45000' si hay más de un activo por vinculación
-            if ($e->getCode() == '45000') {
-                return "duplicado";
-            }
-            return "error";
-        }
-
-        $stmt = null;
     }
 
     /*=============================================
 	BORRAR PRECIO
+	Un precio que ya se usó en una liquidación no se puede borrar (llave foránea): "usado".
 	=============================================*/
     static public function mdlBorrarPrecio($tabla, $datos)
     {
-        $stmt = Conexion::conectar()->prepare("DELETE FROM $tabla WHERE id_precio = :id_precio");
-
-        $stmt->bindParam(":id_precio", $datos, PDO::PARAM_INT);
-
-        if ($stmt->execute()) {
-
-            return "ok";
-        } else {
-
-            return "error";
+        try {
+            $stmt = Conexion::conectar()->prepare("DELETE FROM $tabla WHERE id_precio = :id_precio");
+            $stmt->bindParam(":id_precio", $datos, PDO::PARAM_INT);
+            return $stmt->execute() ? "ok" : "error";
+        } catch (PDOException $e) {
+            return "usado";
         }
-
-        $stmt->close();
-
-        $stmt = null;
-    }
-
-    /*=============================================
-    VALIDAR PRECIO
-    =============================================*/
-    static public function mdlValidarPrecio($tabla, $item, $valor)
-    {
-
-        $stmt = Conexion::conectar()->prepare("SELECT * FROM $tabla WHERE $item = :$item AND estado = 'activo'");
-
-        $stmt->bindParam(":" . $item, $valor, PDO::PARAM_STR);
-
-        $stmt->execute();
-
-        return $stmt->fetch();
-
-        $stmt->close();
-
-        $stmt = null;
     }
 }

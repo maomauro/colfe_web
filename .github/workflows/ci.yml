@@ -70,6 +70,7 @@ jobs:
           mysql colfe_db < db/migraciones/005_integridad.sql
           mysql colfe_db < db/migraciones/006_retirar_anticipos.sql
           mysql colfe_db < db/migraciones/007_deducibles_por_fila.sql
+          mysql colfe_db < db/migraciones/008_precios_con_vigencia.sql
           mysql colfe_db -e "GRANT ALL ON colfe_db.* TO 'colfe_app'@'%'; FLUSH PRIVILEGES;"
           mysql colfe_db -N -e "SELECT 'socios', COUNT(*) FROM tbl_socios UNION ALL SELECT 'recoleccion', COUNT(*) FROM tbl_recoleccion UNION ALL SELECT 'liquidacion', COUNT(*) FROM tbl_liquidacion"
 
