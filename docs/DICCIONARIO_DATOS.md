@@ -26,6 +26,8 @@ Ver el diagrama [`diagramas/er-colfe.html`](diagramas/er-colfe.html). El lado «
 
 Sin llave foránea, a propósito: `tbl_auditoria.id_usuario` (conserva el historial si se borra el usuario) y `tbl_login_intentos.username` (registra también usuarios que no existen).
 
+**Los deducibles no se enlazan a los socios.** Se aplican por vinculación: al liquidar, cada socio recibe todos los deducibles `activo` de su `vinculacion`, y un mismo deducible sirve a todos los socios de ese tipo. La relación con cada liquidación (muchos a muchos: una liquidación lleva varios deducibles y un deducible aparece en muchas liquidaciones) se guarda en `tbl_liquidacion_deducible`, como registro histórico de lo que se aplicó.
+
 ## Tablas
 
 ### `tbl_socios`: Socios
