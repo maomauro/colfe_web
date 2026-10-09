@@ -26,7 +26,6 @@ class Modeloliquidacion
                         l.administracion, 
                         l.ahorro, 
                         l.total_deducibles, 
-                        COALESCE(l.total_anticipos, 0.00) as total_anticipos,
                         l.neto_a_pagar, 
                         l.estado,
                         l.id_liquidacion 
@@ -55,7 +54,6 @@ class Modeloliquidacion
                         l.administracion, 
                         l.ahorro, 
                         l.total_deducibles, 
-                        COALESCE(l.total_anticipos, 0.00) as total_anticipos,
                         l.neto_a_pagar, 
                         l.estado,
                         l.id_liquidacion 
@@ -195,7 +193,6 @@ class Modeloliquidacion
                     l.administracion, 
                     l.ahorro, 
                     l.total_deducibles, 
-                    COALESCE(l.total_anticipos, 0.00) as total_anticipos,
                     l.neto_a_pagar, 
                     l.estado,
                     l.id_liquidacion 
@@ -241,7 +238,6 @@ class Modeloliquidacion
             SELECT  COUNT(*) as total_socios,
                     SUM(l.total_litros) as total_litros,
                     SUM(l.neto_a_pagar) as total_liquidacion,
-                    SUM(COALESCE(l.total_anticipos, 0.00)) as total_anticipos,
                     SUM(CASE WHEN s.vinculacion = 'asociado' THEN l.neto_a_pagar ELSE 0 END) as total_asociados,
                     SUM(CASE WHEN s.vinculacion = 'proveedor' THEN l.neto_a_pagar ELSE 0 END) as total_proveedores,
                     MAX(l.fecha_liquidacion) as ultima_actualizacion,

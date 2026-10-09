@@ -202,7 +202,6 @@ function actualizarTablaLiquidacion(datos) {
                     '<td>$' + parseFloat(item.administracion || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
                     '<td>$' + parseFloat(item.ahorro || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
                     '<td>$' + parseFloat(item.total_deducibles || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
-                    '<td>$' + parseFloat(item.total_anticipos || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
                     '<td>$' + parseFloat(item.neto_a_pagar || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}) + '</td>' +
                     '<td>' + botonEstado + '</td>' +
                     '</tr>';
@@ -277,7 +276,6 @@ function actualizarEstadisticas(estadisticas) {
     $('#totalAsociados').text(parseFloat(estadisticas.total_asociados || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}));
     $('#totalProveedores').text(parseFloat(estadisticas.total_proveedores || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}));
     $('#totalLitros').text(parseFloat(estadisticas.total_litros || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}));
-    $('#totalAnticipos').text(parseFloat(estadisticas.total_anticipos || 0).toLocaleString('es-ES', {minimumFractionDigits: 2}));
     }
 }
 

@@ -10,10 +10,10 @@ final class ConsistenciaLiquidacionTest extends BaseDeDatosTestCase
         $this->assertGreaterThan(1000, (int)self::valor("SELECT COUNT(*) FROM tbl_liquidacion"));
     }
 
-    public function testNetoEsIngresosMenosDeduciblesMenosAnticipos(): void
+    public function testNetoEsIngresosMenosDeducibles(): void
     {
         $n = self::valor("SELECT COUNT(*) FROM tbl_liquidacion
-                           WHERE ABS(neto_a_pagar - (total_ingresos - total_deducibles - total_anticipos)) > 0.011");
+                           WHERE ABS(neto_a_pagar - (total_ingresos - total_deducibles)) > 0.011");
         $this->assertSame(0, (int)$n);
     }
 
@@ -84,29 +84,6 @@ final class ConsistenciaLiquidacionTest extends BaseDeDatosTestCase
                            LEFT JOIN tbl_liquidacion l ON l.id_produccion = p.id_produccion
                           WHERE l.id_liquidacion IS NULL");
         $this->assertSame(0, (int)$n, "producciones de socios activos sin liquidación (¿precio o deducible inactivo?)");
-    }
-
-    public function testLosAnticiposDescontadosSonLosAprobadosDeLaQuincena(): void
-    {
-        $filas = self::filas("SELECT id_liquidacion, id_socio, fecha_liquidacion, total_anticipos FROM tbl_liquidacion");
-        $aprobados = [];
-        foreach (self::filas("SELECT id_socio, fecha_anticipo, monto FROM tbl_anticipos WHERE estado = 'aprobado'") as $a) {
-            $aprobados[$a['id_socio']][] = [$a['fecha_anticipo'], (float)$a['monto']];
-        }
-        $diferencias = 0;
-        foreach ($filas as $l) {
-            [$ini, $fin] = self::rangoQuincena($l['fecha_liquidacion']);
-            $total = 0.0;
-            foreach ($aprobados[$l['id_socio']] ?? [] as [$f, $m]) {
-                if ($f >= $ini && $f <= $fin) {
-                    $total += $m;
-                }
-            }
-            if (abs($total - (float)$l['total_anticipos']) > 0.011) {
-                $diferencias++;
-            }
-        }
-        $this->assertSame(0, $diferencias, "liquidaciones con anticipos distintos a los aprobados de su quincena");
     }
 
     public function testCadaVinculacionActivaTienePrecioYDeducibleActivos(): void

@@ -107,7 +107,7 @@ Ver `docker/env.docker.example`. Obligatorias: `DB_NAME`, `DB_USER`, `DB_PASS`, 
   ```
 
 ### Auditoría de cambios
-Cada cambio en liquidaciones, anticipos, precios, deducibles, socios y las ediciones de recolección queda en
+Cada cambio en liquidaciones, precios, deducibles, socios y las ediciones de recolección queda en
 `tbl_auditoria` con el usuario, el origen (`web`, `api` o `sistema`) y los valores antes y después:
 ```sql
 SELECT fecha, username, origen, tabla, accion, id_registro, datos_antes, datos_despues
@@ -131,7 +131,7 @@ detiene si falla**, ejecuta `db/reset_produccion.sql` y verifica el resultado.
 
 | Se elimina | Se conserva |
 |---|---|
-| socios, recolecciones, producción, liquidaciones, anticipos, tokens de API e intentos de login (contadores a 1) | usuarios (el administrador), **precios y deducibles**, esquema, vistas, triggers y procedimientos |
+| socios, recolecciones, producción, liquidaciones, tokens de API e intentos de login (contadores a 1) | usuarios (el administrador), **precios y deducibles**, esquema, vistas, triggers y procedimientos |
 | el generador de datos falsos (`spInsertIntoRecoleccion`, `generar_litros_leche`) | |
 
 Después:

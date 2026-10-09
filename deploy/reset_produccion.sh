@@ -20,7 +20,7 @@ fi
 sql() { eval "$SQL_CMD" "$@"; }
 contar() { echo "SELECT COUNT(*) FROM $DB_NAME.$1;" | sql -N; }
 
-TABLAS_BORRAR="tbl_socios tbl_recoleccion tbl_produccion tbl_liquidacion tbl_anticipos tbl_auditoria"
+TABLAS_BORRAR="tbl_socios tbl_recoleccion tbl_produccion tbl_liquidacion tbl_auditoria"
 echo "================ REINICIO DE DATOS DEMO ================"
 echo "Base de datos: $DB_NAME"
 echo "Se borrarán:"

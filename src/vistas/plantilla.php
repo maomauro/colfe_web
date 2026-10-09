@@ -155,7 +155,6 @@ csrfExigir('html');
                 $_GET["ruta"] == "produccion" ||
                 $_GET["ruta"] == "deducibles" ||
                 $_GET["ruta"] == "precios" ||
-                $_GET["ruta"] == "anticipos" ||
                 $_GET["ruta"] == "liquidacion" ||
                 $_GET["ruta"] == "salir"
             ) {
@@ -185,7 +184,6 @@ csrfExigir('html');
     <script src="vistas/js/produccion.js"></script>
     <script src="vistas/js/deducibles.js"></script>
     <script src="vistas/js/precios.js"></script>
-    <script src="vistas/js/anticipos.js"></script>
     <script src="vistas/js/liquidacion.js"></script>
 
 </body>
