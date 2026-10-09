@@ -178,18 +178,6 @@ if (!empty($liquidaciones) && isset($liquidaciones[0]["fecha_liquidacion"])) {
                     echo number_format($totalLitros, 2, ',', '.');
                   ?></span>
                 </div>
-                <div class="info-stat-item">
-                  <strong><i class="fa fa-credit-card"></i> Total Anticipos:</strong> 
-                  $<span id="totalAnticipos"><?php 
-                    $totalAnticipos = 0;
-                    if (is_array($liquidaciones)) {
-                      foreach ($liquidaciones as $liq) {
-                        $totalAnticipos += floatval($liq["total_anticipos"] ?? 0);
-                      }
-                    }
-                    echo number_format($totalAnticipos, 2, ',', '.');
-                  ?></span>
-                </div>
               </div>
             </div>
           </div>
@@ -229,11 +217,7 @@ if (!empty($liquidaciones) && isset($liquidaciones[0]["fecha_liquidacion"])) {
                <th>Total Litros</th>
                <th>Precio Litro</th>
                <th>Total Ingresos</th>
-               <th>Fedegan</th>
-               <th>Admin.</th>
-              <th>Ahorro</th>
               <th>Total Deducibles</th>
-              <th>Total Anticipos</th>
               <th>Neto a Pagar</th>
               <th>Estado</th>
             </tr>
@@ -257,11 +241,7 @@ if (!empty($liquidaciones) && isset($liquidaciones[0]["fecha_liquidacion"])) {
                   <td style="background-color:#fff3cd; font-weight:bold;">' . $value["total_litros"] . '</td>
                   <td>' . $value["precio_litro"] . '</td>
                   <td style="background-color:#e6e6fa; font-weight:bold;">$' . number_format($value["total_ingresos"], 2, '.', ',') . '</td>                              
-                  <td>' . $value["fedegan"] . '</td>
-                  <td>' . $value["administracion"] . '</td>
-                  <td>' . $value["ahorro"] . '</td>                        
                   <td style="background-color:#ffe5b4; font-weight:bold;">$' . number_format($value["total_deducibles"], 2, '.', ',') . '</td>
-                  <td style="background-color:#f8d7da; font-weight:bold;">$' . number_format($value["total_anticipos"] ?? 0, 2, '.', ',') . '</td>            
                   <td style="background-color:#d4edda; font-weight:bold;">$' . number_format($value["neto_a_pagar"], 2, '.', ',') . '</td>';
               if ($value["estado"] != "liquidacion") {
                 echo '<td><button class="btn btn-danger btn-xs btnConfirmarLiquidacion" idLiquidacion="' . $value["id_liquidacion"] . '" estadoLiquidacion="liquidacion">Liquidar</button></td>';

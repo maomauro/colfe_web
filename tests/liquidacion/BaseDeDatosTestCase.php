@@ -46,16 +46,21 @@ abstract class BaseDeDatosTestCase extends TestCase
 
     /**
      * Calcula, sin usar el procedimiento almacenado, lo que debe resultar de liquidar la quincena:
-     * una fila por socio activo con recolección confirmada, con el precio y el deducible activos.
+     * una fila por socio activo con recolección confirmada, con el precio vigente en la fecha y los deducibles activos de su vinculación.
      * @return array<int,array<string,float|string|int>> indexado por id_socio
      */
     protected static function esperadoQuincena(string $fechaLiquidacion): array
     {
         [$ini, $fin] = self::rangoQuincena($fechaLiquidacion);
-        $precios = array_column(self::filas("SELECT vinculacion, precio FROM tbl_precios WHERE estado='activo'"), 'precio', 'vinculacion');
-        $deds = [];
-        foreach (self::filas("SELECT vinculacion, fedegan, administracion, ahorro FROM tbl_deducibles WHERE estado='activo'") as $d) {
-            $deds[$d['vinculacion']] = $d;
+        // El precio que cuenta es el vigente en la fecha de cierre de la quincena
+        $precios = array_column(self::filas(
+            "SELECT vinculacion, precio FROM tbl_precios
+              WHERE fecha_inicio <= :f AND (fecha_fin IS NULL OR fecha_fin >= :f2)",
+            [':f' => $fechaLiquidacion, ':f2' => $fechaLiquidacion]
+        ), 'precio', 'vinculacion');
+        $deds = [];   // vinculación => [[tipo_valor, valor], ...]
+        foreach (self::filas("SELECT vinculacion, tipo_valor, valor FROM tbl_deducibles WHERE estado='activo'") as $d) {
+            $deds[$d['vinculacion']][] = [$d['tipo_valor'], (float)$d['valor']];
         }
         $litros = self::filas(
             "SELECT r.id_socio, s.vinculacion, SUM(r.litros_leche) AS litros
@@ -64,27 +69,21 @@ abstract class BaseDeDatosTestCase extends TestCase
               GROUP BY r.id_socio, s.vinculacion",
             [':i' => $ini, ':f' => $fin]
         );
-        $anticipos = array_column(self::filas(
-            "SELECT id_socio, SUM(monto) AS total FROM tbl_anticipos
-              WHERE estado = 'aprobado' AND fecha_anticipo BETWEEN :i AND :f GROUP BY id_socio",
-            [':i' => $ini, ':f' => $fin]
-        ), 'total', 'id_socio');
-
         $esperado = [];
         foreach ($litros as $l) {
             $v = $l['vinculacion'];
             $ingresos = (float)$l['litros'] * (float)$precios[$v];
-            $fedegan = $ingresos * ((float)$deds[$v]['fedegan'] / 100);
-            $deducibles = $fedegan + (float)$deds[$v]['administracion'] + (float)$deds[$v]['ahorro'];
-            $ant = (float)($anticipos[$l['id_socio']] ?? 0);
+            $ingresos = round($ingresos, 2);
+            $deducibles = 0.0;
+            foreach ($deds[$v] ?? [] as [$tipo, $valor]) {
+                $deducibles += ($tipo === 'porcentaje') ? round($ingresos * $valor / 100, 2) : $valor;
+            }
             $esperado[(int)$l['id_socio']] = [
                 'litros' => round((float)$l['litros'], 2),
                 'precio' => (float)$precios[$v],
                 'ingresos' => round($ingresos, 2),
-                'fedegan' => round($fedegan, 2),
                 'deducibles' => round($deducibles, 2),
-                'anticipos' => round($ant, 2),
-                'neto' => round($ingresos - $deducibles - $ant, 2),
+                'neto' => round($ingresos - $deducibles, 2),
             ];
         }
         return $esperado;

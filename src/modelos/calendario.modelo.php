@@ -10,11 +10,11 @@ class ModeloCalendario
     static public function mdlCrearEvento($evento, $fecha) {
         try {
             // spProcesarLiquidacionQuincenal omite en silencio a los socios cuya vinculación no tiene
-            // precio o deducible activo: se avisa antes de liquidar en vez de dejar liquidaciones incompletas.
+            // precio vigente en la fecha: se avisa antes de liquidar en vez de dejar liquidaciones incompletas.
             if($evento != "recoleccion") {
-                $faltantes = self::mdlVinculacionesSinTarifa();
+                $faltantes = self::mdlVinculacionesSinTarifa($fecha);
                 if (!empty($faltantes)) {
-                    return "No se puede liquidar: falta un precio o un deducible activo para la vinculación: "
+                    return "No se puede liquidar: falta un precio vigente el " . $fecha . " para la vinculación: "
                          . implode(", ", $faltantes);
                 }
             }
@@ -65,20 +65,24 @@ class ModeloCalendario
     }
 
     /*=============================================
-	VINCULACIONES ACTIVAS SIN PRECIO O SIN DEDUCIBLE ACTIVO
+	VINCULACIONES ACTIVAS SIN PRECIO VIGENTE EN UNA FECHA
 	=============================================*/
-    static public function mdlVinculacionesSinTarifa()
+    static public function mdlVinculacionesSinTarifa($fecha = null)
     {
+        // El precio que cuenta es el vigente en la fecha de cierre de la quincena (hoy, si no se indica)
+        $fecha = $fecha !== null ? $fecha : date('Y-m-d');
         $stmt = Conexion::conectar()->prepare("
             SELECT DISTINCT s.vinculacion
               FROM tbl_socios s
              WHERE s.estado = 'activo'
-               AND (NOT EXISTS (SELECT 1 FROM tbl_precios p
-                                 WHERE p.vinculacion = s.vinculacion AND p.estado = 'activo')
-                 OR NOT EXISTS (SELECT 1 FROM tbl_deducibles d
-                                 WHERE d.vinculacion = s.vinculacion AND d.estado = 'activo'))
+               AND NOT EXISTS (SELECT 1 FROM tbl_precios p
+                                WHERE p.vinculacion = s.vinculacion
+                                  AND p.fecha_inicio <= :fecha
+                                  AND (p.fecha_fin IS NULL OR p.fecha_fin >= :fecha2))
              ORDER BY s.vinculacion
         ");
+        $stmt->bindValue(":fecha", $fecha, PDO::PARAM_STR);
+        $stmt->bindValue(":fecha2", $fecha, PDO::PARAM_STR);
         $stmt->execute();
         $filas = $stmt->fetchAll(PDO::FETCH_COLUMN);
         $stmt->closeCursor();

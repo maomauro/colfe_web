@@ -3,6 +3,17 @@
 date_default_timezone_set('America/Bogota');
 session_start();
 
+/**
+ * Ruta de un recurso propio (vistas/js, vistas/css) con su fecha de modificación como versión.
+ * El nginx permite guardar los estáticos 7 días en el navegador: sin esto, tras un cambio el
+ * navegador sigue usando el JavaScript o el CSS viejos hasta que venza esa copia.
+ */
+function colfeRecurso($ruta)
+{
+    $archivo = __DIR__ . '/../../public/' . $ruta;
+    return $ruta . (is_file($archivo) ? '?v=' . filemtime($archivo) : '');
+}
+
 // Buffer de salida: el login se procesa dentro del HTML y debe poder enviar cabeceras
 // (nuevo id de sesión) después de haber empezado a escribir la página.
 ob_start();
@@ -54,17 +65,17 @@ csrfExigir('html');
     <link rel="stylesheet" href="vistas/bower_components/fullcalendar/dist/fullcalendar.min.css">
     <link rel="stylesheet" href="vistas/bower_components/fullcalendar/dist/fullcalendar.print.min.css" media="print">
     <!-- Estilo personalizado -->
-    <link rel="stylesheet" href="vistas/css/editar.css">
+    <link rel="stylesheet" href="<?php echo colfeRecurso("vistas/css/editar.css"); ?>">
     <!-- Sidebar colapsado por defecto -->
-    <link rel="stylesheet" href="vistas/css/sidebar_colapsado.css">
+    <link rel="stylesheet" href="<?php echo colfeRecurso("vistas/css/sidebar_colapsado.css"); ?>">
     <!-- Estilos para liquidación -->
-    <link rel="stylesheet" href="vistas/css/liquidacion.css">
+    <link rel="stylesheet" href="<?php echo colfeRecurso("vistas/css/liquidacion.css"); ?>">
     <!-- Estilos para recolección -->
-    <link rel="stylesheet" href="vistas/css/recoleccion.css">
+    <link rel="stylesheet" href="<?php echo colfeRecurso("vistas/css/recoleccion.css"); ?>">
     <!-- Estilos para producción -->
-    <link rel="stylesheet" href="vistas/css/produccion.css">
+    <link rel="stylesheet" href="<?php echo colfeRecurso("vistas/css/produccion.css"); ?>">
     <!-- Estilos de consistencia visual -->
-    <link rel="stylesheet" href="vistas/css/consistencia.css">
+    <link rel="stylesheet" href="<?php echo colfeRecurso("vistas/css/consistencia.css"); ?>">
     <!-- Calendario (Local) -->
     <link rel="stylesheet" href="vistas/libs/external/css/jquery-ui.min.css">
 
@@ -155,7 +166,6 @@ csrfExigir('html');
                 $_GET["ruta"] == "produccion" ||
                 $_GET["ruta"] == "deducibles" ||
                 $_GET["ruta"] == "precios" ||
-                $_GET["ruta"] == "anticipos" ||
                 $_GET["ruta"] == "liquidacion" ||
                 $_GET["ruta"] == "salir"
             ) {
@@ -177,16 +187,15 @@ csrfExigir('html');
 
     <!-- =============================================== -->
     <!-- Scripts personalizados de la aplicación -->
-    <script src="vistas/js/plantilla.js"></script>
-    <script src="vistas/js/inicio.js"></script>
-    <script src="vistas/js/socios.js"></script>
-    <script src="vistas/js/calendario.js"></script>
-    <script src="vistas/js/recoleccion.js"></script>
-    <script src="vistas/js/produccion.js"></script>
-    <script src="vistas/js/deducibles.js"></script>
-    <script src="vistas/js/precios.js"></script>
-    <script src="vistas/js/anticipos.js"></script>
-    <script src="vistas/js/liquidacion.js"></script>
+    <script src="<?php echo colfeRecurso("vistas/js/plantilla.js"); ?>"></script>
+    <script src="<?php echo colfeRecurso("vistas/js/inicio.js"); ?>"></script>
+    <script src="<?php echo colfeRecurso("vistas/js/socios.js"); ?>"></script>
+    <script src="<?php echo colfeRecurso("vistas/js/calendario.js"); ?>"></script>
+    <script src="<?php echo colfeRecurso("vistas/js/recoleccion.js"); ?>"></script>
+    <script src="<?php echo colfeRecurso("vistas/js/produccion.js"); ?>"></script>
+    <script src="<?php echo colfeRecurso("vistas/js/deducibles.js"); ?>"></script>
+    <script src="<?php echo colfeRecurso("vistas/js/precios.js"); ?>"></script>
+    <script src="<?php echo colfeRecurso("vistas/js/liquidacion.js"); ?>"></script>
 
 </body>
 </html>

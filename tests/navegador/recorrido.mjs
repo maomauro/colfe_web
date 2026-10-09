@@ -36,7 +36,7 @@ await Promise.all([page.waitForURL('**/inicio', { timeout: 15000 }), page.click(
 limpiar();
 
 console.log('2) Módulos (sin errores de JS ni respuestas 4xx/5xx)');
-for (const ruta of ['inicio', 'socios', 'calendario', 'recoleccion', 'produccion', 'deducibles', 'precios', 'anticipos', 'liquidacion']) {
+for (const ruta of ['inicio', 'socios', 'calendario', 'recoleccion', 'produccion', 'deducibles', 'precios', 'liquidacion']) {
   await page.goto(`${BASE}/${ruta}`, { waitUntil: 'networkidle' });
   await page.waitForTimeout(500);
   const e = limpiar();

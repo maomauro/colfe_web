@@ -22,11 +22,7 @@ class Modeloliquidacion
                         l.total_litros, 
                         l.precio_litro, 
                         l.total_ingresos, 
-                        l.fedegan, 
-                        l.administracion, 
-                        l.ahorro, 
                         l.total_deducibles, 
-                        COALESCE(l.total_anticipos, 0.00) as total_anticipos,
                         l.neto_a_pagar, 
                         l.estado,
                         l.id_liquidacion 
@@ -51,11 +47,7 @@ class Modeloliquidacion
                         l.total_litros, 
                         l.precio_litro, 
                         l.total_ingresos, 
-                        l.fedegan, 
-                        l.administracion, 
-                        l.ahorro, 
                         l.total_deducibles, 
-                        COALESCE(l.total_anticipos, 0.00) as total_anticipos,
                         l.neto_a_pagar, 
                         l.estado,
                         l.id_liquidacion 
@@ -191,11 +183,7 @@ class Modeloliquidacion
                     l.total_litros, 
                     l.precio_litro, 
                     l.total_ingresos, 
-                    l.fedegan, 
-                    l.administracion, 
-                    l.ahorro, 
                     l.total_deducibles, 
-                    COALESCE(l.total_anticipos, 0.00) as total_anticipos,
                     l.neto_a_pagar, 
                     l.estado,
                     l.id_liquidacion 
@@ -241,7 +229,6 @@ class Modeloliquidacion
             SELECT  COUNT(*) as total_socios,
                     SUM(l.total_litros) as total_litros,
                     SUM(l.neto_a_pagar) as total_liquidacion,
-                    SUM(COALESCE(l.total_anticipos, 0.00)) as total_anticipos,
                     SUM(CASE WHEN s.vinculacion = 'asociado' THEN l.neto_a_pagar ELSE 0 END) as total_asociados,
                     SUM(CASE WHEN s.vinculacion = 'proveedor' THEN l.neto_a_pagar ELSE 0 END) as total_proveedores,
                     MAX(l.fecha_liquidacion) as ultima_actualizacion,
@@ -263,5 +250,27 @@ class Modeloliquidacion
         return $stmt->fetch(PDO::FETCH_ASSOC);
         $stmt->close();
         $stmt = null;
+    }
+
+    /*=============================================
+    DEDUCIBLES APLICADOS A LAS LIQUIDACIONES DE UNA FECHA (para el recibo)
+    Devuelve [id_liquidacion => [filas de tbl_liquidacion_deducible]]
+    =============================================*/
+    static public function mdlDeduciblesPorFecha($fecha)
+    {
+        $stmt = Conexion::conectar()->prepare(
+            "SELECT ld.id_liquidacion, ld.nombre, ld.tipo_valor, ld.valor, ld.monto
+               FROM tbl_liquidacion_deducible ld
+               JOIN tbl_liquidacion l ON l.id_liquidacion = ld.id_liquidacion
+              WHERE l.fecha_liquidacion = :fecha
+              ORDER BY ld.id_liquidacion, ld.id_liquidacion_deducible"
+        );
+        $stmt->bindParam(":fecha", $fecha, PDO::PARAM_STR);
+        $stmt->execute();
+        $porLiquidacion = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $fila) {
+            $porLiquidacion[(int)$fila["id_liquidacion"]][] = $fila;
+        }
+        return $porLiquidacion;
     }
 }

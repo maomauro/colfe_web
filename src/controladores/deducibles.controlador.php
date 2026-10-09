@@ -4,22 +4,37 @@ require_once __DIR__ . '/../modelos/deducibles.modelo.php';
 class ControladorDeducibles
 {
 	/*=============================================
+	VALIDAR LOS DATOS DE UN DEDUCIBLE
+	Nombre de 1 a 60 caracteres, tipo porcentaje|fijo y valor numérico >= 0 (<= 100 si es porcentaje)
+	=============================================*/
+	static private function datosValidos($nombre, $tipo, $valor)
+	{
+		$nombre = trim((string)$nombre);
+		if ($nombre === '' || mb_strlen($nombre, 'UTF-8') > 60) {
+			return false;
+		}
+		if ($tipo !== 'porcentaje' && $tipo !== 'fijo') {
+			return false;
+		}
+		if (!preg_match('/^\d+(\.\d{1,2})?$/', (string)$valor)) {
+			return false;
+		}
+		return $tipo === 'fijo' || (float)$valor <= 100;
+	}
+
+	/*=============================================
 	REGISTRO DE DEDUCIBLE
 	=============================================*/
 	static public function ctrCrearDeducible()
 	{
-		if (isset($_POST["nuevoFedegan"])) {
-			if (
-				preg_match('/^\d+(\.\d{1,2})?$/', $_POST["nuevoFedegan"]) &&
-				preg_match('/^\d+(\.\d{1,2})?$/', $_POST["nuevoAdministracion"]) &&
-				preg_match('/^\d+(\.\d{1,2})?$/', $_POST["nuevoAhorro"])
-			) {
+		if (isset($_POST["nuevoNombre"])) {
+			if (self::datosValidos($_POST["nuevoNombre"], isset($_POST["nuevoTipo"]) ? $_POST["nuevoTipo"] : '', isset($_POST["nuevoValor"]) ? $_POST["nuevoValor"] : '')) {
 				$tabla = "tbl_deducibles";
 				$datos = array(
 					"vinculacion" => $_POST["nuevoVinculacion"],
-					"fedegan" => $_POST["nuevoFedegan"],
-					"administracion" => $_POST["nuevoAdministracion"],
-					"ahorro" => $_POST["nuevoAhorro"],
+					"nombre" => trim($_POST["nuevoNombre"]),
+					"tipo_valor" => $_POST["nuevoTipo"],
+					"valor" => $_POST["nuevoValor"],
 					"fecha" => date('Y-m-d'), // Ejemplo: 2025-05-21
 					"estado" => "activo"
 				);
@@ -41,7 +56,7 @@ class ControladorDeducibles
 					echo '<script>
 						swal({
 							type: "error",
-							title: "¡El deducible ya existe para esta vinculación!",
+							title: "¡Ya existe un deducible activo con ese nombre para esta vinculación!",
 							showConfirmButton: true,
 							confirmButtonText: "Cerrar"
 						}).then(function(result){
@@ -55,7 +70,7 @@ class ControladorDeducibles
 				echo '<script>
 					swal({
 						type: "error",
-						title: "¡El valor fedegan no puede ir vacío!",
+						title: "¡Revisa los datos: nombre, tipo y valor (un porcentaje va de 0 a 100)!",
 						showConfirmButton: true,
 						confirmButtonText: "Cerrar"
 					}).then(function(result){
@@ -84,18 +99,14 @@ class ControladorDeducibles
 	static public function ctrEditarDeducible()
 	{
 		if (isset($_POST["idDeducible"])) {
-			if (
-				preg_match('/^\d+(\.\d{1,2})?$/', $_POST["editarFedegan"]) &&
-				preg_match('/^\d+(\.\d{1,2})?$/', $_POST["editarAdministracion"]) &&
-				preg_match('/^\d+(\.\d{1,2})?$/', $_POST["editarAhorro"])
-			) {
+			if (self::datosValidos(isset($_POST["editarNombre"]) ? $_POST["editarNombre"] : '', isset($_POST["editarTipo"]) ? $_POST["editarTipo"] : '', isset($_POST["editarValor"]) ? $_POST["editarValor"] : '')) {
 
 				$tabla = "tbl_deducibles";
 				$datos = array(
 					"id_deducible" => $_POST["idDeducible"],
-					"fedegan" => $_POST["editarFedegan"],
-					"administracion" => $_POST["editarAdministracion"],
-					"ahorro" => $_POST["editarAhorro"]
+					"nombre" => trim($_POST["editarNombre"]),
+					"tipo_valor" => $_POST["editarTipo"],
+					"valor" => $_POST["editarValor"]
 				);
 
 				$respuesta = ModeloDeducibles::mdlEditarDeducible($tabla, $datos);
@@ -117,7 +128,7 @@ class ControladorDeducibles
 					echo '<script>
 						swal({
 							type: "error",
-							title: "¡El deducible ya existe para esta vinculación!",
+							title: "¡Ya existe un deducible activo con ese nombre para esta vinculación!",
 							showConfirmButton: true,
 							confirmButtonText: "Cerrar"
 						}).then(function(result){
@@ -131,7 +142,7 @@ class ControladorDeducibles
 				echo '<script>
 					swal({
 						  type: "error",
-						  title: "¡El valor fedegan no puede ir vacío!",
+						  title: "¡Revisa los datos: nombre, tipo y valor (un porcentaje va de 0 a 100)!",
 						  showConfirmButton: true,
 						  confirmButtonText: "Cerrar"
 						  }).then(function(result){
@@ -150,9 +161,10 @@ class ControladorDeducibles
 	=============================================*/
 	static public function ctrBorrarDeducible()
 	{
-		if (isset($_POST["idDeducible"])) {
+		// Variable propia: el formulario de edición también envía idDeducible y no debe borrar
+		if (isset($_POST["borrarDeducible"])) {
 			$tabla = "tbl_deducibles";
-			$datos = $_POST["idDeducible"];
+			$datos = $_POST["borrarDeducible"];
 
 			$respuesta = ModeloDeducibles::mdlBorrarDeducible($tabla, $datos);
 
@@ -169,6 +181,20 @@ class ControladorDeducibles
 								}
 							})
 				    </script>';
+			} else {
+				echo '<script>
+				    swal({
+					  type: "error",
+					  title: "No se puede borrar: el deducible ya se usó en liquidaciones",
+					  text: "Márcalo como inactivo para dejar de aplicarlo.",
+					  showConfirmButton: true,
+					  confirmButtonText: "Cerrar"
+					  }).then(function(result){
+								if (result.value) {
+								    window.location = "deducibles";
+								}
+							})
+				    </script>';
 			}
 		}
 	}
@@ -176,10 +202,8 @@ class ControladorDeducibles
 	/*=============================================
 	VALIDAR NO REPETIR DEDUCIBLE
 	=============================================*/
-	static public function ctrValidarDeducible($item, $valor)
+	static public function ctrValidarDeducible($vinculacion, $nombre)
 	{
-		$tabla = "tbl_deducibles";
-		$respuesta = ModeloDeducibles::mdlValidarDeducible($tabla, $item, $valor);
-		return $respuesta;
+		return ModeloDeducibles::mdlValidarDeducible($vinculacion, trim((string)$nombre));
 	}
 }

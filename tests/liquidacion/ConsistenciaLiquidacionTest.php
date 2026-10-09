@@ -10,17 +10,19 @@ final class ConsistenciaLiquidacionTest extends BaseDeDatosTestCase
         $this->assertGreaterThan(1000, (int)self::valor("SELECT COUNT(*) FROM tbl_liquidacion"));
     }
 
-    public function testNetoEsIngresosMenosDeduciblesMenosAnticipos(): void
+    public function testNetoEsIngresosMenosDeducibles(): void
     {
         $n = self::valor("SELECT COUNT(*) FROM tbl_liquidacion
-                           WHERE ABS(neto_a_pagar - (total_ingresos - total_deducibles - total_anticipos)) > 0.011");
+                           WHERE ABS(neto_a_pagar - (total_ingresos - total_deducibles)) > 0.011");
         $this->assertSame(0, (int)$n);
     }
 
-    public function testDeduciblesSumanFedeganAdministracionYAhorro(): void
+    public function testTotalDeduciblesEsLaSumaDelDetalle(): void
     {
-        $n = self::valor("SELECT COUNT(*) FROM tbl_liquidacion
-                           WHERE ABS(total_deducibles - (fedegan + administracion + ahorro)) > 0.011");
+        $n = self::valor("SELECT COUNT(*) FROM tbl_liquidacion l
+                           WHERE ABS(l.total_deducibles - (SELECT COALESCE(SUM(ld.monto), 0)
+                                                             FROM tbl_liquidacion_deducible ld
+                                                            WHERE ld.id_liquidacion = l.id_liquidacion)) > 0.001");
         $this->assertSame(0, (int)$n);
     }
 
@@ -31,10 +33,34 @@ final class ConsistenciaLiquidacionTest extends BaseDeDatosTestCase
         $this->assertSame(0, (int)$n);
     }
 
-    public function testFedeganEsElPorcentajeDelDeducibleSobreLosIngresos(): void
+    public function testCadaDeduciblePorcentualEsSuPorcentajeDeLosIngresos(): void
     {
-        $n = self::valor("SELECT COUNT(*) FROM tbl_liquidacion l JOIN tbl_deducibles d ON d.id_deducible = l.id_deducible
-                           WHERE ABS(l.fedegan - ROUND(l.total_litros * l.precio_litro * d.fedegan / 100, 2)) > 0.011");
+        $n = self::valor("SELECT COUNT(*) FROM tbl_liquidacion_deducible ld JOIN tbl_liquidacion l ON l.id_liquidacion = ld.id_liquidacion
+                           WHERE ld.tipo_valor = 'porcentaje'
+                             AND ABS(ld.monto - ROUND(l.total_ingresos * ld.valor / 100, 2)) > 0.011");
+        $this->assertSame(0, (int)$n);
+    }
+
+    public function testCadaDeducibleFijoEsSuValor(): void
+    {
+        $n = self::valor("SELECT COUNT(*) FROM tbl_liquidacion_deducible WHERE tipo_valor = 'fijo' AND ABS(monto - valor) > 0.001");
+        $this->assertSame(0, (int)$n);
+    }
+
+    public function testElPrecioDeCadaLiquidacionRegiaEnSuFechaDeCierre(): void
+    {
+        $n = self::valor("SELECT COUNT(*) FROM tbl_liquidacion l JOIN tbl_precios p ON p.id_precio = l.id_precio
+                           WHERE NOT (p.fecha_inicio <= l.fecha_liquidacion
+                                      AND (p.fecha_fin IS NULL OR p.fecha_fin >= l.fecha_liquidacion))");
+        $this->assertSame(0, (int)$n);
+    }
+
+    public function testLosRangosDePreciosDeUnaVinculacionNoSeSolapan(): void
+    {
+        $n = self::valor("SELECT COUNT(*) FROM tbl_precios a JOIN tbl_precios b
+                             ON a.vinculacion = b.vinculacion AND a.id_precio < b.id_precio
+                            AND a.fecha_inicio <= COALESCE(b.fecha_fin, '9999-12-31')
+                            AND COALESCE(a.fecha_fin, '9999-12-31') >= b.fecha_inicio");
         $this->assertSame(0, (int)$n);
     }
 
@@ -83,33 +109,10 @@ final class ConsistenciaLiquidacionTest extends BaseDeDatosTestCase
                            JOIN tbl_socios s ON s.id_socio = p.id_socio AND s.estado = 'activo'
                            LEFT JOIN tbl_liquidacion l ON l.id_produccion = p.id_produccion
                           WHERE l.id_liquidacion IS NULL");
-        $this->assertSame(0, (int)$n, "producciones de socios activos sin liquidación (¿precio o deducible inactivo?)");
+        $this->assertSame(0, (int)$n, "producciones de socios activos sin liquidación (¿faltó un precio vigente en esa fecha?)");
     }
 
-    public function testLosAnticiposDescontadosSonLosAprobadosDeLaQuincena(): void
-    {
-        $filas = self::filas("SELECT id_liquidacion, id_socio, fecha_liquidacion, total_anticipos FROM tbl_liquidacion");
-        $aprobados = [];
-        foreach (self::filas("SELECT id_socio, fecha_anticipo, monto FROM tbl_anticipos WHERE estado = 'aprobado'") as $a) {
-            $aprobados[$a['id_socio']][] = [$a['fecha_anticipo'], (float)$a['monto']];
-        }
-        $diferencias = 0;
-        foreach ($filas as $l) {
-            [$ini, $fin] = self::rangoQuincena($l['fecha_liquidacion']);
-            $total = 0.0;
-            foreach ($aprobados[$l['id_socio']] ?? [] as [$f, $m]) {
-                if ($f >= $ini && $f <= $fin) {
-                    $total += $m;
-                }
-            }
-            if (abs($total - (float)$l['total_anticipos']) > 0.011) {
-                $diferencias++;
-            }
-        }
-        $this->assertSame(0, $diferencias, "liquidaciones con anticipos distintos a los aprobados de su quincena");
-    }
-
-    public function testCadaVinculacionActivaTienePrecioYDeducibleActivos(): void
+    public function testCadaVinculacionActivaTienePrecioVigenteHoy(): void
     {
         $this->assertSame([], ModeloCalendario::mdlVinculacionesSinTarifa());
     }

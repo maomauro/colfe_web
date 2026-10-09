@@ -75,8 +75,9 @@ El script respalda la base antes de actualizar y verifica que la web responda 20
 
 ## 5. Rollback
 Volver a un tag anterior: `TAG=sha-<commit-anterior> ./deploy/desplegar.sh`. Las migraciones de
-`db/migraciones/` son aditivas e idempotentes; si una versión nueva añade una, hay que aplicarla a
-mano (ver sección 5) y la anterior sigue funcionando con la tabla extra.
+`db/migraciones/` son idempotentes y casi todas aditivas; **las 006 y 007 son destructivas** (eliminan los datos de anticipos y de ahorro, y recalculan las liquidaciones existentes): hacer antes `./deploy/backup.sh`. La 008 (precios con vigencia) no borra datos, pero falla sin cambiar nada si hay precios `inactivo`: cada uno debe cerrarse antes con una fecha de fin. Si una versión nueva añade una migración, hay que aplicarla a
+mano (ver sección 6); las aditivas dejan funcionar a la versión anterior, pero tras la 006 o la 007 el código anterior ya no sirve:
+para volver atrás hay que restaurar el respaldo previo (sección 8).
 
 ## 6. Migraciones sobre una base existente
 La inicialización automática solo corre con el volumen vacío. Para una base ya creada:
@@ -107,7 +108,7 @@ Ver `docker/env.docker.example`. Obligatorias: `DB_NAME`, `DB_USER`, `DB_PASS`, 
   ```
 
 ### Auditoría de cambios
-Cada cambio en liquidaciones, anticipos, precios, deducibles, socios y las ediciones de recolección queda en
+Cada cambio en liquidaciones, precios, deducibles, socios y las ediciones de recolección queda en
 `tbl_auditoria` con el usuario, el origen (`web`, `api` o `sistema`) y los valores antes y después:
 ```sql
 SELECT fecha, username, origen, tabla, accion, id_registro, datos_antes, datos_despues
@@ -131,11 +132,11 @@ detiene si falla**, ejecuta `db/reset_produccion.sql` y verifica el resultado.
 
 | Se elimina | Se conserva |
 |---|---|
-| socios, recolecciones, producción, liquidaciones, anticipos, tokens de API e intentos de login (contadores a 1) | usuarios (el administrador), **precios y deducibles**, esquema, vistas, triggers y procedimientos |
+| socios, recolecciones, producción, liquidaciones, tokens de API e intentos de login (contadores a 1) | usuarios (el administrador), **precios y deducibles**, esquema, vistas, triggers y procedimientos |
 | el generador de datos falsos (`spInsertIntoRecoleccion`, `generar_litros_leche`) | |
 
 Después:
-1. **Revisar los precios y deducibles** con la cooperativa (los valores actuales son del demo: 1.700 / 1.650 por litro, 0,75 % FEDEGAN, 10.000 de administración y 25.000 de ahorro por quincena).
+1. **Revisar los precios y deducibles** con la cooperativa (los valores actuales son del demo: 1.700 / 1.650 por litro; deducibles de Fedegán 0,75 % para todos y de administración 10.000 por liquidación solo para asociados).
 2. Cargar los socios reales desde la aplicación.
 3. Para **deshacer**, restaurar el respaldo que el script acaba de crear (ver sección 7).
 

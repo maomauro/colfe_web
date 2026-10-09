@@ -97,6 +97,12 @@ Para empezar de cero: `docker compose down -v`.
    mysql -u root -p colfe_db < db/migraciones/004_auditoria.sql
    # Integridad (NOT NULL, UNIQUE, CHECK); falla si hay datos que no la cumplen
    mysql -u root -p colfe_db < db/migraciones/005_integridad.sql
+   # Retira el módulo de anticipos (borra sus datos; haga un respaldo antes)
+   mysql -u root -p colfe_db < db/migraciones/006_retirar_anticipos.sql
+   # Deducibles uno por fila y retiro del ahorro (borra los datos de ahorro; haga un respaldo antes)
+   mysql -u root -p colfe_db < db/migraciones/007_deducibles_por_fila.sql
+   # Precios con vigencia (fecha de inicio y de fin, sin solapes); falla si hay precios inactivos
+   mysql -u root -p colfe_db < db/migraciones/008_precios_con_vigencia.sql
 
    # Crear el usuario administrador (la migración 002 elimina admin/admin y user/12345)
    COLFE_CLAVE='una-clave-larga-con-numeros-123' php db/tools/crear_usuario.php admin
@@ -174,7 +180,7 @@ Implementado:
 - Lista blanca de rutas en el router
 - Contraseñas con `password_hash` (bcrypt); clave mínima de 10 caracteres con letras y números
 - Bloqueo por intentos fallidos (5 por usuario / 20 por IP cada 15 min) y nuevo id de sesión al ingresar
-- **Auditoría de cambios:** quién, cuándo y los valores antes/después en liquidaciones, anticipos, precios, deducibles, socios y ediciones de recolección (`SELECT * FROM v_auditoria ORDER BY id_auditoria DESC`)
+- **Auditoría de cambios:** quién, cuándo y los valores antes/después en liquidaciones, precios, deducibles, socios y ediciones de recolección (`SELECT * FROM v_auditoria ORDER BY id_auditoria DESC`)
 - Sesión con vencimiento por inactividad (`SESSION_TIMEOUT`)
 - Cookies de sesión `httponly`
 - Guard de sesión en `ajax/` y `reportes/`; token real (hash en BD, vence a las 24 h) en `api/`

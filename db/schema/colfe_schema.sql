@@ -1,4 +1,7 @@
 -- Esquema sin datos, generado con db/tools/extraer_esquema.py desde colfe_demo_2026.sql
+-- ATENCION: es el esquema BASE, anterior a las migraciones. El modelo vigente es este esquema mas
+-- db/migraciones/001 a 007 en orden (006 retira anticipos; 007 pasa los deducibles a una fila cada uno y retira el ahorro).
+-- Para ver el modelo actual: docs/DICCIONARIO_DATOS.md y docs/diagramas/er-colfe.html.
 -- NOTA: fechas desplazadas +1 anio(s) con db/tools/desplazar_fechas.py.
 -- Origen: colfe_db_20260929.sql. No editar a mano: regenerar con el script.
 -- --------------------------------------------------------

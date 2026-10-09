@@ -39,13 +39,13 @@ class ModeloDeducibles
     static public function mdlCrearDeducible($tabla, $datos)
     {
         try {
-            $stmt = Conexion::conectar()->prepare("INSERT INTO $tabla (vinculacion, fedegan, administracion, ahorro, fecha, estado) 
-        VALUES (:vinculacion, :fedegan, :administracion, :ahorro, :fecha, :estado)");
+            $stmt = Conexion::conectar()->prepare("INSERT INTO $tabla (vinculacion, nombre, tipo_valor, valor, fecha, estado)
+        VALUES (:vinculacion, :nombre, :tipo_valor, :valor, :fecha, :estado)");
 
             $stmt->bindParam(":vinculacion", $datos["vinculacion"], PDO::PARAM_STR);
-            $stmt->bindParam(":fedegan", $datos["fedegan"], PDO::PARAM_STR);
-            $stmt->bindParam(":administracion", $datos["administracion"], PDO::PARAM_STR);
-            $stmt->bindParam(":ahorro", $datos["ahorro"], PDO::PARAM_STR);
+            $stmt->bindParam(":nombre", $datos["nombre"], PDO::PARAM_STR);
+            $stmt->bindParam(":tipo_valor", $datos["tipo_valor"], PDO::PARAM_STR);
+            $stmt->bindParam(":valor", $datos["valor"], PDO::PARAM_STR);
             $stmt->bindParam(":fecha", $datos["fecha"], PDO::PARAM_STR);
             $stmt->bindParam(":estado", $datos["estado"], PDO::PARAM_STR);
 
@@ -55,7 +55,7 @@ class ModeloDeducibles
                 return "error";
             }
         } catch (PDOException $e) {
-            // El trigger lanza SQLSTATE '45000' si hay más de un activo por vinculación
+            // El trigger lanza SQLSTATE '45000' si ya hay un deducible activo con ese nombre para la vinculación
             if ($e->getCode() == '45000') {
                 return "duplicado";
             }
@@ -71,12 +71,11 @@ class ModeloDeducibles
     static public function mdlEditarDeducible($tabla, $datos)
     {
         try {
-            $stmt = Conexion::conectar()->prepare("UPDATE  $tabla SET fedegan = :fedegan, administracion = :administracion, ahorro = :ahorro, estado = :estado WHERE id_deducible = :id_deducible");
+            $stmt = Conexion::conectar()->prepare("UPDATE  $tabla SET nombre = :nombre, tipo_valor = :tipo_valor, valor = :valor WHERE id_deducible = :id_deducible");
 
-            $stmt->bindParam(":fedegan", $datos["fedegan"], PDO::PARAM_STR);
-            $stmt->bindParam(":administracion", $datos["administracion"], PDO::PARAM_STR);
-            $stmt->bindParam(":ahorro", $datos["ahorro"], PDO::PARAM_STR);
-            $stmt->bindParam(":estado", $datos["estado"], PDO::PARAM_STR);
+            $stmt->bindParam(":nombre", $datos["nombre"], PDO::PARAM_STR);
+            $stmt->bindParam(":tipo_valor", $datos["tipo_valor"], PDO::PARAM_STR);
+            $stmt->bindParam(":valor", $datos["valor"], PDO::PARAM_STR);
             $stmt->bindParam(":id_deducible", $datos["id_deducible"], PDO::PARAM_STR);
 
             if ($stmt->execute()) {
@@ -85,7 +84,7 @@ class ModeloDeducibles
                 return "error";
             }
         } catch (PDOException $e) {
-            // El trigger lanza SQLSTATE '45000' si hay más de un activo por vinculación
+            // El trigger lanza SQLSTATE '45000' si ya hay un deducible activo con ese nombre para la vinculación
             if ($e->getCode() == '45000') {
                 return "duplicado";
             }
@@ -112,7 +111,7 @@ class ModeloDeducibles
                 return "error";
             }
         } catch (PDOException $e) {
-            // El trigger lanza SQLSTATE '45000' si hay más de un activo por vinculación
+            // El trigger lanza SQLSTATE '45000' si ya hay un deducible activo con ese nombre para la vinculación
             if ($e->getCode() == '45000') {
                 return "duplicado";
             }
@@ -127,39 +126,25 @@ class ModeloDeducibles
 	=============================================*/
     static public function mdlBorrarDeducible($tabla, $datos)
     {
-        $stmt = Conexion::conectar()->prepare("DELETE FROM $tabla WHERE id_deducible = :id_deducible");
-
-        $stmt->bindParam(":id_deducible", $datos, PDO::PARAM_INT);
-
-        if ($stmt->execute()) {
-
-            return "ok";
-        } else {
-
+        try {
+            $stmt = Conexion::conectar()->prepare("DELETE FROM $tabla WHERE id_deducible = :id_deducible");
+            $stmt->bindParam(":id_deducible", $datos, PDO::PARAM_INT);
+            return $stmt->execute() ? "ok" : "error";
+        } catch (PDOException $e) {
+            // Llave foránea: el deducible ya está en el detalle de alguna liquidación
             return "error";
         }
-
-        $stmt->close();
-
-        $stmt = null;
     }
 
     /*=============================================
     VALIDAR DEDUCIBLE
     =============================================*/
-    static public function mdlValidarDeducible($tabla, $item, $valor)
+    static public function mdlValidarDeducible($vinculacion, $nombre)
     {
-
-        $stmt = Conexion::conectar()->prepare("SELECT * FROM $tabla WHERE $item = :$item AND estado = 'activo'");
-
-        $stmt->bindParam(":" . $item, $valor, PDO::PARAM_STR);
-
+        $stmt = Conexion::conectar()->prepare("SELECT * FROM tbl_deducibles WHERE vinculacion = :vinculacion AND nombre = :nombre AND estado = 'activo'");
+        $stmt->bindParam(":vinculacion", $vinculacion, PDO::PARAM_STR);
+        $stmt->bindParam(":nombre", $nombre, PDO::PARAM_STR);
         $stmt->execute();
-
         return $stmt->fetch();
-
-        $stmt->close();
-
-        $stmt = null;
     }
 }
