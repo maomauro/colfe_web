@@ -17,9 +17,9 @@ $(document).on("click", ".btnEditarDeducible", function () {
     dataType: "json",
     success: function (respuesta) {
       $("#idDeducible").val(respuesta["id_deducible"]);
-      $("#editarFedegan").val(respuesta["fedegan"]);
-      $("#editarAdministracion").val(respuesta["administracion"]);
-      $("#editarAhorro").val(respuesta["ahorro"]);
+      $("#editarNombre").val(respuesta["nombre"]);
+      $("#editarTipo").val(respuesta["tipo_valor"]);
+      $("#editarValor").val(respuesta["valor"]);
     },
   });
 });
@@ -58,7 +58,7 @@ $(document).on("click", ".btnActivarDeducible", function () {
       } else if (resp == "duplicado") {
         swal({
           type: "error",
-          title: "¡El deducible ya existe para esta vinculación!",
+          title: "¡Ya existe un deducible activo con ese nombre para esta vinculación!",
           showConfirmButton: true,
           confirmButtonText: "Cerrar",
         }).then(function (result) {
@@ -70,6 +70,8 @@ $(document).on("click", ".btnActivarDeducible", function () {
     },
   });
 
+  // El botón de borrar de la misma fila debe saber el estado nuevo (solo se borra un deducible inactivo)
+  $('.btnEliminarDeducible[idDeducible="' + idDeducible + '"]').attr("estadoDeducible", estadoDeducible);
   if (estadoDeducible == "inactivo") {
     $(this).removeClass("btn-success");
     $(this).addClass("btn-danger");
@@ -84,16 +86,18 @@ $(document).on("click", ".btnActivarDeducible", function () {
 });
 
 /*=============================================
-REVISAR SI EL SOCIO YA ESTÁ REGISTRADO
+AVISAR SI YA HAY UN DEDUCIBLE ACTIVO CON ESE NOMBRE PARA LA VINCULACIÓN
 =============================================*/
-$("#nuevoVinculacion").change(function () {
+$("#nuevoVinculacion, #nuevoNombre").on("change", function () {
   $(".alert").remove();
-
-  var vinculacion = $(this).val();
-
+  var vinculacion = $("#nuevoVinculacion").val();
+  var nombre = $("#nuevoNombre").val();
+  if (!vinculacion || !nombre) {
+    return;
+  }
   var datos = new FormData();
   datos.append("validarVinculacion", vinculacion);
-
+  datos.append("validarNombre", nombre);
   $.ajax({
     url: "ajax/deducibles.ajax.php",
     method: "POST",
@@ -104,13 +108,12 @@ $("#nuevoVinculacion").change(function () {
     dataType: "json",
     success: function (respuesta) {
       if (respuesta) {
-        $("#nuevoVinculacion")
+        $("#nuevoNombre")
           .parent()
           .after(
-            '<div class="alert alert-warning">Este deducible ya existe en la base de datos</div>'
+            '<div class="alert alert-warning">Ya hay un deducible activo con ese nombre para esta vinculación</div>'
           );
-
-        $("#nuevoVinculacion").val("");
+        $("#nuevoNombre").val("");
       }
     },
   });
@@ -145,7 +148,7 @@ $(document).on("click", ".btnEliminarDeducible", function () {
     confirmButtonText: "Si, borrar deducible!",
   }).then(function (result) {
     if (result.value) {
-      colfeEnviarPost("deducibles", { idDeducible: idDeducible });
+      colfeEnviarPost("deducibles", { borrarDeducible: idDeducible });
     }
   });
 });

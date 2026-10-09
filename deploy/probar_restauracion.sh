@@ -32,7 +32,7 @@ trap 'echo "DROP DATABASE IF EXISTS $TEMP_DB;" | sql >/dev/null 2>&1 || true' EX
 zcat "$ARCHIVO" | sql "$TEMP_DB"
 
 echo ">> Comparando conteos (original vs restaurada)"
-TABLAS="tbl_socios tbl_recoleccion tbl_produccion tbl_liquidacion tbl_precios tbl_deducibles tbl_usuarios"
+TABLAS="tbl_socios tbl_recoleccion tbl_produccion tbl_liquidacion tbl_liquidacion_deducible tbl_precios tbl_deducibles tbl_usuarios"
 FALLOS=0
 for t in $TABLAS; do
   a="$(echo "SELECT COUNT(*) FROM $DB_NAME.$t;" | sql -N)"

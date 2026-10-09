@@ -86,7 +86,6 @@ final class ProcesoQuincenalTest extends BaseDeDatosTestCase
             $this->assertEqualsWithDelta($e['litros'], (float)$r['total_litros'], 0.011, "litros socio $idSocio");
             $this->assertEqualsWithDelta($e['precio'], (float)$r['precio_litro'], 0.001, "precio socio $idSocio");
             $this->assertEqualsWithDelta($e['ingresos'], (float)$r['total_ingresos'], 0.02, "ingresos socio $idSocio");
-            $this->assertEqualsWithDelta($e['fedegan'], (float)$r['fedegan'], 0.02, "fedegan socio $idSocio");
             $this->assertEqualsWithDelta($e['deducibles'], (float)$r['total_deducibles'], 0.02, "deducibles socio $idSocio");
             $this->assertEqualsWithDelta($e['neto'], (float)$r['neto_a_pagar'], 0.03, "neto socio $idSocio");
             $this->assertSame('2da', $r['quincena']);
@@ -103,21 +102,58 @@ final class ProcesoQuincenalTest extends BaseDeDatosTestCase
         $this->assertSame($antes, $despues);
     }
 
-    public function testLaAppSeNiegaALiquidarSiFaltaUnaTarifaActiva(): void
+    public function testLaAppSeNiegaALiquidarSiFaltaUnPrecioActivo(): void
     {
         // La app abre su propia conexión: el cambio debe estar confirmado para que lo vea,
         // y se restaura en finally.
-        $idDeducible = (int)self::valor("SELECT id_deducible FROM tbl_deducibles WHERE vinculacion = 'asociado' AND estado = 'activo'");
-        $this->assertGreaterThan(0, $idDeducible, 'el demo debe tener un deducible activo para asociados');
-        self::ejecutar("UPDATE tbl_deducibles SET estado = 'inactivo' WHERE id_deducible = ?", [$idDeducible]);
+        $idPrecio = (int)self::valor("SELECT id_precio FROM tbl_precios WHERE vinculacion = 'asociado' AND estado = 'activo'");
+        $this->assertGreaterThan(0, $idPrecio, 'el demo debe tener un precio activo para asociados');
+        self::ejecutar("UPDATE tbl_precios SET estado = 'inactivo' WHERE id_precio = ?", [$idPrecio]);
         try {
             $mensaje = ModeloCalendario::mdlCrearEvento('liquidacion', '2025-03-15');
-            $this->assertStringContainsString('falta un precio o un deducible activo', $mensaje);
+            $this->assertStringContainsString('falta un precio activo', $mensaje);
             $this->assertStringContainsString('asociado', $mensaje);
         } finally {
-            self::ejecutar("UPDATE tbl_deducibles SET estado = 'activo' WHERE id_deducible = ?", [$idDeducible]);
-            self::ejecutar("DELETE FROM tbl_auditoria WHERE tabla = 'tbl_deducibles' AND id_registro = ?", [(string)$idDeducible]);
+            self::ejecutar("UPDATE tbl_precios SET estado = 'activo' WHERE id_precio = ?", [$idPrecio]);
+            self::ejecutar("DELETE FROM tbl_auditoria WHERE tabla = 'tbl_precios' AND id_registro = ?", [(string)$idPrecio]);
         }
         $this->assertSame([], ModeloCalendario::mdlVinculacionesSinTarifa(), 'el catálogo debe quedar como estaba');
+    }
+
+    public function testUnDeducibleNuevoSeAplicaSinCambiarElEsquema(): void
+    {
+        // Un deducible creado de la nada (porcentaje) debe entrar al cálculo y al detalle de cada liquidación
+        self::limpiar();
+        self::ejecutar("INSERT INTO tbl_deducibles (vinculacion, nombre, tipo_valor, valor, fecha, estado)
+                        VALUES ('asociado', 'PRUEBA-DED', 'porcentaje', 2.00, '2026-10-09', 'activo')");
+        $idDed = (int)self::valor("SELECT id_deducible FROM tbl_deducibles WHERE nombre = 'PRUEBA-DED'");
+        try {
+            self::llamar(self::FECHA);
+            $filas = self::filas("SELECT l.id_liquidacion, l.total_ingresos, l.total_deducibles, ld.monto, ld.valor
+                                    FROM tbl_liquidacion l
+                                    JOIN tbl_liquidacion_deducible ld ON ld.id_liquidacion = l.id_liquidacion AND ld.id_deducible = ?
+                                   WHERE l.fecha_liquidacion = ?", [$idDed, self::FECHA]);
+            $this->assertCount(27, $filas, 'el deducible nuevo se aplica a los 27 asociados y a nadie más');
+            foreach ($filas as $f) {
+                $this->assertEqualsWithDelta(round((float)$f['total_ingresos'] * 0.02, 2), (float)$f['monto'], 0.011);
+                $this->assertGreaterThanOrEqual((float)$f['monto'], (float)$f['total_deducibles']);
+            }
+            $this->assertSame(0, (int)self::valor("SELECT COUNT(*) FROM tbl_liquidacion_deducible ld
+                                                    JOIN tbl_liquidacion l ON l.id_liquidacion = ld.id_liquidacion
+                                                   WHERE l.fecha_liquidacion = ? AND l.vinculacion = 'proveedor' AND ld.id_deducible = ?",
+                                                  [self::FECHA, $idDed]));
+        } finally {
+            self::limpiar();
+            self::ejecutar("DELETE FROM tbl_deducibles WHERE id_deducible = ?", [$idDed]);
+            self::ejecutar("DELETE FROM tbl_auditoria WHERE tabla = 'tbl_deducibles' AND id_registro = ?", [(string)$idDed]);
+        }
+    }
+
+    public function testNoSePuedeRepetirUnDeducibleActivoConElMismoNombre(): void
+    {
+        $this->expectExceptionMessage('Ya existe un deducible activo con ese nombre');
+        self::ejecutar("INSERT INTO tbl_deducibles (vinculacion, nombre, tipo_valor, valor, fecha, estado)
+                        SELECT vinculacion, nombre, tipo_valor, valor, fecha, 'activo' FROM tbl_deducibles
+                         WHERE estado = 'activo' LIMIT 1");
     }
 }
