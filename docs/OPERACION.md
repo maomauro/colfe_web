@@ -166,7 +166,7 @@ Consultas útiles en MySQL (`dc exec db sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSW
 
 ```sql
 SELECT COUNT(*) FROM tbl_socios;  SELECT COUNT(*) FROM tbl_liquidacion;
--- últimos cambios en liquidaciones, anticipos, precios y deducibles:
+-- últimos cambios en liquidaciones, precios, deducibles y socios:
 SELECT fecha, username, origen, tabla, accion, id_registro FROM v_auditoria ORDER BY id_auditoria DESC LIMIT 20;
 -- intentos de acceso fallidos recientes:
 SELECT username, ip, creado_en FROM tbl_login_intentos ORDER BY id_intento DESC LIMIT 20;
