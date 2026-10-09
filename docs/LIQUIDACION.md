@@ -11,7 +11,7 @@ Explica cómo calcula COLFE el pago a cada socio. Está escrito para que lo revi
 | **Quincena** | Periodo de pago. **1ra:** días 1 al 15. **2da:** día 16 al último del mes. Se identifica por su fecha de cierre (día 15 o último día del mes). |
 | **Recolección** | Litros que se le recogen al socio cada día. Nace en `0` y `sin confirmar`; cuando se verifica pasa a `confirmado`. |
 | **Producción** | Suma de los litros `confirmado` de un socio en una quincena. |
-| **Precio** | Pesos por litro, según la vinculación. Es un precio base (sin bonificaciones). |
+| **Precio** | Pesos por litro, según la vinculación. Es un precio base (sin bonificaciones). Cada precio rige entre una fecha de inicio y una de fin (sin fin = abierto), y los precios de una misma vinculación no se solapan. |
 | **Deducible** | Un descuento sobre el pago. Cada deducible tiene un nombre, una vinculación a la que aplica y un valor, que puede ser un **porcentaje** de los ingresos o un **valor fijo** en pesos por liquidación. Hoy hay dos: **Fedegán** (porcentaje, contribución parafiscal, para todos) y **Administración** (valor fijo, solo para asociados). Se pueden crear más sin cambiar el sistema. |
 | **Pre-liquidación** | Resultado calculado, todavía revisable. |
 | **Cierre (liquidación)** | La pre-liquidación confirmada. A partir de ahí el pago se considera definitivo y el panel de inicio la incluye en sus gráficas. |
@@ -28,7 +28,7 @@ Explica cómo calcula COLFE el pago a cada socio. Está escrito para que lo revi
 
 El sistema se niega a liquidar, con un mensaje claro, si:
 
-- alguna vinculación con socios activos no tiene un **precio** `activo` (el mensaje dice cuál);
+- alguna vinculación con socios activos no tiene un **precio vigente en la fecha de cierre** de la quincena (el mensaje dice cuál);
 - la fecha no es el día 15 ni el último día del mes;
 - algún día de la quincena no tiene **ningún** registro confirmado (el mensaje dice cuántos días faltan);
 - queda algún registro `sin confirmar` dentro de la quincena.
@@ -40,7 +40,7 @@ Si ya existe una liquidación para esa fecha, no hace nada y no la duplica.
 Para cada socio activo con litros confirmados en la quincena:
 
 1. **Litros** = suma de los litros `confirmado` del socio entre el primer y el último día de la quincena.
-2. **Precio** = el precio `activo` de su vinculación. La liquidación es **fija**: toda la quincena se paga con ese precio.
+2. **Precio** = el precio de su vinculación que **rige en la fecha de cierre** de la quincena (día 15 o último del mes). La liquidación es **fija**: toda la quincena se paga con ese precio, aunque haya cambiado durante la quincena.
 3. **Ingresos** = litros × precio, redondeado a 2 decimales.
 4. **Deducibles:** se aplican **todos los deducibles `activo`** de su vinculación, uno a uno:
    - si es un **porcentaje**: ingresos × porcentaje ÷ 100, redondeado a 2 decimales;
@@ -68,7 +68,7 @@ Para un **proveedor** solo se aplica Fedegán, porque «Administración» está 
 
 ## Comportamientos que conviene conocer
 
-- **Socio sin precio activo:** si su vinculación no tiene un precio `activo`, el socio se omitiría sin avisar; por eso la aplicación lo comprueba antes de liquidar y se niega.
+- **Socio sin precio vigente:** si su vinculación no tiene un precio que rija en la fecha de cierre, el socio se omitiría sin avisar; por eso la aplicación lo comprueba antes de liquidar y se niega.
 - **Vinculación sin deducibles activos:** se liquida sin descuentos.
 - **Socio inactivo o sin litros confirmados:** no genera producción ni liquidación.
 - **Neto negativo:** si los deducibles superan los ingresos, el neto sale negativo; la base de datos no lo impide.
@@ -79,20 +79,18 @@ Para un **proveedor** solo se aplica Fedegán, porque «Administración» está 
 
 ## Decisiones de COLFE del 9 oct 2026
 
-Cambiaron el cálculo y ya están construidas (migraciones 006 y 007):
+Cambiaron el cálculo y ya están construidas (migraciones 006, 007 y 008):
 
 - **Sin anticipos:** se retiró el módulo y el descuento. Ya no hay nada que restar de la quincena fuera de los deducibles.
 - **Sin ahorro:** se retiró el descuento de ahorro y el registro de ahorros.
 - **Solo liquidación fija:** no existe la liquidación variable (cada día con su precio).
 - **Deducibles uno por fila:** se pueden crear deducibles nuevos desde la pantalla de Deducibles, y el recibo los lista.
-
-## Regla acordada pendiente de construir
-
-**Precios con vigencia.** El historial de precios llevará fecha de inicio y de fin (vacía = abierto), sin solapes por vinculación. La liquidación usará el precio que rige en la fecha de cierre de la quincena. Hoy usa el precio `activo` del momento de liquidar sin mirar fechas: si el precio cambia y luego se liquida una quincena anterior, saldría con el precio equivocado. Está en el plan de trabajo, Fase 5.2.
+- **Precios con vigencia:** los precios tienen fecha de inicio y de fin y la liquidación usa el que rige en la fecha de cierre. Al crear un precio nuevo, el abierto anterior se cierra el día anterior.
 
 ## Para revisar con la cooperativa
 
 Conviene que la cooperativa confirme:
 
 - que la fórmula y el ejemplo coinciden con cómo calculan hoy el pago;
-- que los valores vigentes son el 0,75 % de Fedegán para todos y 10.000 de administración solo para asociados.
+- que los valores vigentes son el 0,75 % de Fedegán para todos y 10.000 de administración solo para asociados;
+- que, si un precio cambia en medio de una quincena, quieren que toda la quincena se pague con el precio vigente al cierre (liquidación fija).
