@@ -135,7 +135,7 @@ detiene si falla**, ejecuta `db/reset_produccion.sql` y verifica el resultado.
 | el generador de datos falsos (`spInsertIntoRecoleccion`, `generar_litros_leche`) | |
 
 Después:
-1. **Revisar los precios y deducibles** con la cooperativa (los valores actuales son del demo: 1.700 / 1.650 por litro, 0,75 % FEDEGAN, 10.000 de administración y 25.000 de ahorro por quincena).
+1. **Revisar los precios y deducibles** con la cooperativa (los valores actuales son del demo: 1.700 / 1.650 por litro; deducibles de Fedegán 0,75 % para todos y de administración 10.000 por liquidación solo para asociados).
 2. Cargar los socios reales desde la aplicación.
 3. Para **deshacer**, restaurar el respaldo que el script acaba de crear (ver sección 7).
 
