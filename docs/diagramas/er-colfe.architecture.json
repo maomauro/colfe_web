@@ -17,7 +17,6 @@
       "type": "database",
       "label": "tbl_recoleccion",
       "sublabel": "UNIQUE (id_socio, fecha)",
-      "tag": "~64.5 mil filas",
       "pos": [
         160,
         70
@@ -32,24 +31,8 @@
       "type": "database",
       "label": "tbl_socios",
       "sublabel": "UNIQUE identificacion",
-      "tag": "107 filas",
       "pos": [
         400,
-        70
-      ],
-      "size": [
-        200,
-        78
-      ]
-    },
-    {
-      "id": "anticipos",
-      "type": "database",
-      "label": "tbl_anticipos",
-      "sublabel": "PK id_anticipo · FK id_socio",
-      "tag": "23 filas",
-      "pos": [
-        640,
         70
       ],
       "size": [
@@ -62,23 +45,8 @@
       "type": "database",
       "label": "tbl_produccion",
       "sublabel": "PK id_produccion · FK id_socio",
-      "tag": "4.066 filas",
       "pos": [
         160,
-        275
-      ],
-      "size": [
-        200,
-        78
-      ]
-    },
-    {
-      "id": "vanticipos",
-      "type": "database",
-      "label": "v_anticipos_completos",
-      "sublabel": "vista: anticipos + socios activos",
-      "pos": [
-        640,
         275
       ],
       "size": [
@@ -90,8 +58,7 @@
       "id": "liquidacion",
       "type": "database",
       "label": "tbl_liquidacion",
-      "sublabel": "PK id_liquidacion · 4 FK",
-      "tag": "4.066 filas",
+      "sublabel": "PK id_liquidacion · 3 FK",
       "pos": [
         400,
         480
@@ -102,11 +69,10 @@
       ]
     },
     {
-      "id": "deducibles",
+      "id": "liqded",
       "type": "database",
-      "label": "tbl_deducibles",
-      "sublabel": "PK id_deducible · por vinculacion",
-      "tag": "2 filas",
+      "label": "tbl_liquidacion_deducible",
+      "sublabel": "detalle por deducible",
       "pos": [
         640,
         480
@@ -120,10 +86,23 @@
       "id": "precios",
       "type": "database",
       "label": "tbl_precios",
-      "sublabel": "PK id_precio · por vinculacion",
-      "tag": "2 filas",
+      "sublabel": "historial: fecha_inicio, fecha_fin",
       "pos": [
         400,
+        685
+      ],
+      "size": [
+        200,
+        78
+      ]
+    },
+    {
+      "id": "deducibles",
+      "type": "database",
+      "label": "tbl_deducibles",
+      "sublabel": "nombre · tipo · valor",
+      "pos": [
+        640,
         685
       ],
       "size": [
@@ -195,12 +174,11 @@
       "wraps": [
         "recoleccion",
         "socios",
-        "anticipos",
         "produccion",
-        "vanticipos",
         "liquidacion",
-        "deducibles",
-        "precios"
+        "liqded",
+        "precios",
+        "deducibles"
       ]
     },
     {
@@ -219,27 +197,22 @@
       "id": "socio-recoleccion",
       "from": "socios",
       "to": "recoleccion",
-      "label": "1:N"
-    },
-    {
-      "id": "socio-anticipos",
-      "from": "socios",
-      "to": "anticipos",
-      "label": "1:N"
+      "label": "1:N",
+      "variant": "emphasis"
     },
     {
       "id": "socio-produccion",
       "from": "socios",
       "to": "produccion",
       "label": "1:N",
-      "fromSide": "left",
-      "toSide": "top"
+      "variant": "emphasis"
     },
     {
       "id": "socio-liquidacion",
       "from": "socios",
       "to": "liquidacion",
       "label": "1:N",
+      "variant": "emphasis",
       "labelAt": [
         500,
         330
@@ -249,13 +222,8 @@
       "id": "produccion-liquidacion",
       "from": "produccion",
       "to": "liquidacion",
-      "label": "1:1"
-    },
-    {
-      "id": "deducible-liquidacion",
-      "from": "deducibles",
-      "to": "liquidacion",
-      "label": "1:N"
+      "label": "1:1",
+      "variant": "emphasis"
     },
     {
       "id": "precio-liquidacion",
@@ -264,12 +232,17 @@
       "label": "1:N"
     },
     {
-      "id": "anticipos-vista",
-      "from": "anticipos",
-      "to": "vanticipos",
-      "label": "lee",
-      "variant": "dashed",
-      "labelDy": 24
+      "id": "liquidacion-detalle",
+      "from": "liquidacion",
+      "to": "liqded",
+      "label": "1:N",
+      "variant": "emphasis"
+    },
+    {
+      "id": "deducible-detalle",
+      "from": "deducibles",
+      "to": "liqded",
+      "label": "1:N"
     },
     {
       "id": "usuario-tokens",
@@ -291,6 +264,7 @@
       "from": "usuarios",
       "to": "auditoria",
       "label": "sin FK",
+      "variant": "dashed",
       "fromSide": "right",
       "toSide": "right",
       "via": [
@@ -316,24 +290,24 @@
       "items": [
         "8 FK con índice y sin nulos",
         "0 huérfanos en los datos",
-        "005: NOT NULL, UNIQUE, CHECK"
+        "NOT NULL, UNIQUE y CHECK (005)"
       ]
     },
     {
       "dot": "amber",
-      "title": "Pendiente: bloque 2",
+      "title": "Brechas del modelo",
       "items": [
-        "Precio y deducible activo único: solo triggers",
+        "Precios sin solape: solo un trigger",
         "Charset mixto utf8mb3 y utf8mb4",
         "Sin CHECK de quincena"
       ]
     },
     {
       "dot": "rose",
-      "title": "Pendiente: bloque 3",
+      "title": "Pendiente",
       "items": [
         "Liquidaciones cerradas sin protección",
-        "Anticipo sin enlace a su liquidación",
+        "Charset de las tablas viejas",
         "Sin FK: login_intentos y auditoria"
       ]
     }
