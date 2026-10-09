@@ -185,7 +185,7 @@ Todo en `docs/`, con un índice `docs/README.md`. Tamaño: **S** pequeño · **M
 - [ ] **P2 · S · C** Prueba de contrato en el CI (las respuestas coinciden con el documento)
 
 ### 4.4 Decisiones y arquitectura
-- [ ] **P1 · M · C** `docs/adr/`: ADRs 0001 a 0010 a partir de D1 a D5 y de las decisiones ya tomadas (datos demo, proxy compartido con PortalCV, imagen Debian, tokens en base de datos, CSRF por origen y token, estructura `public/src/config/storage`, respaldo semanal solo local, flujo de ramas)
+- [x] **P1 · M · C** `docs/adr/`: ADRs 0001 a 0010 (más 0011 y 0012, con las decisiones del 8 oct sobre precios, liquidación y anticipos) a partir de D1 a D5 y de las decisiones ya tomadas (datos demo, proxy compartido con PortalCV, imagen Debian, tokens en base de datos, CSRF por origen y token, estructura `public/src/config/storage`, respaldo semanal solo local, flujo de ramas)
 - [ ] **P2 · M · C** `docs/arquitectura/`: C4 de contexto y de contenedores, y arc42 ligero (secciones 1, 3, 4, 5, 7, 8 y 9)
 - [ ] **P2 · S · C** Riesgos y deuda técnica (arc42 sección 11) alimentados por el diagnóstico
 
