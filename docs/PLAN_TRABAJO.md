@@ -176,7 +176,7 @@ Todo en `docs/`, con un índice `docs/README.md`. Tamaño: **S** pequeño · **M
 - [ ] **P2 · S · C** Prueba en el CI que falle si una tabla o columna del esquema no aparece en el diccionario
 
 ### 4.2 Reglas de negocio de la liquidación
-- [ ] **P1 · M · C** `docs/LIQUIDACION.md`: glosario (quincena, vinculación, precio, deducibles, anticipo, cierre) y fórmula paso a paso, con un ejemplo numérico tomado de la quincena validada
+- [x] **P1 · M · C** `docs/LIQUIDACION.md`: glosario (quincena, vinculación, precio, deducibles, cierre) y fórmula paso a paso, con un ejemplo numérico tomado de la quincena validada
 - [ ] **P1 · S · E** Revisar el documento con la cooperativa
 
 ### 4.3 Contrato de la API móvil
