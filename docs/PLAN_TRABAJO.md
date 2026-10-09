@@ -190,7 +190,7 @@ Todo en `docs/`, con un índice `docs/README.md`. Tamaño: **S** pequeño · **M
 - [ ] **P2 · S · C** Riesgos y deuda técnica (arc42 sección 11) alimentados por el diagnóstico
 
 ### 4.5 Operación y gobierno
-- [ ] **P1 · M · C** `docs/OPERACION.md` (runbook): monitoreo, qué hacer ante una caída, rotación de claves y tokens, restauración desde respaldo externo, comandos de diagnóstico
+- [x] **P1 · M · C** `docs/OPERACION.md` (runbook): monitoreo, qué hacer ante una caída, rotación de claves y tokens, restauración desde respaldo externo, comandos de diagnóstico
 - [ ] **P2 · S · C** `SECURITY.md` (cómo reportar una vulnerabilidad), `CONTRIBUTING.md`, `LICENSE` (Edgar decide la licencia o «propietaria»), `CHANGELOG.md`
 - [ ] **P2 · S · C** Definition of Ready y Definition of Done del proyecto (incluye «documentación al día»)
 
