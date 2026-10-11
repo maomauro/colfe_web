@@ -68,8 +68,18 @@ El bloque usa `resolver` y una variable en `proxy_pass` para que, si COLFE está
 Automático al publicar: el workflow **Publicar imágenes** crea `sha-<commit>` y `latest` en cada
 fusión a `main`, y `vX.Y.Z` al etiquetar. Para desplegar:
 - **Manual en el VPS:** `TAG=sha-abc1234 ./deploy/desplegar.sh`
-- **Desde GitHub:** Actions → *Desplegar* → elegir el tag (requiere los secretos `VPS_HOST`,
-  `VPS_USER`, `VPS_SSH_KEY`, `VPS_KNOWN_HOSTS`; opcionales `VPS_PORT`, `VPS_DIR`).
+- **Desde GitHub:** Actions → *Desplegar* → elegir el tag (requiere los secretos del entorno `produccion`:
+  `VPS_HOST`, `VPS_USER`, `VPS_DEPLOY_KEY`, `VPS_KNOWN_HOSTS`; opcional `VPS_PORT`).
+
+### Llave de despliegue restringida (H-003)
+La llave de GitHub Actions **no abre una shell**: en `~/.ssh/authorized_keys` del VPS va con
+`restrict,command="/usr/local/sbin/colfe-entrada.sh"`, y ese script (`deploy/entrada.sh`, instalado por root con
+`deploy/instalar.sh`) solo acepta `desplegar <tag>`, con el tag validado como tag de Docker. Si cambia `entrada.sh`,
+hay que reinstalarlo en el servidor: `scp -r deploy` y `sudo bash instalar.sh`. La prueba es
+`tests/despliegue/entrada_test.sh` (corre en el CI).
+
+Limite conocido: `desplegar.sh` y el compose salen de este repositorio, asi que quien pueda hacer push a `main`
+puede cambiarlos; lo cubre la proteccion de ramas.
 
 El script respalda la base antes de actualizar y verifica que la web responda 200.
 
