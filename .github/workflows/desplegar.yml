@@ -2,8 +2,11 @@ name: Desplegar
 
 # Manual: elige el tag de imagen a desplegar (sha-abc1234, v0.2.0, latest).
 # El rollback es volver a ejecutar con un tag anterior.
-# Requiere los secretos del repositorio: VPS_HOST, VPS_USER, VPS_SSH_KEY, VPS_KNOWN_HOSTS
-# y, opcionalmente, VPS_PORT y VPS_DIR (por defecto /srv/sitiosapps/colfe).
+# Requiere los secretos del entorno produccion: VPS_HOST, VPS_USER, VPS_DEPLOY_KEY, VPS_KNOWN_HOSTS
+# y, opcionalmente, VPS_PORT.
+#
+# La llave VPS_DEPLOY_KEY esta RESTRINGIDA en el servidor (restrict,command=/usr/local/sbin/colfe-entrada.sh): solo
+# puede ejecutar `desplegar <tag>`, no abre una shell (ver deploy/entrada.sh y H-003).
 on:
   workflow_dispatch:
     inputs:
@@ -26,8 +29,7 @@ jobs:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
           VPS_PORT: ${{ secrets.VPS_PORT }}
-          VPS_DIR: ${{ secrets.VPS_DIR }}
-          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          SSH_KEY: ${{ secrets.VPS_DEPLOY_KEY }}
           KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
         run: |
           set -euo pipefail
@@ -36,4 +38,4 @@ jobs:
           printf '%s\n' "$SSH_KEY" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
           printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
           ssh -i ~/.ssh/id_deploy -p "${VPS_PORT:-22}" -o StrictHostKeyChecking=yes \
-            "$VPS_USER@$VPS_HOST" "cd '${VPS_DIR:-/srv/sitiosapps/colfe}' && TAG='$TAG' ./deploy/desplegar.sh"
+            "$VPS_USER@$VPS_HOST" "desplegar $TAG"

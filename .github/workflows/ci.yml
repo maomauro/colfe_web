@@ -116,6 +116,17 @@ jobs:
           echo "--- log del servidor"; cat /tmp/php-server.log || true
           ! grep -E "Fatal error|Warning:|Notice:|Deprecated:" /tmp/php-server.log
 
+  despliegue:
+    name: Entrada de despliegue (llave restringida)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck
+        run: shellcheck -x deploy/entrada.sh deploy/instalar.sh tests/despliegue/entrada_test.sh
+      - name: Solo se acepta `desplegar <tag>`
+        run: bash tests/despliegue/entrada_test.sh
+
   docker:
     name: Imágenes Docker
     runs-on: ubuntu-latest
